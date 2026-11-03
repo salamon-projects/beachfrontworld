@@ -1,0 +1,44 @@
+- content_for :title, "“#{@query}”"
+- content_for :noindex, true
+
+%section.page-header
+  .container
+    %span.eyebrow= t("search.results_for")
+    %h1.page-header__title= "“#{@query}”"
+    - case @outcome.status
+    - when :choices
+      %p.page-header__lead= t("search.which_one")
+    - when :choose_destination
+      %p.page-header__lead= t("search.which_destination", kind: t("landmarks.unnamed.#{@outcome.kind}"))
+    - else
+      %p.page-header__lead
+        = @outcome.place ? t("search.not_measured_place", place: @outcome.place) : t("search.not_found")
+
+.container.search-results
+  - case @outcome.status
+  - when :choices
+    %ul.choice-list
+      - @outcome.landmarks.each do |landmark|
+        %li
+          = link_to landmark_path(landmark, @extra), class: "choice" do
+            %span.choice__name= landmark.name
+            %span.choice__meta= "#{t("landmarks.kinds.#{landmark.kind}")} · #{landmark.destination.name}"
+            %span.choice__arrow{ "aria-hidden": "true" } →
+  - when :choose_destination
+    %ul.choice-list
+      - @outcome.destinations.each do |destination|
+        %li
+          = link_to destination_path(destination, @extra.merge(near: @outcome.kind)), class: "choice" do
+            %span.choice__name= destination.name
+            %span.choice__meta= destination.country_name
+            %span.choice__arrow{ "aria-hidden": "true" } →
+  - else
+    %p= t("search.try_instead")
+    %ul.choice-list
+      - @destinations.each do |destination|
+        %li
+          = link_to destination_path(destination, @extra), class: "choice" do
+            %span.choice__name= destination.name
+            %span.choice__meta= destination.country_name
+            %span.choice__arrow{ "aria-hidden": "true" } →
+  = render "home/search_form", query: @query

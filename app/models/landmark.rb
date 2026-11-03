@@ -21,14 +21,16 @@ class Landmark < ApplicationRecord
   scope :by_prominence, -> { order(prominence: :desc, name: :asc, id: :asc) }
 
   # Named landmarks whose names (in any language) resemble the text, the
-  # best match first. Typos and missing accents are tolerated.
+  # best match first, with how well it matched (0–1) as search_score. Typos
+  # and missing accents are tolerated.
   def self.search(text)
     query = normalize(text)
     return none if query.blank?
 
+    score = sanitize_sql_array([ "word_similarity(?, landmarks.search_text)", query ])
     named.where("? <% landmarks.search_text", query)
-         .order(Arel.sql(sanitize_sql_array([ "word_similarity(?, landmarks.search_text) DESC", query ])))
-         .order(prominence: :desc, id: :asc)
+         .select("landmarks.*", "#{score} AS search_score")
+         .order(Arel.sql("search_score DESC"), prominence: :desc, id: :asc)
   end
 
   # Lowercase ASCII words: "Sagrada Família" → "sagrada familia".
@@ -38,6 +40,12 @@ class Landmark < ApplicationRecord
 
   def display_name
     name || I18n.t("landmarks.unnamed.#{kind}")
+  end
+
+  # [lon, lat] of a point on the landmark, for its map marker.
+  def position
+    @position ||= self.class.where(id:).pick(Arel.sql("ST_X(ST_PointOnSurface(geom::geometry))"),
+                                             Arel.sql("ST_Y(ST_PointOnSurface(geom::geometry))"))
   end
 
   private

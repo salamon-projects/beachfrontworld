@@ -9,6 +9,7 @@ Rails.application.routes.draw do
 
   get "search", to: "search#show", as: :search
   resources :destinations, only: :show
+  get "near/:id", to: "landmarks#show", as: :landmark
   resources :properties, only: :show
 
   # Outbound click to a booking site; logged, then redirected.

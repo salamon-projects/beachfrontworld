@@ -1,0 +1,9 @@
+-# locals: (query: nil)
+= form_with url: search_path, method: :get, class: "search-form" do
+  .field.field--wide.field--query
+    = label_tag :q, t("search.query")
+    = search_field_tag :q, query, placeholder: t("search.query_placeholder"), required: true,
+      maxlength: Search::Interpreter::MAX_INPUT, autocomplete: "off"
+  = render "shared/stay_fields", stay: nil
+  .field.field--submit
+    = submit_tag t("search.submit"), name: nil, class: "button button--primary"

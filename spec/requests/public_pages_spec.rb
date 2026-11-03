@@ -96,7 +96,7 @@ RSpec.describe "Public pages" do
     end
 
     it "folds the filters and summarises the current search" do
-      get destination_path(destination, stay_params.merge(surface: "pebble"))
+      get destination_path(destination, stay_params.merge(kind: "hotel"))
 
       filters = Nokogiri::HTML(response.body).at_css("details.filters")
       expect(filters["open"]).to be_nil
@@ -131,6 +131,66 @@ RSpec.describe "Public pages" do
 
       get destination_path(destination)
 
+      expect(response).to have_http_status(:not_found)
+    end
+  end
+
+  describe "search and landmark pages" do
+    let!(:gate) { create(:landmark, destination:, name: "Old Town Gate", kind: "historic") }
+    let!(:beach) { create(:landmark, destination:, name: nil, kind: "beach") }
+
+    before do
+      hotel.walks.create!(landmark: gate, walk_m: 640, busy_crossings: 1, stairs: 2, measured_at: Time.current)
+      hotel.walks.create!(landmark: beach, walk_m: 30, measured_at: Time.current)
+    end
+
+    it "sends a typed place to its landmark page, keeping the stay" do
+      get search_path(q: "old town gate", **stay_params)
+
+      expect(response).to redirect_to(landmark_path(gate, stay_params))
+    end
+
+    it "shows stays near a landmark with the measured walk" do
+      get landmark_path(gate)
+
+      page = Nokogiri::HTML(response.body)
+      expect(page.at_css("h1").text.squish).to eq("Stays near Old Town Gate")
+      expect(page.at_css(".walk-summary .waterfront-summary__distance").text.squish)
+        .to eq("Measured walk 8 min to Old Town Gate · 850 steps")
+      expect(response.body).to include("Crosses 1 busy road on the way", "2 flights of steps on the way")
+      expect(JSON.parse(page.at_css("[data-map]")["data-map"])["landmarks"].first["name"]).to eq("Old Town Gate")
+      expect(page.at_css(".property-card__name a")["href"]).to eq(property_path(hotel, near: gate.slug))
+    end
+
+    it "lists stays near the nearest landmark of a kind" do
+      get destination_path(destination, near: "beach")
+
+      expect(response.body).to include("Measured walk", "to a beach", "No busy road to cross on the way")
+      expect(Nokogiri::HTML(response.body).css(".landmark-chip").map(&:text)).to eq([ "Old Town Gate" ])
+    end
+
+    it "shows the choices, or the destinations when nothing matches" do
+      create(:landmark, destination:, name: "Old Town Hall")
+
+      get search_path(q: "old town")
+      expect(response.body).to include("Which one did you mean?", "Old Town Gate", "Old Town Hall")
+
+      get search_path(q: "Atlantis")
+      expect(response.body).to include("could not find that place", "Makarska Riviera")
+    end
+
+    it "asks for a place when the search is empty" do
+      get search_path(q: " ")
+
+      expect(response).to redirect_to(root_path)
+    end
+
+    it "returns 404 for unnamed landmarks and unpublished destinations" do
+      get landmark_path(beach)
+      expect(response).to have_http_status(:not_found)
+
+      destination.update!(published: false)
+      get landmark_path(gate)
       expect(response).to have_http_status(:not_found)
     end
   end

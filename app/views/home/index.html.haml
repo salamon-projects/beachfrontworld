@@ -18,15 +18,7 @@
       - if @destinations.empty?
         %p.hero__notice We are still measuring our first coastline. Check back soon.
       - else
-        = form_with url: search_path, method: :get, class: "search-form" do
-          .field.field--wide
-            = label_tag :destination, t("search.destination")
-            = select_tag :destination,
-              grouped_options_for_select(@destinations.group_by(&:country_name).transform_values { |ds| ds.map { |d| [ d.name, d.slug ] } }),
-              prompt: "Where to?", required: true
-          = render "shared/stay_fields", stay: nil
-          .field.field--submit
-            = submit_tag t("search.submit"), name: nil, class: "button button--primary"
+        = render "home/search_form"
 
 %section.section#destinations
   .container

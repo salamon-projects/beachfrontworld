@@ -35,6 +35,14 @@
       bounds.push([point.lat, point.lon]);
     });
 
+    // Landmarks the page is about: an orange ring with the name beside it.
+    (data.landmarks || []).forEach(function (point) {
+      L.circleMarker([point.lat, point.lon], {
+        radius: 9, color: "#c4542b", weight: 3, fillColor: "#fffdf9", fillOpacity: 1
+      }).bindTooltip(point.name, { permanent: true, direction: "right", offset: [10, 0], className: "map-label" }).addTo(map);
+      bounds.push([point.lat, point.lon]);
+    });
+
     if (data.measurement) {
       var line = L.polyline([data.measurement.from, data.measurement.to], {
         color: "#c4542b", weight: 3, dashArray: "6 6"

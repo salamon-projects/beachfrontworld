@@ -76,6 +76,27 @@ en:
       station: a station
       market: a market
 
+  walks:
+    measured_label: Measured walk
+    minutes:
+      one: 1 min
+      other: "%{count} min"
+    to: "to %{landmark}"
+    steps: "%{steps} steps"
+    no_busy_roads: No busy road to cross on the way
+    busy_roads:
+      one: Crosses 1 busy road on the way
+      other: Crosses %{count} busy roads on the way
+    stairs:
+      one: 1 flight of steps on the way
+      other: "%{count} flights of steps on the way"
+    ruler_label: "Measured walk in minutes on a scale up to %{max}"
+    ruler_start: Here
+    nearby:
+      zero: No sights within a 15-minute walk
+      one: 1 sight within a 15-minute walk
+      other: "%{count} sights within a 15-minute walk"
+
   properties:
     kinds:
       hotel: Hotel
@@ -139,16 +160,48 @@ en:
       other: "%{count} years"
     submit: Search
     update: Update
-    category: Waterfront
-    any_category: Any waterfront
-    surface: Beach
-    any_surface: Any beach
     kind: Type
     any_kind: Any type
     sort: Sort by
     sorts:
       price: Lowest price
-      waterfront: Closest to the water
+      walk: Shortest walk
+      most_nearby: Most to see on foot
+    near: Close to
+    near_anything: Anything worth seeing
+    near_kinds:
+      attraction: The nearest sight
+      museum: The nearest museum
+      historic: The nearest historic site
+      place_of_worship: The nearest church or temple
+      viewpoint: The nearest viewpoint
+      square: The nearest square
+      pedestrian_street: The nearest pedestrian street
+      park: The nearest park
+      beach: The nearest beach
+      station: The nearest station
+      market: The nearest market
+    max_minutes: Walk at most
+    any_walk: Any walk
+    minutes:
+      one: 1 minute
+      other: "%{count} minutes"
+    quiet: No busy road to cross
+    map_label: Map of the listed properties
+    no_results: No measured stays match these filters yet.
+    ranking:
+      walk: by the measured walk
+      nearby: "by how many sights are within a %{minutes}-minute walk"
+      price: "Ordered by the lowest price we know for your dates, then %{then}."
     choose_destination: Please choose a destination.
+    enter_place: Tell us what you want to stay close to.
+    query: What do you want to stay close to?
+    query_placeholder: "e.g. Eiffel Tower, La Rambla, a beach in Makarska"
+    results_for: You searched for
+    which_one: Several places match. Which one did you mean?
+    which_destination: "Where would you like to be near %{kind}?"
+    not_found: We could not find that place in the destinations we have measured.
+    not_measured_place: "We have not measured %{place} yet."
+    try_instead: "These are the destinations we have measured so far:"
     dates_and_filters: Dates & filters
     any_dates: Any dates

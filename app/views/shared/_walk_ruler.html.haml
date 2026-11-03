@@ -1,0 +1,17 @@
+-# locals: (walk:)
+-# The walk in minutes on a scale up to 20. SVG because the position comes
+-# from data and the CSP does not allow inline styles.
+- max = WalksHelper::WALK_RULER_MAX
+- x = walk_ruler_x(walk.minutes)
+- ticks = [ 0, 5, 10, 15, max ]
+%svg.distance-ruler{ viewBox: "0 0 320 36", role: "img", "aria-label": t("walks.ruler_label", max:) }
+  - [ [ 0, 5, "direct" ], [ 5, 10, "near" ], [ 10, max, "walkable" ] ].each do |from, to, zone|
+    %rect{ class: "distance-ruler__zone distance-ruler__zone--#{zone}",
+      x: walk_ruler_x(from), y: "8", width: walk_ruler_x(to) - walk_ruler_x(from), height: "6" }
+  %path.distance-ruler__span{ d: "M12 11H#{x}" }
+  %circle.distance-ruler__mark{ cx: x, cy: "11", r: "5" }
+  - ticks.each_with_index do |tick, index|
+    %path.distance-ruler__tick{ d: "M#{walk_ruler_x(tick)} 16v4" }
+    %text.distance-ruler__label{ x: walk_ruler_x(tick), y: "32",
+      "text-anchor": (index.zero? ? "start" : index == ticks.size - 1 ? "end" : "middle") }
+      = index.zero? ? t("walks.ruler_start") : (index == ticks.size - 1 ? "#{tick}+ min" : tick)

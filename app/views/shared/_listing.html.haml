@@ -1,0 +1,53 @@
+-# locals: (search:, properties:, offers:, pagy:, map_data:, form_url:, landmarks: {})
+-# Filters, map and results of a destination or landmark page.
+.container.listing-layout
+  %aside.listing-layout__filters
+    -# Closed in the HTML so small screens see results first; filters.js opens
+    -# it on wide screens. Left open when the dates need correcting.
+    %details.filters{ open: (@stay && !@stay.valid?), data: { open_on_desktop: true } }
+      %summary.filters__summary
+        %span.filters__title= t("search.dates_and_filters")
+        %span.filters__current= filters_summary(search, current_stay)
+      = form_with url: form_url, method: :get, class: "filter-form" do
+        = render "shared/stay_fields", stay: @stay
+        - unless search.landmark
+          .field.field--wide
+            = label_tag :near, t("search.near")
+            = select_tag :near,
+              options_for_select(near_kind_options(search.destination), search.near),
+              include_blank: t("search.near_anything")
+        - if search.target?
+          .field
+            = label_tag :max_minutes, t("search.max_minutes")
+            = select_tag :max_minutes,
+              options_for_select(PropertySearch::MINUTES.map { |m| [ t("search.minutes", count: m), m ] }, search.max_minutes),
+              include_blank: t("search.any_walk")
+          .field.field--check
+            = check_box_tag :quiet, "1", search.quiet?
+            = label_tag :quiet, t("search.quiet")
+        .field
+          = label_tag :kind, t("search.kind")
+          = select_tag :kind,
+            options_for_select(Property::KINDS.map { |k| [ t("properties.kinds.#{k}"), k ] }, search.kind),
+            include_blank: t("search.any_kind")
+        .field.field--wide
+          = label_tag :sort, t("search.sort")
+          = select_tag :sort, options_for_select(sort_options(search), search.sort)
+        .field.field--submit
+          = submit_tag t("search.update"), name: nil, class: "button button--primary"
+
+  .listing-layout__results
+    - if map_data[:properties].any?
+      = map_tag(map_data, css_class: "map map--overview", label: t("search.map_label"))
+    - if properties.empty?
+      %p.empty-state= t("search.no_results")
+    - else
+      %ol.property-list
+        - properties.each do |property|
+          %li= render "destinations/property_card", property:, offers: offers.fetch(property.id, []),
+            walk: nearest_walk(property, landmarks)
+      .pagination
+        != pagy.series_nav if pagy.pages > 1
+    %p.ranking-note
+      = ranking_note(search, current_stay)
+      = link_to "How we rank", how_we_verify_path(anchor: "ranking")

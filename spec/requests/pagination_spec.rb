@@ -8,24 +8,24 @@ RSpec.describe "Pagination" do
   end
 
   it "shows 20 properties per page with a page navigation keeping the filters" do
-    get destination_path(destination, category: "direct")
+    get destination_path(destination, kind: "hotel")
 
     document = Nokogiri::HTML(response.body)
     expect(document.css(".property-card").size).to eq(20)
-    expect(response.body).to include("21 verified waterfront stays")
+    expect(response.body).to include("21 measured stays")
     nav_link = document.at_css("nav.pagy a[href*='page=2']")
-    expect(nav_link["href"]).to include("category=direct")
+    expect(nav_link["href"]).to include("kind=hotel")
 
-    get destination_path(destination, category: "direct", page: 2)
+    get destination_path(destination, kind: "hotel", page: 2)
 
     names = Nokogiri::HTML(response.body).css(".property-card__name").map { |n| n.text.strip }
     expect(names).to eq([ "Hotel 20" ])
   end
 
   it "sends pages beyond the last one to the last page, keeping the filters" do
-    get destination_path(destination, category: "direct", page: 9)
+    get destination_path(destination, kind: "hotel", page: 9)
 
-    expect(response).to redirect_to(destination_path(destination, category: "direct", page: 2))
+    expect(response).to redirect_to(destination_path(destination, kind: "hotel", page: 2))
   end
 
   it "pages the admin list by 50" do

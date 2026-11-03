@@ -106,7 +106,7 @@ module PropertiesHelper
     parts << (stay ? "#{l(stay.check_in, format: '%-d %b')} – #{l(stay.check_out, format: '%-d %b')}" : t("search.any_dates"))
     parts << pluralize(stay.adults, "adult") if stay
     parts << pluralize(stay.children, "child") if stay&.children&.positive?
-    active = [ search.category, search.surface, search.kind ].compact.size
+    active = [ search.near, search.max_minutes, search.kind, (true if search.quiet?) ].compact.size
     parts << pluralize(active, "filter") if active.positive?
     parts << t("search.sorts.#{search.sort}")
     parts.join(" · ")

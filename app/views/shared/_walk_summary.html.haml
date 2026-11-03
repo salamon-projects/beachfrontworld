@@ -1,0 +1,13 @@
+-# locals: (walk:, large: false)
+-# A measured walk to a landmark, styled like the waterfront summary.
+.waterfront-summary.walk-summary{ class: ("waterfront-summary--large" if large) }
+  %p.waterfront-summary__distance
+    %span.waterfront-summary__label= t("walks.measured_label")
+    %span.waterfront-summary__metres= t("walks.minutes", count: walk.minutes)
+    %span.waterfront-summary__to
+      = t("walks.to", landmark: landmark_label(walk.landmark))
+      %span.walk-summary__steps= "· #{walk_steps(walk)}"
+  = render "shared/walk_ruler", walk:
+  %ul.waterfront-notes
+    - walk_notes(walk).each do |level, text|
+      %li{ class: "waterfront-notes__#{level}" }= text

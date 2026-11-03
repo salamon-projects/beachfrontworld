@@ -1,6 +1,6 @@
-- content_for :title, "Beachfront stays in #{@destination.name}, #{@destination.country_name}"
-- content_for :description, "#{@destination.name}: hotels and apartments measured to be on or near #{@destination.sea_name.presence || 'the water'}. Compare booking sites for your dates."
-- if params.keys.intersect?(%w[check_in check_out adults children child_ages category surface kind sort page])
+- content_for :title, "Stays in #{@destination.name}, measured on foot"
+- content_for :description, "#{@destination.name}: hotels and apartments with the walk to every sight, square and beach measured on the map. Compare booking sites for your dates."
+- if params.keys.intersect?(%w[check_in check_out adults children child_ages near max_minutes kind quiet sort page])
   - content_for :noindex, true
 = render "layouts/map_assets"
 - content_for :scripts do
@@ -14,54 +14,16 @@
       %span= @destination.country_name
     %h1.page-header__title= @destination.name
     %p.page-header__lead
-      = pluralize(@pagy.count, "verified waterfront stay")
-      - if @destination.sea_name.present?
-        = "on the #{@destination.sea_name}"
+      = pluralize(@pagy.count, "measured stay")
+      - if @search.near
+        = "· #{t("search.near_kinds.#{@search.near}").downcase_first} first"
     - if @destination.summary.present?
       %p.page-header__summary= @destination.summary
+    - if @top_landmarks.any?
+      %nav.landmark-chips{ "aria-label": "Stay near" }
+        %span.landmark-chips__label Stay near
+        - @top_landmarks.each do |landmark|
+          = link_to landmark.name, landmark_path(landmark, stay_params), class: "landmark-chip"
 
-.container.listing-layout
-  %aside.listing-layout__filters
-    -# Closed in the HTML so small screens see results first; filters.js opens
-    -# it on wide screens. Left open when the dates need correcting.
-    %details.filters{ open: (@stay && !@stay.valid?), data: { open_on_desktop: true } }
-      %summary.filters__summary
-        %span.filters__title= t("search.dates_and_filters")
-        %span.filters__current= filters_summary(@search, current_stay)
-      = form_with url: destination_path(@destination), method: :get, class: "filter-form" do
-        = render "shared/stay_fields", stay: @stay
-        .field
-          = label_tag :category, t("search.category")
-          = select_tag :category,
-            options_for_select(Verifications::Waterfront::LISTED_CATEGORIES.map { |c| [ t("waterfront.categories.#{c}"), c ] }, @search.category),
-            include_blank: t("search.any_category")
-        .field
-          = label_tag :surface, t("search.surface")
-          = select_tag :surface,
-            options_for_select(PropertySearch::SURFACES.map { |s| [ t("waterfront.beach_surfaces.#{s}"), s ] }, @search.surface),
-            include_blank: t("search.any_surface")
-        .field
-          = label_tag :kind, t("search.kind")
-          = select_tag :kind,
-            options_for_select(Property::KINDS.map { |k| [ t("properties.kinds.#{k}"), k ] }, @search.kind),
-            include_blank: t("search.any_kind")
-        .field.field--wide
-          = label_tag :sort, t("search.sort")
-          = select_tag :sort, options_for_select(PropertySearch::SORTS.map { |s| [ t("search.sorts.#{s}"), s ] }, @search.sort)
-        .field.field--submit
-          = submit_tag t("search.update"), name: nil, class: "button button--primary"
-
-  .listing-layout__results
-    - if @map_points.any?
-      = map_tag(destination_map_data(@destination, @map_points), css_class: "map map--overview", label: "Map of the listed properties")
-    - if @properties.empty?
-      %p.empty-state No verified properties match these filters yet.
-    - else
-      %ol.property-list
-        - @properties.each do |property|
-          %li= render "destinations/property_card", property:, offers: @offers.fetch(property.id, [])
-      .pagination
-        != @pagy.series_nav if @pagy.pages > 1
-    %p.ranking-note
-      = current_stay && @search.sort == "price" ? "Ordered by the lowest price we know for your dates, then by distance to the water." : "Ordered by waterfront position, then measured distance."
-      = link_to "How we rank", how_we_verify_path(anchor: "ranking")
+= render "shared/listing", search: @search, properties: @properties, offers: @offers, pagy: @pagy,
+  map_data: @map_data, form_url: destination_path(@destination), landmarks: @landmarks
