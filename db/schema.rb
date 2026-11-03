@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_03_130000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_03_140000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "postgis"
@@ -158,6 +158,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_03_130000) do
     t.index ["slug"], name: "index_properties_on_slug", unique: true
   end
 
+  create_table "property_walks", force: :cascade do |t|
+    t.bigint "property_id", null: false
+    t.bigint "landmark_id", null: false
+    t.integer "walk_m", null: false
+    t.integer "busy_crossings", default: 0, null: false
+    t.integer "stairs", default: 0, null: false
+    t.datetime "measured_at", null: false
+    t.index ["landmark_id", "walk_m"], name: "index_property_walks_on_landmark_id_and_walk_m"
+    t.index ["property_id", "landmark_id"], name: "index_property_walks_on_property_id_and_landmark_id", unique: true
+  end
+
   create_table "road_segments", force: :cascade do |t|
     t.bigint "osm_id", null: false
     t.string "category", null: false
@@ -232,6 +243,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_03_130000) do
   add_foreign_key "outbound_clicks", "properties", on_delete: :nullify
   add_foreign_key "price_quotes", "listings", on_delete: :cascade
   add_foreign_key "properties", "destinations"
+  add_foreign_key "property_walks", "landmarks", on_delete: :cascade
+  add_foreign_key "property_walks", "properties", on_delete: :cascade
   add_foreign_key "verifications", "properties", on_delete: :cascade
   add_foreign_key "walk_edges", "destinations"
   add_foreign_key "walk_vertices", "destinations"

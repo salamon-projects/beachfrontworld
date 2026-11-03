@@ -1,0 +1,13 @@
+# Walking measurements (see Walks::Measurement and the "How we verify" page;
+# keep them in sync).
+shared:
+  # Walks longer than this are not stored: the property is not "near" it.
+  max_walk_m: 2500
+  # An easy walking pace (4.8 km/h) and an average adult step.
+  metres_per_minute: 80
+  metres_per_step: 0.75
+  # Properties further than this from any walkable way are not measured.
+  max_access_m: 250
+  # Junctions this close to a square, park, street or other area count as
+  # being at it.
+  landmark_reach_m: 20

@@ -8,6 +8,7 @@ class Landmark < ApplicationRecord
              beach station market].freeze
 
   belongs_to :destination
+  has_many :walks, class_name: "PropertyWalk", dependent: :delete_all
 
   enum :kind, KINDS.index_by(&:itself), validate: true
 

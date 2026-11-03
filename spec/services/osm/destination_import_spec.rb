@@ -7,7 +7,7 @@ RSpec.describe Osm::DestinationImport do
     counts = described_class.new(destination, client: FakeOverpassClient.new).call
 
     expect(counts).to eq(coastline: 1, inland_water: 1, beaches: 1, roads: 3, walk_network: 8, landmarks: 5, accommodations: 2,
-                         removed_features: 0, missing_from_osm: 0, measurement_failures: 0)
+                         removed_features: 0, missing_from_osm: 0, measurement_failures: 0, walks: 10)
 
     hotel = Property.find_by!(osm_id: 501).waterfront
     expect(hotel).to have_attributes(category: "direct", crosses_promenade: true, crosses_road: false, beach_surface: "sand")

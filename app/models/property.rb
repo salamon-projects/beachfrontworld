@@ -7,6 +7,7 @@ class Property < ApplicationRecord
   belongs_to :destination
   has_many :verifications, dependent: :destroy
   has_one :waterfront, class_name: "Verifications::Waterfront", inverse_of: :property
+  has_many :walks, class_name: "PropertyWalk", dependent: :delete_all
   has_many :listings, dependent: :destroy
   has_many :active_listings, -> { active }, class_name: "Listing", inverse_of: :property
   has_many :price_quotes, through: :active_listings
