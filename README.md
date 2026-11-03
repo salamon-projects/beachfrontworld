@@ -1,19 +1,26 @@
 # StepsFrom
 
-Finding and comparing **true** beachfront holidays.
+Stays steps from what you came for.
 
-Booking sites label many stays "beachfront" that are across a road or a long walk
-from the water. [StepsFrom](https://stepsfrom.com) lists only properties whose position we have
-**measured** against OpenStreetMap data and reviewed by hand. For each one it shows
-the distance to the water, what lies in between, and links to the booking sites that
-carry it, with the cheapest one first once prices are available.
+Visitors type what they want to stay close to — "Eiffel Tower", "La Rambla", "a beach
+in Makarska", in any language — and [StepsFrom](https://stepsfrom.com) lists the stays
+nearby, ordered by the **walk we measured**: along the streets and paths of
+OpenStreetMap, not in a straight line, with the minutes, the steps, the busy roads to
+cross and the flights of steps on the way. On the coast it also measures how far the
+water is and whether a road lies in between. Each stay links to the booking sites
+that carry it, with the cheapest one first once prices are available.
+
+Booking sites quote straight-line distances ("0.4 km from the centre") or loose
+labels ("near the beach"); measuring the walk itself is what sets StepsFrom apart.
 
 Principles:
 
 - **No scraping.** Property and map data come from OpenStreetMap (ODbL). Booking-site
   links and prices come only from official affiliate programmes and APIs.
-- **The measurement decides.** A booking site's "beachfront" label is stored as a
-  hint and used to flag conflicts. It is never used to list a property.
+- **The measurement decides.** Everything is measured automatically and listed when it
+  is within walking distance of a landmark or on the waterfront. A booking site's
+  "beachfront" label is stored as a hint and used to flag conflicts, never to list a
+  property.
 
 ## Stack
 
@@ -50,12 +57,13 @@ The database connection reads `DB_HOST`, `DB_PORT`, `DB_USER` and `DB_PASSWORD`,
 
 ## Workflow
 
-1. **Destination.** Six launch destinations are seeded: Makarska Riviera, Poreč,
-   Hvar, Kassandra, Chania coast and Rhodes east coast. They start unpublished. Add
-   or adjust destinations in the admin by bounding box.
-2. **Import.** Fetch coastline, lakes, beaches, roads and accommodation from
-   the Overpass API, then measure every property. Run it with "Import from OSM" in
-   the admin, or with:
+1. **Destination.** The seeded launch destinations are Makarska Riviera, Poreč, Hvar,
+   Kassandra, Chania coast, Rhodes east coast, Paris and Barcelona. They start
+   unpublished. Add or adjust destinations in the admin by bounding box; keep city
+   boxes to the central districts.
+2. **Import.** Fetch coastline, lakes, beaches, roads, the walk network, landmarks and
+   accommodation from the Overpass API, then measure every property (waterfront and
+   walks). Run it with "Import from OSM" in the admin, or with:
    ```bash
    bin/rails osm:import[makarska-riviera]
    bin/rails osm:import_all
@@ -67,20 +75,19 @@ The database connection reads `DB_HOST`, `DB_PORT`, `DB_USER` and `DB_PASSWORD`,
    itself while one runs; "Imports" lists the history.
 
    Running an import again updates what is there. Map features (coastline,
-   lakes, beaches, roads) that OSM no longer returns inside the bounding box are
-   removed, so measurements always use the current map (features within about
-   100 m of the box's edge are kept, and a layer that comes back empty removes
-   nothing). Properties are never deleted: one that OSM no longer returns is
-   flagged and listed under "Not in OSM" in the admin, where you decide what
-   happens to it. Until a property is reviewed, its name, position and details
+   lakes, beaches, roads, landmarks) that OSM no longer returns inside the bounding
+   box are removed, so measurements always use the current map (features within
+   about 100 m of the box's edge are kept, and a layer that comes back empty removes
+   nothing); the walk network is rebuilt. Properties are never deleted: one that OSM
+   no longer returns is taken off the site and listed under "Not in OSM" in the
+   admin. Until an admin edits or hides a property, its name, position and details
    follow OSM.
-3. **Review.** The admin's "To review" queue lists properties measured as
-   waterfront. Check each one, correct the coordinates if needed (which measures it
-   again), then approve or reject it. Reviewed properties keep their name, position
-   and edited details on later imports, and approved ones go back to review if a
-   new measurement changes their category.
-   "OTA claim conflicts" lists properties that a booking site calls beachfront but
-   that we measured further away.
+3. **Check.** Properties are listed automatically once measured. The admin shows
+   what is "On the site", what has "Nothing nearby" and what is hidden; hide a
+   property that is closed or not a real accommodation, and correct coordinates
+   where needed (which measures it again). Edited and hidden properties keep their
+   name, position and details on later imports. "OTA claim conflicts" lists
+   properties that a booking site calls beachfront but that we measured further away.
 4. **Listings.** On each property, add its page on Booking.com, Expedia, Hotels.com,
    Vrbo, Agoda or Trip.com. Optionally enter the position the site shows. If it is
    more than 150 m from ours, the property is flagged.
@@ -90,7 +97,41 @@ To re-measure without re-importing:
 
 ```bash
 bin/rails waterfront:classify[makarska-riviera]
+bin/rails walks:measure[makarska-riviera]
 ```
+
+## Searching
+
+The home page asks what you want to stay close to. `Search::Interpreter` sends only
+that text to a language model behind an OpenAI-compatible chat completions API
+(Tensorix by default, set with `LLM_API_KEY`; `LLM_BASE_URL` and `LLM_MODEL` select
+another provider or model) and gets back the place meant, named landmarks in English
+and the local language, kinds of place ("a beach"), a walking limit and a kind of
+stay. Answers are cached for 30 days. Without a key, or when the call fails, landmark
+names are matched against the words of the text directly.
+
+`Search::Resolver` matches the names with trigrams against every `name:*` tag of the
+imported landmarks (`Landmark.search`), then sends the visitor to the landmark's page
+(`/near/:slug`), to a destination ordered by the walk to the nearest landmark of a
+kind (`?near=beach`), to a destination, or to a page of choices.
+
+## How walks are measured
+
+`Osm::Importers::WalkNetwork` imports the ways people can walk on (footways, paths,
+steps, pedestrian streets and roads; not motorways, private ways or ways closed to
+pedestrians), split at junctions into `walk_edges`/`walk_vertices` whose vertex ids
+are OSM node ids. Primary, secondary and trunk roads are marked busy.
+`Osm::Importers::Landmarks` imports sights and monuments with a Wikidata or
+Wikipedia entry, museums, squares, pedestrian streets (one per name), parks, beaches,
+stations and markets.
+
+`Walks::Measurement` then grows a pgRouting shortest-path tree
+(`pgr_drivingDistance`) from each landmark over the network, up to 2.5 km, and stores
+for every property within reach its walk in `property_walks`: the distance, the busy
+roads crossed (rather than walked along) and the flights of steps. Minutes and steps
+are derived with the pace in `config/walks.yml`. `Walks::Route` traces a walk for the
+property page's map. The public "How we measure and rank" page describes the same
+rules; keep it accurate when you change them.
 
 ## How properties are classified
 
@@ -111,20 +152,20 @@ from the building outline when OSM has one, otherwise from the point:
 | Verified beachfront (`direct`) | No road or railway in between, and water ≤ 50 m; or ≤ 150 m across a beach that starts within 20 m |
 | Steps from the water (`near`) | Water ≤ 100 m |
 | Short walk to the water (`walkable`) | Water ≤ 300 m |
-| `not_waterfront` | Further: never listed |
+| `not_waterfront` | Further: no waterfront badge |
 | `unknown` | No water imported for the destination yet |
 
-The public "How we verify and rank" page shows the same thresholds. It is required
+The public "How we measure and rank" page shows the same thresholds. It is required
 for ranking transparency, so keep it accurate when you change them.
 
 ### Verified attributes
 
 Waterfront is the first of several **verified attributes**. Each result is a
 row in `verifications` (single-table inheritance): `Verifications::Waterfront`
-holds the category, the headline distance (`distance_m`), the measurement
-details in `evidence` and its own review status. Properties keep only
-location data. A property is listed once its waterfront result is approved in
-a listed category.
+holds the category, the headline distance (`distance_m`) and the measurement
+details in `evidence`. Properties keep only location data. A property is
+listed when it has a walk to a landmark or a waterfront result in a listed
+category (`Property.published`).
 
 To add an attribute, for example a verified sea view:
 
@@ -134,7 +175,7 @@ To add an attribute, for example a verified sea view:
    landmark for a landmark view.
 2. Write the measuring service (like `Waterfront::Classification`) that saves it.
 3. Add the badge texts under `config/locales/en.yml` and show the result in the
-   admin "Verifications" block and on the public pages.
+   admin "Measurements" block and on the public pages.
 
 ## Affiliate links
 
@@ -193,6 +234,7 @@ Repository secrets (Settings → Secrets and variables → Actions):
 | `SECRET_KEY_BASE` | `openssl rand -hex 64` |
 | `POSTGRES_PASSWORD` | `openssl rand -hex 24` |
 | `ADMIN_USER`, `ADMIN_PASSWORD` | Admin login |
+| `LLM_API_KEY` | Optional: key for the language model that reads searches (Tensorix) |
 
 Then, from Actions → Deploy → Run workflow:
 
@@ -223,6 +265,8 @@ inside Puma.
 | `OVERPASS_URLS` | Overpass API endpoints, comma-separated (default: overpass-api.de, private.coffee, kumi.systems) |
 | `MAP_TILE_URL` | Map tile template (default: OpenStreetMap's tile server) |
 | `PRICE_PROVIDERS` | Price providers to use, e.g. `stay22` |
+| `LLM_API_KEY` | Key for the language model that reads searches (optional; without it names are matched directly). A repository secret for deploys |
+| `LLM_BASE_URL`, `LLM_MODEL` | OpenAI-compatible endpoint and model (default: `https://api.tensorix.ai/v1`, `deepseek/deepseek-chat-v3.1`) |
 | `*_TRACKING_URL` | Affiliate tracking templates, see above |
 
 The OpenStreetMap tile server is fine at low traffic, but read its

@@ -1,6 +1,7 @@
 class PagesController < ApplicationController
   def how_we_verify
     @config = Waterfront.config
+    @walks = Walks.config
   end
 
   def affiliate_disclosure; end

@@ -1,7 +1,7 @@
 en:
   site_name: StepsFrom
   skip_to_content: Skip to content
-  tagline: Only stays that are really on the water.
+  tagline: Stays steps from what you came for, with every walk measured.
 
   activerecord:
     errors:
@@ -21,6 +21,8 @@ en:
               missing: "are needed for every child"
 
   countries:
+    ES: Spain
+    FR: France
     GR: Greece
     HR: Croatia
 

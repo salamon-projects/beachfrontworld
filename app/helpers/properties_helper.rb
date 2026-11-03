@@ -116,7 +116,7 @@ module PropertiesHelper
     parts << pluralize(stay.children, "child") if stay&.children&.positive?
     active = [ search.near, search.max_minutes, search.kind, (true if search.quiet?) ].compact.size
     parts << pluralize(active, "filter") if active.positive?
-    parts << t("search.sorts.#{search.sort}")
+    parts << sort_options(search).to_h.invert.fetch(search.sort)
     parts.join(" · ")
   end
 

@@ -19,7 +19,7 @@
       = @landmark.name
     %p.page-header__lead
       = pluralize(@pagy.count, "stay")
-      = "within a #{Walks.minutes(Walks.config.fetch(:max_walk_m))}-minute walk, the shortest walk first"
+      = "within #{number_with_precision(Walks.config.fetch(:max_walk_m) / 1000.0, precision: 1, strip_insignificant_zeros: true)} km on foot, the shortest walk first"
     - if @landmark.local_name.present? && @landmark.local_name != @landmark.name
       %p.page-header__summary= "Locally: #{@landmark.local_name}"
 

@@ -41,6 +41,7 @@ env:
     - STEPSFROM_DATABASE_PASSWORD
     - ADMIN_USER
     - ADMIN_PASSWORD
+    - LLM_API_KEY
 
 ssh:
   user: deploy

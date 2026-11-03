@@ -10,14 +10,17 @@ RSpec.describe "Public pages" do
   let(:stay_params) { { check_in: check_in.iso8601, check_out: (check_in + 3).iso8601, adults: 2 } }
 
   describe "home" do
-    it "lists published destinations with verified counts" do
+    it "lists published destinations with their counts, and their best-known landmarks to try" do
       create(:destination, name: "Hidden Coast", published: false)
+      gate = create(:landmark, destination:, name: "Old Town Gate", prominence: 40)
+      create(:landmark, destination:, kind: "beach", name: nil)
 
       get root_path
 
       expect(response).to have_http_status(:ok)
-      expect(response.body).to include("Makarska Riviera", "1 verified stay", "1 right on the beach")
+      expect(response.body).to include("Makarska Riviera", "1 measured stay", "1 place to stay near")
       expect(response.body).not_to include("Hidden Coast")
+      expect(Nokogiri::HTML(response.body).at_css(".hero__examples a")["href"]).to eq(landmark_path(gate))
     end
 
     it "sends the search form to the destination with the stay" do
@@ -31,7 +34,7 @@ RSpec.describe "Public pages" do
 
       get root_path
 
-      expect(response.body).to include("still measuring our first coastline")
+      expect(response.body).to include("still measuring our first destination")
       expect(Nokogiri::HTML(response.body).at_css("form.search-form")).to be_nil
     end
 
@@ -259,12 +262,16 @@ RSpec.describe "Public pages" do
 
     it "lists published pages in the sitemap" do
       create(:property, :direct, :hidden, destination:, name: "Hidden Hotel")
+      gate = create(:landmark, destination:, name: "Old Town Gate")
+      hotel.walks.create!(landmark: gate, walk_m: 300, measured_at: Time.current)
+      create(:landmark, destination:, name: "Lonely Rock")
 
       get sitemap_path
 
       expect(response.media_type).to eq("application/xml")
-      expect(response.body).to include(destination_url(destination), property_url(hotel))
-      expect(response.body.scan("<url>").size).to eq(4)
+      expect(response.body).to include(destination_url(destination), property_url(hotel), landmark_url(gate))
+      expect(response.body).not_to include("lonely-rock")
+      expect(response.body.scan("<url>").size).to eq(5)
     end
 
     it "points robots to the sitemap and away from redirects" do

@@ -80,27 +80,19 @@
   border-radius: $radius-lg;
   background: $white;
 
-  &__sea {
-    fill: $sea;
-  }
-
-  &__contour {
-    fill: none;
-    stroke: rgba($white, 0.12);
-    stroke-width: 1;
-  }
-
-  &__beach {
-    fill: #ead9b8;
-  }
-
-  &__road {
+  &__streets path {
     fill: none;
     stroke: $paper-deep;
-    stroke-width: 16;
+    stroke-width: 12;
   }
 
-  &__road-line {
+  &__avenue {
+    fill: none;
+    stroke: $border;
+    stroke-width: 20;
+  }
+
+  &__avenue-line {
     fill: none;
     stroke: $white;
     stroke-dasharray: 8 8;
@@ -119,60 +111,65 @@
     stroke-width: 2;
   }
 
+  &__crow {
+    fill: none;
+    stroke: $faint;
+    stroke-dasharray: 4 5;
+    stroke-width: 1.5;
+  }
+
+  &__route {
+    fill: none;
+    stroke: $measure;
+    stroke-linejoin: round;
+    stroke-width: 3.5;
+  }
+
+  &__crossing {
+    fill: none;
+    stroke: $warn;
+    stroke-width: 2.5;
+  }
+
+  &__landmark {
+    fill: $white;
+    stroke: $measure;
+    stroke-width: 3.5;
+  }
+
   text {
     font-family: $font;
     font-size: 15px;
     font-weight: 700;
   }
 
+  &__route-label {
+    fill: $measure;
+  }
+
+  &__crow-label {
+    fill: $faint;
+    font-size: 11px;
+    font-weight: 600;
+  }
+
   &__note {
+    fill: $muted;
     font-size: 11px;
     font-weight: 600;
     letter-spacing: 0.08em;
     text-transform: uppercase;
   }
 
-  &__verified {
-    .hero-plan__measure-line {
-      fill: none;
-      stroke: $measure;
-      stroke-width: 2.5;
-    }
-
-    text {
-      fill: $measure;
-    }
-
-    .hero-plan__note {
-      fill: $measure-light;
-    }
-  }
-
-  &__rejected {
-    path {
-      fill: none;
-      stroke: $faint;
-      stroke-width: 2;
-    }
-
-    .hero-plan__measure-line {
-      stroke-dasharray: 4 5;
-    }
-
-    text {
-      fill: $faint;
-    }
-  }
-
   &__scale {
     path {
       fill: none;
-      stroke: rgba($white, 0.7);
+      stroke: $faint;
       stroke-width: 1.5;
     }
 
     text {
-      fill: rgba($white, 0.7);
+      fill: $faint;
       font-size: 11px;
       font-weight: 600;
     }
@@ -323,5 +320,22 @@
     max-width: 36rem;
     margin: 0;
     color: $muted;
+  }
+}
+
+.hero__examples {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 1rem 0 0;
+
+  &-label {
+    margin-right: 0.25rem;
+    color: $faint;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
   }
 }

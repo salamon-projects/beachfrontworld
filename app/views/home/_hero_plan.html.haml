@@ -1,29 +1,29 @@
--# A plan-view sketch of what we measure: one stay on the beach, one across
--# the road. Decorative; the text beside it says the same.
+-# A plan-view sketch of what we measure: the walk from a stay to a sight
+-# along the streets, against the straight line booking sites quote.
+-# Decorative; the text beside it says the same.
 %svg.hero-plan{ viewBox: "0 0 480 400", "aria-hidden": "true", focusable: "false" }
-  %path.hero-plan__sea{ d: "M0 302C120 272 222 322 332 287S452 247 480 252V400H0Z" }
-  - [ 28, 56, 84 ].each do |offset|
-    %path.hero-plan__contour{ d: "M0 #{302 + offset}C120 #{272 + offset} 222 #{322 + offset} 332 #{287 + offset}S452 #{247 + offset} 480 #{252 + offset}" }
-  %path.hero-plan__beach{ d: "M0 302C120 272 222 322 332 287S452 247 480 252V226C430 222 382 250 330 258S150 248 0 272Z" }
-  %path.hero-plan__road{ d: "M0 150C150 176 320 128 480 160" }
-  %path.hero-plan__road-line{ d: "M0 150C150 176 320 128 480 160" }
+  %g.hero-plan__streets
+    - [ 110, 230, 340 ].each do |y|
+      %path{ d: "M0 #{y}H480" }
+    - [ 110, 370 ].each do |x|
+      %path{ d: "M#{x} 0V400" }
+  %path.hero-plan__avenue{ d: "M250 0V400" }
+  %path.hero-plan__avenue-line{ d: "M250 0V400" }
   %g.hero-plan__blocks
-    %rect{ x: "36", y: "60", width: "52", height: "34" }
-    %rect{ x: "112", y: "48", width: "38", height: "54" }
-    %rect{ x: "196", y: "70", width: "60", height: "30" }
-    %rect{ x: "420", y: "70", width: "40", height: "44" }
-    %rect{ x: "60", y: "196", width: "44", height: "30" }
-  %g.hero-plan__rejected
-    %rect.hero-plan__building{ x: "330", y: "78", width: "58", height: "38" }
-    %path.hero-plan__measure-line{ d: "M359 116V279" }
-    %path{ d: "M352 145l14 14M366 145l-14 14" }
-    %text{ x: "350", y: "188", "text-anchor": "end" } 64 m
-    %text.hero-plan__note{ x: "350", y: "203", "text-anchor": "end" } across a road
-  %g.hero-plan__verified
-    %rect.hero-plan__building{ x: "210", y: "212", width: "52", height: "32" }
-    %path.hero-plan__measure-line{ d: "M236 244V302M229 244h14M229 302h14" }
-    %text{ x: "160", y: "282" } 18 m
-    %text.hero-plan__note{ x: "112", y: "336" } Verified beachfront
+    - [ [ 14, 14, 82, 82 ], [ 138, 14, 98, 82 ], [ 264, 14, 92, 82 ], [ 14, 124, 82, 92 ], [ 138, 124, 98, 92 ],
+        [ 264, 124, 92, 92 ], [ 384, 124, 82, 92 ], [ 138, 244, 98, 82 ], [ 264, 244, 92, 82 ], [ 384, 244, 82, 82 ],
+        [ 14, 354, 82, 40 ], [ 138, 354, 98, 40 ], [ 264, 354, 92, 40 ], [ 384, 354, 82, 40 ] ].each do |x, y, width, height|
+      %rect{ x:, y:, width:, height: }
+  %rect.hero-plan__building{ x: "34", y: "250", width: "52", height: "36" }
+  %path.hero-plan__crow{ d: "M86 252L404 76" }
+  %text.hero-plan__crow-label{ x: "274", y: "178" } 380 m straight
+  %path.hero-plan__route{ d: "M86 268H110V230H370V110V84H404" }
+  %path.hero-plan__crossing{ d: "M243 223l14 14M257 223l-14 14" }
+  %circle.hero-plan__landmark{ cx: "418", cy: "70", r: "13" }
+  %text.hero-plan__route-label{ x: "126", y: "220" } 7 min · 760 steps
+  %text.hero-plan__note{ x: "262", y: "262" } 1 busy road
+  %text.hero-plan__note{ x: "34", y: "306" } Your stay
+  %text.hero-plan__note{ x: "446", y: "40", "text-anchor": "end" } The sight
   %g.hero-plan__scale
     %path{ d: "M20 382h60M20 377v10M50 379v6M80 377v10" }
-    %text{ x: "88", y: "386" } 50 m
+    %text{ x: "88", y: "386" } 100 m
