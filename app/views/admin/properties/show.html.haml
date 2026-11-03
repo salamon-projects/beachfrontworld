@@ -23,13 +23,22 @@
   .flash.flash--alert{ role: "status" }
     %strong Not in OpenStreetMap any more.
     = "The import of #{@property.osm_missing_since.strftime("%-d %B %Y")} did not find it: it was deleted from OSM, or is no longer tagged as a named accommodation."
-    - if @property.listed?
-      It is still listed on the site.
-    Check whether it still operates, then reject it or
+    It is not listed on the site until it reappears in OSM. If it still operates, check its OSM entry; otherwise
     = link_to("delete it", edit_admin_property_path(@property)) + "."
     If it reappears in OSM, the next import clears this note.
 
 - waterfront = @property.waterfront
+.admin-card
+  .admin-page__header
+    %h2= "On the site: #{admin_visibility(@property)}"
+    - if @property.hidden?
+      = button_to "Show on the site", unhide_admin_property_path(@property), class: "button button--primary"
+    - else
+      = button_to "Hide from the site", hide_admin_property_path(@property), class: "button button--danger"
+  %p
+    Properties are listed automatically once they are within walking distance of a landmark, or on the waterfront.
+    Hide one that is closed, misplaced or not a real accommodation.
+
 .admin-card
   %h2 Location
   %dl.measure-grid
@@ -49,7 +58,30 @@
         - else
           No reported positions
 
-%h2 Verifications
+%h2 Measurements
+.admin-card
+  %h3 Walks to landmarks
+  - if @walks.empty?
+    %p No landmark within walking distance, or the walk network has not been imported yet.
+  - else
+    .table-wrap
+      %table.admin-table
+        %thead
+          %tr
+            %th Landmark
+            %th Walk
+            %th Busy roads crossed
+            %th Stairs
+        %tbody
+          - @walks.each do |walk|
+            %tr
+              %td
+                = walk.landmark.display_name
+                %small= t("landmarks.kinds.#{walk.landmark.kind}")
+              %td= "#{walk.walk_m} m · #{walk.minutes} min"
+              %td= walk.busy_crossings
+              %td= walk.stairs
+
 .admin-card
   %h3 Waterfront
   - if waterfront.nil?
@@ -76,17 +108,6 @@
         %dt Measured at
         %dd= waterfront.measured_at ? l(waterfront.measured_at, format: :short) : "Not yet"
     = map_tag(property_map_data(@property), css_class: "map map--property", label: "Map of #{@property.name}")
-
-    %h3= "Review: #{waterfront.qa_status}"
-    - if waterfront.qa_note.present?
-      = simple_format(waterfront.qa_note)
-    = form_with url: approve_admin_property_path(@property), class: "admin-form" do
-      .field
-        = label_tag :qa_note, "Note (optional)"
-        = text_area_tag :qa_note, nil, rows: 2
-      .actions
-        = submit_tag "Approve", class: "button button--primary", name: nil
-        = submit_tag "Reject", class: "button button--danger", name: nil, formaction: reject_admin_property_path(@property)
 
 .admin-card
   .admin-page__header

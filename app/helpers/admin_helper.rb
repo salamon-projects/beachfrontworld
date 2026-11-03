@@ -11,6 +11,14 @@ module AdminHelper
     [ Admin::PropertiesController::VIEWS.fetch(list["view"], "All"), destination&.name, search ].compact.join(" · ")
   end
 
+  def admin_visibility(property)
+    if property.hidden? then "hidden"
+    elsif property.osm_missing_since then "not in OSM"
+    elsif property.listed? then "listed"
+    else "nothing nearby"
+    end
+  end
+
   def import_status_badge(run)
     status = run.interrupted? ? "interrupted" : run.status
     tag.span(status.humanize, class: [ "import-status", "import-status--#{status}" ])

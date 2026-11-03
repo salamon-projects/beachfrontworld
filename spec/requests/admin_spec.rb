@@ -67,14 +67,18 @@ RSpec.describe "Admin" do
     before { sign_in_admin }
 
     let!(:candidate) { create(:property, :direct, destination:, name: "Hotel Candidate") }
-    let!(:approved) { create(:property, :approved, :near, destination:, name: "Hotel Approved") }
+    let!(:approved) { create(:property, :near, destination:, name: "Hotel Approved") }
     let!(:inland) { create(:property, :not_waterfront, destination:, name: "Hotel Inland") }
 
-    it "shows the review queue by default" do
+    it "shows the properties on the site by default, and those with nothing nearby apart" do
       get admin_properties_path
 
-      expect(response.body).to include("Hotel Candidate")
-      expect(response.body).not_to include("Hotel Approved", "Hotel Inland")
+      expect(response.body).to include("Hotel Candidate", "Hotel Approved")
+      expect(response.body).not_to include("Hotel Inland")
+
+      get admin_properties_path(view: "unlisted")
+      expect(response.body).to include("Hotel Inland", "nothing nearby")
+      expect(response.body).not_to include("Hotel Candidate")
     end
 
     it "lists booking-site claims that contradict the measurement" do
@@ -86,14 +90,16 @@ RSpec.describe "Admin" do
       expect(response.body).not_to include("Hotel Candidate")
     end
 
-    it "approves and rejects with a note" do
-      post approve_admin_property_path(candidate), params: { qa_note: "Checked on satellite." }
+    it "hides a property from the site and shows it again" do
+      post hide_admin_property_path(candidate)
 
-      expect(candidate.waterfront.reload).to have_attributes(qa_status: "approved", qa_note: "Checked on satellite.")
+      expect(candidate.reload).to be_hidden.and be_reviewed
+      expect(Property.published).not_to include(candidate)
+      get admin_properties_path(view: "hidden")
+      expect(response.body).to include("Hotel Candidate")
+
+      post unhide_admin_property_path(candidate)
       expect(Property.published).to include(candidate)
-
-      post reject_admin_property_path(approved)
-      expect(approved.waterfront.reload.qa_status).to eq("rejected")
     end
 
     it "steps through the list last opened, in its order" do
@@ -112,16 +118,15 @@ RSpec.describe "Admin" do
       expect(page.at_css('.list-nav--top [aria-disabled="true"]').text).to include("Next")
     end
 
-    it "moves on from a property just reviewed off the list" do
-      second = create(:property, :near, destination:, name: "Hotel Second")
+    it "moves on from a property just hidden off the list" do
       get admin_properties_path
 
-      post approve_admin_property_path(candidate)
+      post hide_admin_property_path(candidate)
       get admin_property_path(candidate)
 
       page = Nokogiri::HTML(response.body)
-      expect(page.at_css(".list-nav--top").text).to include("No longer in", "To review")
-      expect(page.at_css('.list-nav--top a[rel="next"]')["href"]).to eq(admin_property_path(second))
+      expect(page.at_css(".list-nav--top").text).to include("No longer in", "On the site")
+      expect(page.at_css('.list-nav--top a[rel="next"]')["href"]).to eq(admin_property_path(approved))
     end
 
     it "lists and explains properties that OSM no longer has" do
@@ -132,16 +137,7 @@ RSpec.describe "Admin" do
       expect(response.body).not_to include("Hotel Candidate")
 
       get admin_property_path(approved)
-      expect(response.body).to include("Not in OpenStreetMap any more.", "2 November 2026", "still listed on the site")
-    end
-
-    it "cannot review a property that has not been measured" do
-      unmeasured = create(:property, destination:)
-
-      post approve_admin_property_path(unmeasured)
-
-      expect(response).to redirect_to(admin_property_path(unmeasured))
-      expect(flash[:alert]).to include("not been measured")
+      expect(response.body).to include("Not in OpenStreetMap any more.", "2 November 2026", "not listed on the site")
     end
 
     it "creates a property and measures it straight away" do
@@ -154,7 +150,8 @@ RSpec.describe "Admin" do
 
       property = Property.find_by!(name: "Villa Manual")
       expect(response).to redirect_to(admin_property_path(property))
-      expect(property.waterfront).to have_attributes(category: "direct", qa_status: "pending")
+      expect(property.waterfront.category).to eq("direct")
+      expect(property).to be_reviewed
       expect(property.waterfront.distance_m).to be_within(1).of(30)
     end
 
@@ -172,16 +169,17 @@ RSpec.describe "Admin" do
 
       get admin_property_path(candidate)
 
-      expect(response.body).to include("Verifications", "Waterfront", "Booking.com", "data-map=")
+      expect(response.body).to include("Measurements", "Waterfront", "Booking.com", "data-map=")
     end
 
-    it "renders the review note without nesting paragraphs" do
-      candidate.waterfront.update!(qa_note: "Checked on satellite.\n\nRoad is a footpath.")
+    it "shows the walks to landmarks in valid HTML" do
+      landmark = create(:landmark, destination:, name: "Old Town Gate", kind: "historic")
+      candidate.walks.create!(landmark:, walk_m: 640, busy_crossings: 1, measured_at: Time.current)
 
       get admin_property_path(candidate)
 
       expect(Nokogiri::HTML5(response.body, max_errors: 10).errors).to be_empty
-      expect(response.body).to include("Road is a footpath.")
+      expect(response.body).to include("Old Town Gate", "640 m · 8 min")
     end
 
     it "re-renders the form on invalid input" do

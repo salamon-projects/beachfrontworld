@@ -4,7 +4,7 @@ RSpec.describe "Pagination" do
   let(:destination) { create(:destination) }
 
   before do
-    21.times { |i| create(:property, :approved, :direct, destination:, name: format("Hotel %02d", i), distance_to_water_m: i + 1) }
+    21.times { |i| create(:property, :direct, destination:, name: format("Hotel %02d", i), distance_to_water_m: i + 1) }
   end
 
   it "shows 20 properties per page with a page navigation keeping the filters" do

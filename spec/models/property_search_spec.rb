@@ -3,13 +3,13 @@ require "rails_helper"
 RSpec.describe PropertySearch do
   let(:destination) { create(:destination) }
   let(:stay) { Stay.new(check_in: Date.current + 20, check_out: Date.current + 23, adults: 2) }
-  let!(:direct) { create(:property, :approved, :direct, destination:, beach_surface: "pebble") }
-  let!(:near) { create(:property, :approved, :near, destination:, beach_surface: "sand") }
-  let!(:walkable) { create(:property, :approved, :walkable, destination:, kind: "apartment") }
+  let!(:direct) { create(:property, :direct, destination:, beach_surface: "pebble") }
+  let!(:near) { create(:property, :near, destination:, beach_surface: "sand") }
+  let!(:walkable) { create(:property, :walkable, destination:, kind: "apartment") }
 
   before do
-    create(:property, :direct, destination:) # pending review
-    create(:property, :approved, :direct) # other destination
+    create(:property, :direct, :hidden, destination:)
+    create(:property, :direct) # other destination
   end
 
   def price(property, cents)

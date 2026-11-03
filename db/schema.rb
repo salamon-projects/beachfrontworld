@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_03_140000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_03_150000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "postgis"
@@ -151,6 +151,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_03_140000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.datetime "osm_missing_since"
+    t.datetime "hidden_at"
+    t.datetime "reviewed_at"
     t.index ["destination_id"], name: "index_properties_on_destination_id"
     t.index ["footprint"], name: "index_properties_on_footprint", using: :gist
     t.index ["lonlat"], name: "index_properties_on_lonlat", using: :gist
@@ -190,12 +192,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_03_140000) do
     t.integer "distance_m"
     t.jsonb "evidence", default: {}, null: false
     t.datetime "measured_at"
-    t.string "qa_status", default: "pending", null: false
-    t.text "qa_note"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["property_id", "type", "subject"], name: "index_verifications_on_property_id_and_type_and_subject", unique: true
-    t.index ["qa_status"], name: "index_verifications_on_qa_status"
     t.index ["type", "category"], name: "index_verifications_on_type_and_category"
   end
 

@@ -28,8 +28,14 @@ class Property < ApplicationRecord
 
   after_commit :enqueue_classification, on: %i[create update], if: :geometry_changed?
 
-  # Shown on the site: an approved waterfront result in a listed category.
-  scope :published, -> { joins(:waterfront).merge(Verifications::Waterfront.listed) }
+  # Shown on the site: measured within walking distance of a landmark, or on
+  # the waterfront, unless an admin hid it or OSM no longer has it.
+  scope :published, -> {
+    where(hidden_at: nil, osm_missing_since: nil)
+      .where(PropertyWalk.where("property_walks.property_id = properties.id").arel.exists
+        .or(Verifications::Waterfront.listed.where("verifications.property_id = properties.id").arel.exists))
+  }
+  scope :hidden, -> { where.not(hidden_at: nil) }
 
   # Best waterfront first, then the shortest measured distance. Unmeasured
   # properties come last.
@@ -79,13 +85,17 @@ class Property < ApplicationRecord
   end
 
   def listed?
-    waterfront&.listed? || false
+    persisted? && self.class.published.exists?(id)
   end
 
-  # A person has approved or rejected one of its results, so imports must not
-  # move it or overwrite what was entered.
+  def hidden?
+    hidden_at.present?
+  end
+
+  # An admin has edited or hidden it, so imports must not move it or
+  # overwrite what was entered.
   def reviewed?
-    persisted? && verifications.where.not(qa_status: "pending").exists?
+    reviewed_at.present?
   end
 
   def lonlat=(value)

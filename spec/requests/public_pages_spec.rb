@@ -3,7 +3,7 @@ require "rails_helper"
 RSpec.describe "Public pages" do
   let(:destination) { create(:destination, name: "Makarska Riviera", sea_name: "Adriatic Sea") }
   let!(:hotel) do
-    create(:property, :approved, :direct, destination:, name: "Hotel Riva", stars: 4, distance_to_water_m: 18,
+    create(:property, :direct, destination:, name: "Hotel Riva", stars: 4, distance_to_water_m: 18,
                                          beach_surface: "pebble", crosses_promenade: true)
   end
   let(:check_in) { Date.current + 30 }
@@ -53,15 +53,15 @@ RSpec.describe "Public pages" do
 
   describe "destination" do
     it "shows only published properties with their measurement" do
-      create(:property, :direct, destination:, name: "Pending Hotel")
-      create(:property, :approved, :not_waterfront, destination:, name: "Inland Hotel")
+      create(:property, :direct, :hidden, destination:, name: "Hidden Hotel")
+      create(:property, :not_waterfront, destination:, name: "Inland Hotel")
 
       get destination_path(destination)
 
       expect(response.body).to include("Hotel Riva", "Verified beachfront", "Pebble beach", "A promenade or path runs in front")
       expect(Nokogiri::HTML(response.body).at_css(".waterfront-summary__distance").text.squish)
         .to eq("Measured 18 m to the Adriatic Sea")
-      expect(response.body).not_to include("Pending Hotel", "Inland Hotel")
+      expect(response.body).not_to include("Hidden Hotel", "Inland Hotel")
       expect(response.body).to include("data-map=")
     end
 
@@ -77,7 +77,7 @@ RSpec.describe "Public pages" do
     end
 
     it "orders by price when dates are given and prices are known" do
-      cheap = create(:property, :approved, :walkable, destination:, name: "Budget Rooms")
+      cheap = create(:property, :walkable, destination:, name: "Budget Rooms")
       create(:listing, property: hotel)
       create(:listing, property: cheap)
       Rails.configuration.x.price_providers = %w[fake]
@@ -156,8 +156,8 @@ RSpec.describe "Public pages" do
       expect(response.body).to include("A road or railway runs between the property and the water")
     end
 
-    it "returns 404 for properties not yet approved" do
-      hotel.waterfront.update!(qa_status: "pending")
+    it "returns 404 for hidden properties" do
+      hotel.update!(hidden_at: Time.current)
 
       get property_path(hotel)
 
@@ -181,7 +181,7 @@ RSpec.describe "Public pages" do
     end
 
     it "lists published pages in the sitemap" do
-      create(:property, :direct, destination:, name: "Pending Hotel")
+      create(:property, :direct, :hidden, destination:, name: "Hidden Hotel")
 
       get sitemap_path
 

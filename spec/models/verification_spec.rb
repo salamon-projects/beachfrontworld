@@ -17,10 +17,9 @@ RSpec.describe Verification do
       expect(build(:waterfront_verification, category: "sea_view")).not_to be_valid
     end
 
-    it "is listed only when approved in a listed category" do
-      expect(build(:waterfront_verification, category: "near", qa_status: "approved")).to be_listed
-      expect(build(:waterfront_verification, category: "near", qa_status: "pending")).not_to be_listed
-      expect(build(:waterfront_verification, category: "not_waterfront", qa_status: "approved")).not_to be_listed
+    it "is listed only in a listed category" do
+      expect(build(:waterfront_verification, category: "near")).to be_listed
+      expect(build(:waterfront_verification, category: "not_waterfront")).not_to be_listed
     end
 
     it "keeps measurement details in the evidence" do
@@ -44,18 +43,6 @@ RSpec.describe Verification do
 
     it "derives its key for translations" do
       expect(described_class.key).to eq("waterfront")
-    end
-  end
-
-  describe "Property#reviewed?" do
-    it "is true once any result was approved or rejected" do
-      expect(property).not_to be_reviewed
-
-      verification = create(:waterfront_verification, property:)
-      expect(property).not_to be_reviewed
-
-      verification.update!(qa_status: "rejected")
-      expect(property).to be_reviewed
     end
   end
 end

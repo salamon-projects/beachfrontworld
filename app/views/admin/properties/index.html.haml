@@ -37,7 +37,7 @@
         %th Distance
         %th Flags
         %th Listings
-        %th QA
+        %th Site
         %th
           %span.visually-hidden Actions
     %tbody
@@ -61,14 +61,13 @@
             - if property.osm_missing_since
               %span.flag not in OSM
           %td= property.listings.map(&:provider_name).join(", ").presence || "–"
-          %td= waterfront ? waterfront.qa_status : "not measured"
+          %td= admin_visibility(property)
           %td
-            - if waterfront
-              .actions
-                - unless waterfront.qa_approved?
-                  = button_to "Approve", approve_admin_property_path(property), class: "button button--small"
-                - unless waterfront.qa_rejected?
-                  = button_to "Reject", reject_admin_property_path(property), class: "button button--small button--danger"
+            .actions
+              - if property.hidden?
+                = button_to "Show", unhide_admin_property_path(property), class: "button button--small"
+              - else
+                = button_to "Hide", hide_admin_property_path(property), class: "button button--small button--danger"
 
 .pagination
   != @pagy.series_nav if @pagy.pages > 1

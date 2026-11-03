@@ -13,7 +13,7 @@ RSpec.describe Waterfront::Classification do
     create(:water_feature, geom: east_west_line(north_m: 20))
 
     result = classify
-    expect(result).to have_attributes(category: "direct", water_kind: "sea", crosses_road: false, qa_status: "pending")
+    expect(result).to have_attributes(category: "direct", water_kind: "sea", crosses_road: false)
     expect(result.distance_m).to be_within(1).of(20)
     expect(result.water_point.last).to be > property.lonlat.y
     expect(result.measured_at).to be_present
@@ -93,23 +93,5 @@ RSpec.describe Waterfront::Classification do
     classify
     expect(property.reload.coord_mismatch_m).to be_within(1).of(300)
     expect(property).to be_coordinate_mismatch
-  end
-
-  context "when the property was approved" do
-    before { create(:waterfront_verification, property:, category: "direct", qa_status: "approved") }
-
-    it "sends it back to review when the category changes" do
-      create(:water_feature, geom: east_west_line(north_m: 250))
-
-      result = classify
-      expect(result).to have_attributes(qa_status: "pending", category: "walkable")
-      expect(result.qa_note).to include("category changed from direct to walkable")
-    end
-
-    it "keeps it approved when nothing changed" do
-      create(:water_feature, geom: east_west_line(north_m: 20))
-
-      expect(classify.qa_status).to eq("approved")
-    end
   end
 end

@@ -4,7 +4,7 @@ production:
   clear_solid_queue_finished_jobs:
     command: "SolidQueue::Job.clear_finished_in_batches(sleep_between_batches: 0.3)"
     schedule: every hour at minute 12
-  # Refresh OSM layers and re-measure; changed results go back to review.
+  # Refresh OSM layers and re-measure waterfront results and walks.
   refresh_osm_data:
     command: "Destination.published.find_each { |destination| OsmImportJob.perform_later(destination.id, destination.import_runs.create!(source: 'osm').id) }"
     schedule: every sunday at 3am

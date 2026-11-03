@@ -31,8 +31,8 @@ Rails.application.routes.draw do
     resources :imports, only: :index
     resources :properties do
       member do
-        post :approve
-        post :reject
+        post :hide
+        post :unhide
         post :reclassify
       end
       resources :listings, except: %i[index show]

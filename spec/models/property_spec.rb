@@ -17,13 +17,19 @@ RSpec.describe Property do
   end
 
   describe ".published" do
-    it "lists only approved waterfront properties" do
-      listed = create(:property, :approved, :direct)
-      create(:property, :direct) # pending review
-      create(:property, :approved, :not_waterfront)
-      create(:property, :approved) # not measured yet
+    it "lists properties on the waterfront or within walking distance of a landmark" do
+      waterfront = create(:property, :walkable)
+      landmark = create(:landmark)
+      inland = create(:property, :not_waterfront)
+      inland.walks.create!(landmark:, walk_m: 900, measured_at: Time.current)
+      create(:property, :not_waterfront)
+      create(:property) # not measured yet
+      create(:property, :direct, :hidden)
+      create(:property, :direct, osm_missing_since: 1.day.ago)
 
-      expect(described_class.published).to contain_exactly(listed)
+      expect(described_class.published).to contain_exactly(waterfront, inland)
+      expect(waterfront).to be_listed
+      expect(create(:property, :direct, :hidden)).not_to be_listed
     end
   end
 

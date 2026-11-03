@@ -21,8 +21,7 @@
     for information.
   %p
     When a booking site reports a position for the property more than #{@config.fetch(:coordinate_mismatch_m)} m from
-    ours, we check it by hand. Every property is reviewed by a person before it is listed, and again whenever a new
-    measurement changes its result.
+    ours, we check it by hand. Every property is measured again whenever the map data is refreshed.
 
   %h2 What the badges mean
   %dl.badge-legend

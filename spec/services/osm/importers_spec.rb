@@ -166,8 +166,7 @@ RSpec.describe "OSM importers" do
     it "keeps the geometry and name of reviewed properties on re-import" do
       run(described_class)
       hotel = Property.find_by!(osm_id: 501)
-      create(:waterfront_verification, property: hotel, qa_status: "approved")
-      hotel.update!(name: "Hotel Sample Bay & Spa", latitude: 43.3002, longitude: 17.0201)
+      hotel.update!(name: "Hotel Sample Bay & Spa", latitude: 43.3002, longitude: 17.0201, reviewed_at: Time.current)
 
       run(described_class)
 
@@ -177,8 +176,7 @@ RSpec.describe "OSM importers" do
     it "keeps details edited on reviewed properties and only fills blanks" do
       run(described_class)
       hotel = Property.find_by!(osm_id: 501)
-      create(:waterfront_verification, property: hotel, qa_status: "rejected")
-      hotel.update!(address: "Obala 1a, Sampleville", stars: nil)
+      hotel.update!(address: "Obala 1a, Sampleville", stars: nil, reviewed_at: Time.current)
 
       run(described_class)
 
@@ -196,7 +194,7 @@ RSpec.describe "OSM importers" do
 
     it "flags properties OSM no longer returns, and clears the flag when they are back" do
       run(described_class)
-      gone = create(:property, :approved, :direct, destination:, osm_type: "node", osm_id: 599, lonlat: point_at(north_m: 300))
+      gone = create(:property, :direct, destination:, osm_type: "node", osm_id: 599, lonlat: point_at(north_m: 300))
       manual = create(:property, destination:, lonlat: point_at(north_m: 300))
       elsewhere = create(:property, destination:, osm_type: "node", osm_id: 598, lonlat: point_at(north_m: 3_000))
 
@@ -206,7 +204,7 @@ RSpec.describe "OSM importers" do
 
       expect(gone.reload.osm_missing_since).to eq(Time.zone.local(2026, 11, 2, 3, 0))
       expect(Property.missing_from_osm).to contain_exactly(gone)
-      expect(gone).to be_listed
+      expect(gone).not_to be_listed
       expect([ manual, elsewhere ].map { |property| property.reload.osm_missing_since }).to all(be_nil)
 
       run(described_class)

@@ -11,8 +11,6 @@ FactoryBot.define do
     transient do
       waterfront_category { nil }
       distance_to_water_m { nil }
-      qa_status { nil }
-      qa_note { nil }
       water_kind { nil }
       beach_surface { nil }
       distance_to_beach_m { nil }
@@ -21,13 +19,13 @@ FactoryBot.define do
     end
 
     after(:create) do |property, evaluator|
-      next unless evaluator.waterfront_category || evaluator.qa_status || evaluator.distance_to_water_m
+      next unless evaluator.waterfront_category || evaluator.distance_to_water_m
 
       # A classification job run inline may already have created it.
       verification = property.waterfront || property.build_waterfront
       verification.update!(
         category: evaluator.waterfront_category || "unknown", distance_m: evaluator.distance_to_water_m,
-        qa_status: evaluator.qa_status || "pending", qa_note: evaluator.qa_note, measured_at: Time.current,
+        measured_at: Time.current,
         water_kind: evaluator.water_kind, beach_surface: evaluator.beach_surface,
         distance_to_beach_m: evaluator.distance_to_beach_m, crosses_road: evaluator.crosses_road,
         crosses_promenade: evaluator.crosses_promenade
@@ -35,8 +33,8 @@ FactoryBot.define do
       property.reload
     end
 
-    trait :approved do
-      qa_status { "approved" }
+    trait :hidden do
+      hidden_at { Time.current }
     end
 
     trait :direct do

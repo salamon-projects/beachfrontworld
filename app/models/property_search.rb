@@ -23,7 +23,7 @@ class PropertySearch
 
   # Matching properties, unordered.
   def filtered
-    scope = destination.properties.published
+    scope = destination.properties.published.left_joins(:waterfront)
     scope = scope.where(verifications: { category: }) if category
     scope = scope.where("verifications.evidence->>'beach_surface' = ?", surface) if surface
     scope = scope.where(kind:) if kind
