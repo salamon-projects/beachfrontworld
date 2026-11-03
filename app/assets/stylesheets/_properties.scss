@@ -777,3 +777,59 @@
     color: $faint;
   }
 }
+
+.property-waterfront {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  margin: 1rem 0 0;
+  color: $muted;
+  font-size: 0.95rem;
+}
+
+// Other landmarks within walking distance, on the property page.
+.walk-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  &__item {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.1rem 1rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid $border;
+  }
+
+  &__place {
+    display: flex;
+    flex-direction: column;
+    font-weight: 600;
+
+    a {
+      color: $ink;
+    }
+
+    small {
+      color: $faint;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+  }
+
+  &__minutes {
+    grid-row: 1 / span 2;
+    grid-column: 2;
+    align-self: center;
+    color: $measure;
+    font-family: $serif;
+    font-size: 1.5rem;
+    font-variant-numeric: lining-nums;
+  }
+
+  &__notes {
+    color: $muted;
+    font-size: 0.85rem;
+  }
+}

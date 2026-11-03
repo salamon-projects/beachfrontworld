@@ -56,4 +56,17 @@ RSpec.describe Walks::Measurement do
     expect(hotel.walks.pluck(:walk_m)).to all(eq(1))
     expect(apartments.walks.count).to be_positive
   end
+
+  describe Walks::Route do
+    it "traces the measured walk over the network" do
+      Walks::Measurement.new(destination).call
+
+      lines = Walks::Route.new(walk(apartments, lighthouse), cache: ActiveSupport::Cache::NullStore.new).lines
+
+      # From the apartments' end of Coast Road, then up the steps to the promenade.
+      expect(lines.size).to eq(1)
+      expect(lines.first).to include([ 43.2999, 17.03 ], [ 43.3002, 17.03 ])
+      expect(lines.first.map(&:last).min).to be > 17.023
+    end
+  end
 end

@@ -35,6 +35,12 @@
       bounds.push([point.lat, point.lon]);
     });
 
+    // The measured walk, drawn along the streets it follows.
+    (data.route || []).forEach(function (line) {
+      L.polyline(line, { color: "#c4542b", weight: 4, opacity: 0.9, lineJoin: "round" }).addTo(map);
+      bounds.push(line[0], line[line.length - 1]);
+    });
+
     // Landmarks the page is about: an orange ring with the name beside it.
     (data.landmarks || []).forEach(function (point) {
       L.circleMarker([point.lat, point.lon], {

@@ -179,6 +179,23 @@ RSpec.describe "Public pages" do
       expect(response.body).to include("could not find that place", "Makarska Riviera")
     end
 
+    it "leads the property page with the walk to the landmark searched near" do
+      get property_path(hotel, near: gate.slug)
+
+      page = Nokogiri::HTML(response.body)
+      expect(page.at_css(".property-layout__summary .waterfront-summary__distance").text.squish)
+        .to eq("Measured walk 8 min to Old Town Gate · 850 steps")
+      expect(page.at_css(".walk-list").text.squish).to include("A beach", "1 min")
+      expect(page.at_css(".property-waterfront").text).to include("Verified beachfront")
+      map = JSON.parse(page.at_css("[data-map]")["data-map"])
+      expect(map["landmarks"].first["name"]).to eq("Old Town Gate")
+      expect(page.at_css("title").text).to start_with("Hotel Riva, Makarska Riviera — 8 min walk to Old Town Gate")
+      expect(response.body).to include("noindex")
+
+      get property_path(hotel)
+      expect(Nokogiri::HTML(response.body).at_css(".property-layout__summary").text).to include("to Old Town Gate")
+    end
+
     it "asks for a place when the search is empty" do
       get search_path(q: " ")
 

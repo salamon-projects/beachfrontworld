@@ -87,6 +87,9 @@ en:
     busy_roads:
       one: Crosses 1 busy road on the way
       other: Crosses %{count} busy roads on the way
+    busy_roads_short:
+      one: 1 busy road
+      other: "%{count} busy roads"
     stairs:
       one: 1 flight of steps on the way
       other: "%{count} flights of steps on the way"

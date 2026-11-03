@@ -86,9 +86,17 @@ module PropertiesHelper
     notes
   end
 
-  def property_map_data(property)
+  # The property, and either the walk to a landmark (with its route when it
+  # could be traced) or the measurement to the water.
+  def property_map_data(property, walk: nil, route: nil)
     data = { properties: [ map_point(property) ], maxZoom: 18 }
     data[:footprint] = property.footprint.exterior_ring.points.map { |p| [ p.y, p.x ] } if property.footprint
+    if walk
+      data[:landmarks] = [ landmark_map_point(walk.landmark) ]
+      data[:route] = route if route
+      return data
+    end
+
     water_lon, water_lat = property.waterfront&.water_point
     if water_lon && water_lat
       from_lon, from_lat = property.footprint ? closest_footprint_vertex(property, water_lon, water_lat) : [ property.lonlat.x, property.lonlat.y ]

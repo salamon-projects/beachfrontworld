@@ -12,7 +12,7 @@ module Walks
   # primary, secondary or trunk road that the walk passes through without
   # following that road.
   class Measurement
-    ROOT = 0
+    ROOT = Network::ROOT
 
     def initialize(destination, config: Walks.config)
       @destination = destination
@@ -71,7 +71,7 @@ module Walks
     end
 
     def measure(landmark_id, started_at)
-      starts = start_costs(landmark_id)
+      starts = Network.start_costs(@destination, landmark_id, reach: @config.fetch(:landmark_reach_m))
       return 0 if starts.empty?
 
       connection.execute("DROP TABLE IF EXISTS walk_tree")
@@ -79,42 +79,10 @@ module Walks
       connection.exec_update(store_sql(landmark_id, started_at))
     end
 
-    # { node_id => metres from the landmark } for the junctions where walks
-    # to the landmark end.
-    def start_costs(landmark_id)
-      sql = ActiveRecord::Base.sanitize_sql_array([ <<~SQL, landmark_id:, destination_id: @destination.id, reach: @config.fetch(:landmark_reach_m) ])
-        WITH landmark AS (SELECT geom FROM landmarks WHERE id = :landmark_id),
-        nearest AS (
-          SELECT e.source, e.target, e.length_m, ST_Distance(e.geom, l.geom) AS access_m,
-                 ST_LineLocatePoint(e.geom::geometry, ST_ClosestPoint(e.geom::geometry, l.geom::geometry)) AS fraction
-          FROM landmark l, LATERAL (
-            SELECT * FROM walk_edges e WHERE e.destination_id = :destination_id ORDER BY e.geom <-> l.geom LIMIT 1
-          ) e
-        )
-        SELECT node, MIN(cost) AS cost FROM (
-          SELECT v.node_id AS node, ST_Distance(v.geom, l.geom) AS cost
-          FROM walk_vertices v, landmark l
-          WHERE v.destination_id = :destination_id AND ST_DWithin(v.geom, l.geom, :reach)
-          UNION ALL SELECT source, access_m + fraction * length_m FROM nearest
-          UNION ALL SELECT target, access_m + (1 - fraction) * length_m FROM nearest
-        ) starts
-        GROUP BY node
-      SQL
-      connection.select_rows(sql).to_h { |node, cost| [ Integer(node), Float(cost) ] }
-    end
-
     # The shortest-path tree from the landmark, with the steps and busy
     # crossings on the way from each junction to the landmark.
     def tree_sql(landmark_id, starts)
-      virtual_edges = starts.each_with_index.map do |(node, cost), index|
-        "SELECT #{-(index + 1)}::bigint, #{ROOT}::bigint, #{node}::bigint, #{cost.round(2)}::float, #{cost.round(2)}::float"
-      end
-      edges_sql = <<~SQL
-        SELECT id, source, target, length_m AS cost, length_m AS reverse_cost FROM walk_edges
-        WHERE destination_id = #{Integer(@destination.id)}
-          AND ST_DWithin(geom, (SELECT geom FROM landmarks WHERE id = #{Integer(landmark_id)}), #{Integer(max_walk_m)})
-        UNION ALL #{virtual_edges.join(' UNION ALL ')}
-      SQL
+      edges_sql = Network.edges_sql(@destination, landmark_id, max_walk_m, starts.map { |node, cost| [ ROOT, node, cost ] })
 
       ActiveRecord::Base.sanitize_sql_array([ <<~SQL, edges_sql, ROOT, max_walk_m, @destination.id ])
         CREATE TEMP TABLE walk_tree AS
