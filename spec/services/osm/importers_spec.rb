@@ -99,6 +99,16 @@ RSpec.describe "OSM importers" do
       expect(destination.walk_vertices.count).to eq(8)
     end
 
+    it "queries the box in tiles and keeps each way once" do
+      run(described_class)
+
+      tiles = client.queries.map { |ql| ql[/\(([\d.,]+)\);out geom/, 1].split(",").map(&:to_f) }
+      expect(tiles.size).to eq(2 * 2)
+      expect(tiles.map(&:first).minmax).to eq([ 43.28, 43.30 ])
+      expect(tiles.map(&:last).max).to eq(17.04)
+      expect(WalkEdge.count).to eq(8)
+    end
+
     it "replaces the previous network, and keeps it when the query comes back empty" do
       2.times { run(described_class) }
       expect(WalkEdge.count).to eq(8)

@@ -4,6 +4,10 @@ module Osm
     # junction (an OSM node shared by two ways) so pgRouting can measure walks
     # on them (see Walks::Measurement). The network is rebuilt from scratch on
     # each import: edges have no identity worth keeping.
+    #
+    # A city's network is too much for one Overpass query, so the box is
+    # fetched in tiles; ways crossing a tile edge come back whole from each
+    # tile and are kept once.
     class WalkNetwork < Base
       WALKABLE = %w[footway path steps pedestrian living_street residential service unclassified track
                     corridor cycleway tertiary tertiary_link secondary secondary_link primary primary_link
@@ -11,9 +15,10 @@ module Osm
       # Crossing one of these on foot counts as a busy-road crossing.
       BUSY = %w[primary primary_link secondary secondary_link trunk trunk_link].freeze
       FOOT_ALLOWED = %w[yes designated permissive].freeze
+      TILE_DEGREES = 0.03 # about 3 km north-south
 
       def call
-        ways = client.query(query).select { |element| walkable?(element) }
+        ways = tiles.flat_map { |tile| client.query(query(tile)) }.uniq(&:id).select { |element| walkable?(element) }
         return 0 if ways.empty?
 
         edges, vertices = split(ways)
@@ -29,8 +34,21 @@ module Osm
 
       private
 
-      def selectors
-        [ %(way["highway"~"^(#{WALKABLE.join('|')})$"]) ]
+      def query(tile)
+        %([out:json][timeout:300];way["highway"~"^(#{WALKABLE.join('|')})$"](#{tile.join(',')});out geom;)
+      end
+
+      # [south, west, north, east] boxes covering the destination.
+      def tiles
+        south, west, north, east = destination.bbox
+        rows = ((north - south) / TILE_DEGREES).ceil.clamp(1..)
+        columns = ((east - west) / TILE_DEGREES).ceil.clamp(1..)
+        height = (north - south) / rows
+        width = (east - west) / columns
+        (0...rows).to_a.product((0...columns).to_a).map do |row, column|
+          [ south + row * height, west + column * width, south + (row + 1) * height, west + (column + 1) * width ]
+            .map { |degrees| degrees.round(6) }
+        end
       end
 
       def walkable?(element)
