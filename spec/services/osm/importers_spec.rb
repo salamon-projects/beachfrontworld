@@ -85,6 +85,30 @@ RSpec.describe "OSM importers" do
     end
   end
 
+  describe Osm::Importers::WalkNetwork do
+    it "splits walkable ways into edges at junctions and skips ways closed to walkers" do
+      expect(run(described_class)).to eq(8)
+
+      expect(destination.walk_edges.where(osm_way_id: 701).order(:id).pluck(:source, :target))
+        .to eq([ [ 9001, 9002 ], [ 9002, 9022 ], [ 9022, 9004 ] ])
+      expect(destination.walk_edges.where(osm_way_id: [ 706, 707, 708 ])).to be_empty
+      expect(destination.walk_edges.find_by!(osm_way_id: 705)).to have_attributes(steps: true, busy: false)
+      expect(destination.walk_edges.find_by!(osm_way_id: 704)).to have_attributes(busy: true)
+      expect(destination.walk_edges.find_by!(osm_way_id: 703).length_m).to be_within(0.5).of(33.4)
+      expect(destination.walk_vertices.where(busy: true).pluck(:node_id)).to contain_exactly(9021, 9022)
+      expect(destination.walk_vertices.count).to eq(8)
+    end
+
+    it "replaces the previous network, and keeps it when the query comes back empty" do
+      2.times { run(described_class) }
+      expect(WalkEdge.count).to eq(8)
+
+      described_class.new(destination, client: instance_double(Osm::OverpassClient, query: [])).call
+
+      expect(WalkEdge.count).to eq(8)
+    end
+  end
+
   describe Osm::Importers::Accommodations do
     it "creates pending properties from named nodes and ways" do
       expect(run(described_class)).to eq(2)

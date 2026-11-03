@@ -1,5 +1,5 @@
 {
-  "_comment": "Fictional bay near 43.300N 17.020E for importer specs. Elements are grouped by layer; FakeOverpassClient serves each group for the matching query.",
+  "_comment": "Fictional bay near 43.300N 17.020E for importer specs. Elements are grouped by layer; FakeOverpassClient serves each group for the matching query. The walk network splits into 8 edges: Coast Road at the footway (703) and at Main Road (a busy primary), with steps up to the promenade at its east end; 706-708 are not walkable.",
   "coastline": [
     { "type": "way", "id": 101, "tags": { "natural": "coastline" },
       "geometry": [ { "lat": 43.30100, "lon": 17.0300 }, { "lat": 43.30100, "lon": 17.0200 }, { "lat": 43.30100, "lon": 17.0100 } ] },
@@ -37,5 +37,23 @@
       "geometry": [ { "lat": 43.29960, "lon": 17.0279 }, { "lat": 43.29960, "lon": 17.0281 }, { "lat": 43.29975, "lon": 17.0281 },
                     { "lat": 43.29975, "lon": 17.0279 }, { "lat": 43.29960, "lon": 17.0279 } ] },
     { "type": "node", "id": 503, "lat": 43.3000, "lon": 17.0150, "tags": { "tourism": "hotel" } }
+  ],
+  "walk_network": [
+    { "type": "way", "id": 701, "tags": { "highway": "residential", "name": "Coast Road" }, "nodes": [ 9001, 9002, 9022, 9004 ],
+      "geometry": [ { "lat": 43.29990, "lon": 17.0100 }, { "lat": 43.29990, "lon": 17.0200 }, { "lat": 43.29990, "lon": 17.0240 }, { "lat": 43.29990, "lon": 17.0300 } ] },
+    { "type": "way", "id": 702, "tags": { "highway": "footway", "name": "Setaliste" }, "nodes": [ 9011, 9012, 9013 ],
+      "geometry": [ { "lat": 43.30020, "lon": 17.0100 }, { "lat": 43.30020, "lon": 17.0200 }, { "lat": 43.30020, "lon": 17.0300 } ] },
+    { "type": "way", "id": 703, "tags": { "highway": "footway" }, "nodes": [ 9002, 9012 ],
+      "geometry": [ { "lat": 43.29990, "lon": 17.0200 }, { "lat": 43.30020, "lon": 17.0200 } ] },
+    { "type": "way", "id": 704, "tags": { "highway": "primary", "name": "Main Road" }, "nodes": [ 9021, 9022 ],
+      "geometry": [ { "lat": 43.29900, "lon": 17.0240 }, { "lat": 43.29990, "lon": 17.0240 } ] },
+    { "type": "way", "id": 705, "tags": { "highway": "steps" }, "nodes": [ 9013, 9004 ],
+      "geometry": [ { "lat": 43.30020, "lon": 17.0300 }, { "lat": 43.29990, "lon": 17.0300 } ] },
+    { "type": "way", "id": 706, "tags": { "highway": "footway", "foot": "no" }, "nodes": [ 9031, 9032 ],
+      "geometry": [ { "lat": 43.29850, "lon": 17.0200 }, { "lat": 43.29850, "lon": 17.0220 } ] },
+    { "type": "way", "id": 707, "tags": { "highway": "service", "access": "private" }, "nodes": [ 9041, 9042 ],
+      "geometry": [ { "lat": 43.29800, "lon": 17.0100 }, { "lat": 43.29800, "lon": 17.0120 } ] },
+    { "type": "way", "id": 708, "tags": { "highway": "cycleway" }, "nodes": [ 9031, 9041 ],
+      "geometry": [ { "lat": 43.29850, "lon": 17.0200 }, { "lat": 43.29800, "lon": 17.0100 } ] }
   ]
 }

@@ -7,6 +7,7 @@ module Osm
       inland_water: Importers::InlandWater,
       beaches: Importers::Beaches,
       roads: Importers::Roads,
+      walk_network: Importers::WalkNetwork,
       accommodations: Importers::Accommodations
     }.freeze
 

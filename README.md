@@ -17,7 +17,7 @@ Principles:
 
 ## Stack
 
-Ruby 3.3, Rails 8.1, PostgreSQL 16 + PostGIS 3 (`activerecord-postgis-adapter`),
+Ruby 3.3, Rails 8.1, PostgreSQL 16 + PostGIS 3 (`activerecord-postgis-adapter`) + pgRouting 3,
 HAML, SCSS (`dartsass-rails`), Propshaft. Pages are rendered on the server, with no
 Hotwire, Stimulus or importmap. The only JavaScript is `app/assets/javascripts/map.js`,
 which draws the maps with Leaflet 1.9.4 (vendored in `vendor/assets/leaflet`, BSD-2).
@@ -25,7 +25,15 @@ Background jobs and cache run on Solid Queue and Solid Cache. Tests use RSpec.
 
 ## Setup
 
-You need PostgreSQL with the PostGIS extension, e.g. `apt install postgresql-16-postgis-3`.
+You need PostgreSQL with the PostGIS, pgRouting, pg_trgm and unaccent extensions, e.g.
+`apt install postgresql-16-postgis-3 postgresql-16-pgrouting`, or the same image as
+production:
+
+```bash
+docker run -d --name stepsfrom-db -e POSTGRES_PASSWORD=postgres -p 127.0.0.1:5435:5432 \
+  pgrouting/pgrouting:16-3.5-3.8.0
+export DB_HOST=localhost DB_PORT=5435 DB_USER=postgres DB_PASSWORD=postgres
+```
 
 ```bash
 bundle install
@@ -37,7 +45,7 @@ In development the seeds also load **Demo Bay**, a fictional bay with sample
 properties and made-up prices, so you can try the site without importing any data.
 The admin is at `/admin`; in development and test it accepts `admin` / `admin`.
 
-The database connection reads `DB_HOST`, `DB_USER` and `DB_PASSWORD`, or a
+The database connection reads `DB_HOST`, `DB_PORT`, `DB_USER` and `DB_PASSWORD`, or a
 `DATABASE_URL` with the `postgis://` scheme.
 
 ## Workflow
@@ -162,7 +170,7 @@ returns made-up prices and refuses to run in production.
 
 Production runs on one server with [Kamal](https://kamal-deploy.org): the app
 container behind kamal-proxy (Let's Encrypt TLS for `stepsfrom.com` and
-`www.stepsfrom.com`, www redirects to the bare domain) and a PostGIS container
+`www.stepsfrom.com`, www redirects to the bare domain) and a PostGIS + pgRouting container
 (`stepsfrom-db`). See `config/deploy.yml`.
 
 Deploys run from GitHub Actions (`.github/workflows/deploy.yml`): every push to
@@ -192,6 +200,11 @@ Then, from Actions → Deploy → Run workflow:
 2. `seed`: adds the launch destinations (unpublished).
 3. `osm-import` with a destination slug, e.g. `makarska-riviera`.
 4. `deploy`: deploys `main` again without a new commit.
+5. `db-upgrade`: restarts the database container on the image in `config/deploy.yml`,
+   keeping its data. Needed once whenever that image changes, before the new app
+   version can boot (its migrations may need the new image). The first deploy after
+   such a change fails its health check and leaves the old version running; run
+   `db-upgrade`, then `deploy`.
 
 Kamal connects to the server by IP address (`188.245.4.128`); the repository
 variable `KAMAL_SERVER` overrides it.
@@ -224,7 +237,7 @@ bin/rubocop
 bin/brakeman
 ```
 
-The specs need PostGIS. OSM imports are tested against a fixture
+The specs need PostGIS and pgRouting. OSM imports are tested against a fixture
 (`spec/fixtures/files/overpass/sample_bay.json`), with no network access.
 
 ## Data and licences

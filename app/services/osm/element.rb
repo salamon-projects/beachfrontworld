@@ -1,6 +1,6 @@
 module Osm
   # One element of an Overpass `out geom` response.
-  Element = Data.define(:type, :id, :tags, :lat, :lon, :coords, :members) do
+  Element = Data.define(:type, :id, :tags, :lat, :lon, :coords, :members, :nodes) do
     def self.from_json(json)
       new(
         type: json.fetch("type"),
@@ -9,7 +9,8 @@ module Osm
         lat: json["lat"],
         lon: json["lon"],
         coords: coords_from(json["geometry"]),
-        members: Array(json["members"]).map { |m| { role: m["role"], coords: coords_from(m["geometry"]) } }
+        members: Array(json["members"]).map { |m| { role: m["role"], coords: coords_from(m["geometry"]) } },
+        nodes: Array(json["nodes"])
       )
     end
 

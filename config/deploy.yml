@@ -64,10 +64,12 @@ aliases:
   dbc: app exec --interactive --reuse "bin/rails dbconsole"
 
 accessories:
-  # PostgreSQL with PostGIS. The app reaches it as stepsfrom-db on the kamal
-  # Docker network; the port is only exposed on the server's loopback.
+  # PostgreSQL with PostGIS and pgRouting (walking distances). The app reaches
+  # it as stepsfrom-db on the kamal Docker network; the port is only exposed on
+  # the server's loopback. After changing the image, run the db-upgrade
+  # command of the Deploy workflow (kamal accessory reboot db).
   db:
-    image: postgis/postgis:16-3.4
+    image: pgrouting/pgrouting:16-3.5-3.8.0
     host: <%= server %>
     port: "127.0.0.1:5432:5432"
     env:

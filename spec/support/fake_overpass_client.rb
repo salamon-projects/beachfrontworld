@@ -1,7 +1,9 @@
 # Serves a fixture file instead of calling Overpass. The fixture groups
 # elements by layer; each query gets the group whose selector it contains.
 class FakeOverpassClient
+  # Checked in order: the walk network query also mentions "highway".
   LAYER_SELECTORS = {
+    "walk_network" => "(footway|path|steps|",
     "coastline" => '"natural"="coastline"',
     "inland_water" => '"natural"="water"',
     "beaches" => '"natural"="beach"',

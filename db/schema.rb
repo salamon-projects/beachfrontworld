@@ -10,10 +10,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_01_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_03_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "postgis"
+  enable_extension "pg_trgm"
+  enable_extension "pgrouting"
+  enable_extension "unaccent"
 
   create_table "beaches", force: :cascade do |t|
     t.string "osm_type", null: false
@@ -162,6 +165,30 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_01_120000) do
     t.index ["type", "category"], name: "index_verifications_on_type_and_category"
   end
 
+  create_table "walk_edges", force: :cascade do |t|
+    t.bigint "destination_id", null: false
+    t.bigint "osm_way_id", null: false
+    t.bigint "source", null: false
+    t.bigint "target", null: false
+    t.string "highway", null: false
+    t.boolean "steps", default: false, null: false
+    t.boolean "busy", default: false, null: false
+    t.float "length_m", default: 0.0, null: false
+    t.geography "geom", limit: {:srid=>4326, :type=>"line_string", :geographic=>true}, null: false
+    t.index ["destination_id", "source"], name: "index_walk_edges_on_destination_id_and_source"
+    t.index ["destination_id", "target"], name: "index_walk_edges_on_destination_id_and_target"
+    t.index ["geom"], name: "index_walk_edges_on_geom", using: :gist
+  end
+
+  create_table "walk_vertices", force: :cascade do |t|
+    t.bigint "destination_id", null: false
+    t.bigint "node_id", null: false
+    t.boolean "busy", default: false, null: false
+    t.geography "geom", limit: {:srid=>4326, :type=>"st_point", :geographic=>true}, null: false
+    t.index ["destination_id", "node_id"], name: "index_walk_vertices_on_destination_id_and_node_id", unique: true
+    t.index ["geom"], name: "index_walk_vertices_on_geom", using: :gist
+  end
+
   create_table "water_features", force: :cascade do |t|
     t.string "osm_type", null: false
     t.bigint "osm_id", null: false
@@ -182,4 +209,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_01_120000) do
   add_foreign_key "price_quotes", "listings", on_delete: :cascade
   add_foreign_key "properties", "destinations"
   add_foreign_key "verifications", "properties", on_delete: :cascade
+  add_foreign_key "walk_edges", "destinations"
+  add_foreign_key "walk_vertices", "destinations"
 end

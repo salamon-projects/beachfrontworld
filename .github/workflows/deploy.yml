@@ -19,6 +19,7 @@ on:
           - setup
           - seed
           - osm-import
+          - db-upgrade
       destination:
         description: Destination slug for osm-import (e.g. makarska-riviera)
         required: false
@@ -86,6 +87,9 @@ jobs:
             deploy) bin/kamal deploy ;;
             setup) bin/kamal setup ;;
             seed) bin/kamal app exec "bin/rails db:seed" ;;
+            # Restarts the database container on the image in config/deploy.yml
+            # (the data volume is kept). The site is down for a few seconds.
+            db-upgrade) bin/kamal accessory reboot db ;;
             osm-import)
               if [[ ! "$DESTINATION" =~ ^[a-z0-9]+(-[a-z0-9]+)*$ ]]; then
                 echo "::error::Give a destination slug, e.g. makarska-riviera"

@@ -18,8 +18,8 @@ RSpec.describe OsmImportJob do
     expect(run.counts).to include("coastline" => 1, "accommodations" => 2, "measurement_failures" => 0)
     expect(run.started_at).to be_present
     expect(run.finished_at).to be_present
-    expect(steps.map(&:first)).to start_with(%w[coastline inland_water beaches roads accommodations])
-    expect(steps.last).to eq([ "measuring 0/2", 5, 6 ])
+    expect(steps.map(&:first)).to start_with(%w[coastline inland_water beaches roads walk_network accommodations])
+    expect(steps.last).to eq([ "measuring 0/2", 6, 7 ])
   end
 
   it "creates its own run when scheduled without one" do
