@@ -8,6 +8,7 @@ module Osm
       beaches: Importers::Beaches,
       roads: Importers::Roads,
       walk_network: Importers::WalkNetwork,
+      landmarks: Importers::Landmarks,
       accommodations: Importers::Accommodations
     }.freeze
 

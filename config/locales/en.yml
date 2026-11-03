@@ -50,6 +50,32 @@ en:
       pebble: Pebble beach
       rock: Rocky shore
 
+  landmarks:
+    kinds:
+      attraction: Sight
+      museum: Museum
+      historic: Historic site
+      place_of_worship: Church or temple
+      viewpoint: Viewpoint
+      square: Square
+      pedestrian_street: Pedestrian street
+      park: Park
+      beach: Beach
+      station: Station
+      market: Market
+    unnamed:
+      attraction: a sight
+      museum: a museum
+      historic: a historic site
+      place_of_worship: a church
+      viewpoint: a viewpoint
+      square: a square
+      pedestrian_street: a pedestrian street
+      park: a park
+      beach: a beach
+      station: a station
+      market: a market
+
   properties:
     kinds:
       hotel: Hotel

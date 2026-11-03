@@ -109,6 +109,43 @@ RSpec.describe "OSM importers" do
     end
   end
 
+  describe Osm::Importers::Landmarks do
+    it "imports notable places, joining the ways of a street and duplicates of one place" do
+      expect(run(described_class)).to eq(5)
+
+      lighthouse = destination.landmarks.find_by!(osm_id: 801)
+      expect(lighthouse).to have_attributes(kind: "attraction", name: "Sample Lighthouse", local_name: "Svjetionik",
+                                            slug: "sample-lighthouse", wikidata: "Q901")
+      expect(lighthouse.names).to include("hu" => "Minta világítótorony")
+      expect(lighthouse.prominence).to eq(3 + 20 + 20)
+
+      street = destination.landmarks.find_by!(kind: "pedestrian_street")
+      expect(street).to have_attributes(name: "Riva", osm_id: 802)
+      expect(street.geom.num_geometries).to eq(2)
+
+      castle = destination.landmarks.find_by!(wikidata: "Q902")
+      expect(castle).to have_attributes(kind: "historic", osm_type: "way", osm_id: 806)
+
+      beach = destination.landmarks.find_by!(kind: "beach")
+      expect(beach).to have_attributes(name: nil, slug: "beach-804", display_name: "a beach")
+
+      expect(destination.landmarks.find_by(osm_id: 805)).to be_nil
+      expect(destination.landmarks.find_by!(osm_id: 808).kind).to eq("station")
+    end
+
+    it "keeps slugs on re-import and removes landmarks OSM no longer has" do
+      run(described_class)
+      gone = destination.landmarks.create!(osm_type: "node", osm_id: 899, kind: "museum", name: "Closed Museum",
+                                           geom: point_at(north_m: 100))
+
+      run(described_class)
+
+      expect(Landmark.exists?(gone.id)).to be(false)
+      expect(destination.landmarks.find_by!(osm_id: 801).slug).to eq("sample-lighthouse")
+      expect(destination.landmarks.count).to eq(5)
+    end
+  end
+
   describe Osm::Importers::Accommodations do
     it "creates pending properties from named nodes and ways" do
       expect(run(described_class)).to eq(2)

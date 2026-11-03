@@ -3,6 +3,7 @@ class Destination < ApplicationRecord
 
   has_many :properties, dependent: :restrict_with_error
   has_many :import_runs, dependent: :delete_all
+  has_many :landmarks, dependent: :destroy
   has_many :walk_edges, dependent: :delete_all
   has_many :walk_vertices, dependent: :delete_all
 

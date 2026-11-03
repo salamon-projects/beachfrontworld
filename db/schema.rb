@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_03_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_03_130000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "postgis"
@@ -64,6 +64,29 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_03_120000) do
     t.datetime "updated_at", null: false
     t.index ["destination_id", "created_at"], name: "index_import_runs_on_destination_id_and_created_at"
     t.index ["status"], name: "index_import_runs_on_status"
+  end
+
+  create_table "landmarks", force: :cascade do |t|
+    t.bigint "destination_id", null: false
+    t.string "osm_type", null: false
+    t.bigint "osm_id", null: false
+    t.string "kind", null: false
+    t.string "name"
+    t.string "local_name"
+    t.string "slug", null: false
+    t.jsonb "names", default: {}, null: false
+    t.text "search_text", default: "", null: false
+    t.string "wikidata"
+    t.integer "prominence", default: 0, null: false
+    t.geography "geom", limit: {:srid=>4326, :type=>"geometry", :geographic=>true}, null: false
+    t.datetime "seen_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["destination_id", "kind"], name: "index_landmarks_on_destination_id_and_kind"
+    t.index ["destination_id", "osm_type", "osm_id"], name: "index_landmarks_on_destination_id_and_osm_type_and_osm_id", unique: true
+    t.index ["geom"], name: "index_landmarks_on_geom", using: :gist
+    t.index ["search_text"], name: "index_landmarks_on_search_text", opclass: :gin_trgm_ops, using: :gin
+    t.index ["slug"], name: "index_landmarks_on_slug", unique: true
   end
 
   create_table "listings", force: :cascade do |t|
@@ -203,6 +226,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_03_120000) do
   end
 
   add_foreign_key "import_runs", "destinations", on_delete: :cascade
+  add_foreign_key "landmarks", "destinations"
   add_foreign_key "listings", "properties", on_delete: :cascade
   add_foreign_key "outbound_clicks", "listings", on_delete: :nullify
   add_foreign_key "outbound_clicks", "properties", on_delete: :nullify
