@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_04_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_04_130000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "postgis"
@@ -87,6 +87,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_04_120000) do
     t.datetime "measured_at"
     t.datetime "measure_requested_at"
     t.datetime "measure_failed_at"
+    t.datetime "searched_at"
     t.index ["destination_id", "kind"], name: "index_landmarks_on_destination_id_and_kind"
     t.index ["destination_id", "osm_type", "osm_id"], name: "index_landmarks_on_destination_id_and_osm_type_and_osm_id", unique: true
     t.index ["geom"], name: "index_landmarks_on_geom", using: :gist

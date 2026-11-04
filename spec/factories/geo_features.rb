@@ -31,6 +31,7 @@ FactoryBot.define do
 
     trait :searched do
       source { "search" }
+      searched_at { Time.current }
       measured_at { nil }
     end
   end

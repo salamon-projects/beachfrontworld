@@ -39,6 +39,15 @@ RSpec.describe Search::Locator do
     expect(first.destination.reload.north).to be > first.walk_area[2]
   end
 
+  it "finds a place imported with a destination not published yet, and shows it from now on" do
+    paris = create(:destination, published: false)
+    tower = create(:landmark, destination: paris, osm_type: "way", osm_id: 5_013_364, name: "Eiffel Tower")
+    expect(Landmark.visible).not_to include(tower)
+
+    expect(locator.call([ "eiffel" ]).landmark).to eq(tower)
+    expect(Landmark.visible).to include(tower)
+  end
+
   it "puts a place inside a destination into it" do
     makarska = create(:destination)
 

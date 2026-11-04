@@ -45,7 +45,10 @@ module Search
 
     def found(place)
       landmark = Landmark.find_by(osm_type: place.osm_type, osm_id: place.osm_id) || create(place)
-      landmark ? Result.build(:found, landmark:) : Result.build(:not_found)
+      return Result.build(:not_found) unless landmark
+
+      landmark.update_columns(searched_at: Time.current)
+      Result.build(:found, landmark:)
     end
 
     def create(place)

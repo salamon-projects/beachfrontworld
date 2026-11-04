@@ -26,9 +26,9 @@ class Landmark < ApplicationRecord
 
   scope :named, -> { where.not(name: nil) }
   scope :searched, -> { source_search }
-  # On the site: in a published destination, or found for a visitor (whose
-  # town may be an unpublished destination still waiting for its import).
-  scope :visible, -> { joins(:destination).where("destinations.published OR landmarks.source = 'search'") }
+  # On the site: in a published destination, or searched for by a visitor
+  # (its town may be a destination not published yet).
+  scope :visible, -> { joins(:destination).where("destinations.published OR landmarks.searched_at IS NOT NULL") }
   # Close enough to a point for a walk to be measured.
   scope :within_walk_of, ->(point) {
     where("ST_DWithin(geom, ST_GeogFromText(?), ?)", point.as_text, Walks.config.fetch(:max_walk_m))
