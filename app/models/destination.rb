@@ -4,8 +4,6 @@ class Destination < ApplicationRecord
   has_many :properties, dependent: :restrict_with_error
   has_many :import_runs, dependent: :delete_all
   has_many :landmarks, dependent: :destroy
-  has_many :walk_edges, dependent: :delete_all
-  has_many :walk_vertices, dependent: :delete_all
 
   normalizes :country_code, with: ->(code) { code.strip.upcase }
 
@@ -24,12 +22,24 @@ class Destination < ApplicationRecord
 
   scope :published, -> { where(published: true) }
   scope :ordered, -> { order(:position, :name) }
+  # Imported whole by an admin, as opposed to grown from visitors' searches.
+  scope :curated, -> { where(on_demand: false) }
+  scope :containing, ->(point) {
+    where("ST_Covers(area, ST_GeogFromText(?))", point.as_text).order(:on_demand, :id)
+  }
 
   after_initialize :load_bbox_from_area, if: -> { has_attribute?(:area) && area.present? && !bbox_given? }
 
   # [south, west, north, east], the order Overpass expects.
   def bbox
     [ south, west, north, east ]
+  end
+
+  # Grows the box to take in another one, [south, west, north, east].
+  def extend_to!(other)
+    other_south, other_west, other_north, other_east = other
+    update!(south: [ south, other_south ].min, west: [ west, other_west ].min,
+            north: [ north, other_north ].max, east: [ east, other_east ].max)
   end
 
   def country_name

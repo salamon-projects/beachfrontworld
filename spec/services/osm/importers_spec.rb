@@ -86,36 +86,56 @@ RSpec.describe "OSM importers" do
   end
 
   describe Osm::Importers::WalkNetwork do
-    it "splits walkable ways into edges at junctions and skips ways closed to walkers" do
+    it "splits walkable ways into edges between nodes and skips ways closed to walkers" do
       expect(run(described_class)).to eq(8)
 
-      expect(destination.walk_edges.where(osm_way_id: 701).order(:id).pluck(:source, :target))
+      expect(WalkEdge.where(osm_way_id: 701).order(:id).pluck(:source, :target))
         .to eq([ [ 9001, 9002 ], [ 9002, 9022 ], [ 9022, 9004 ] ])
-      expect(destination.walk_edges.where(osm_way_id: [ 706, 707, 708 ])).to be_empty
-      expect(destination.walk_edges.find_by!(osm_way_id: 705)).to have_attributes(steps: true, busy: false)
-      expect(destination.walk_edges.find_by!(osm_way_id: 704)).to have_attributes(busy: true)
-      expect(destination.walk_edges.find_by!(osm_way_id: 703).length_m).to be_within(0.5).of(33.4)
-      expect(destination.walk_vertices.where(busy: true).pluck(:node_id)).to contain_exactly(9021, 9022)
-      expect(destination.walk_vertices.count).to eq(8)
+      expect(WalkEdge.where(osm_way_id: [ 706, 707, 708 ])).to be_empty
+      expect(WalkEdge.find_by!(osm_way_id: 705)).to have_attributes(steps: true, busy: false)
+      expect(WalkEdge.find_by!(osm_way_id: 704)).to have_attributes(busy: true)
+      expect(WalkEdge.find_by!(osm_way_id: 703).length_m).to be_within(0.5).of(33.4)
+      expect(WalkVertex.where(busy: true).pluck(:node_id)).to contain_exactly(9021, 9022)
+      expect(WalkVertex.count).to eq(8)
     end
 
-    it "queries the box in tiles and keeps each way once" do
-      run(described_class)
+    it "queries a big box in tiles and keeps each way once" do
+      described_class.new(destination, client:, bbox: [ 43.28, 16.98, 43.32, 17.12 ]).call
 
       tiles = client.queries.map { |ql| ql[/\(([\d.,]+)\);out geom/, 1].split(",").map(&:to_f) }
-      expect(tiles.size).to eq(2 * 2)
-      expect(tiles.map(&:first).minmax).to eq([ 43.28, 43.30 ])
-      expect(tiles.map(&:last).max).to eq(17.04)
+      expect(tiles).to eq([ [ 43.28, 16.98, 43.32, 17.05 ], [ 43.28, 17.05, 43.32, 17.12 ] ])
       expect(WalkEdge.count).to eq(8)
     end
 
-    it "replaces the previous network, and keeps it when the query comes back empty" do
+    it "fills in the shared network box by box, replacing ways it fetches again" do
+      neighbour = create(:destination, south: 43.32, west: 16.98, north: 43.36, east: 17.04)
+      WalkEdge.create!(osm_way_id: 799, source: 1, target: 2, highway: "footway", geom: east_west_line(north_m: 10_000))
       2.times { run(described_class) }
-      expect(WalkEdge.count).to eq(8)
+
+      described_class.new(neighbour, client:, bbox: neighbour.bbox).call
+
+      expect(WalkEdge.count).to eq(8 + 1)
+      expect(WalkVertex.distinct.count(:node_id)).to eq(WalkVertex.count)
+    end
+
+    it "removes ways inside the box that OSM no longer has, and keeps the network when the answer is empty" do
+      WalkEdge.create!(osm_way_id: 799, source: 1, target: 2, highway: "footway", geom: east_west_line(north_m: 500))
+      importer = described_class.new(destination, client:)
+      importer.call
+      expect(importer.removed).to eq(1)
 
       described_class.new(destination, client: instance_double(Osm::OverpassClient, query: [])).call
 
       expect(WalkEdge.count).to eq(8)
+    end
+
+    it "takes a node's busy flag from the ways fetched with it inside the box" do
+      run(described_class)
+      WalkVertex.find_by!(node_id: 9001).update!(busy: true)
+
+      run(described_class)
+
+      expect(WalkVertex.where(busy: true).pluck(:node_id)).to contain_exactly(9021, 9022)
     end
   end
 

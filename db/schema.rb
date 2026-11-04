@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_03_150000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_04_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "postgis"
@@ -44,6 +44,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_03_150000) do
     t.boolean "published", default: false, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "on_demand", default: false, null: false
     t.index ["area"], name: "index_destinations_on_area", using: :gist
     t.index ["slug"], name: "index_destinations_on_slug", unique: true
   end
@@ -82,9 +83,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_03_150000) do
     t.datetime "seen_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "source", default: "import", null: false
+    t.datetime "measured_at"
+    t.datetime "measure_requested_at"
+    t.datetime "measure_failed_at"
     t.index ["destination_id", "kind"], name: "index_landmarks_on_destination_id_and_kind"
     t.index ["destination_id", "osm_type", "osm_id"], name: "index_landmarks_on_destination_id_and_osm_type_and_osm_id", unique: true
     t.index ["geom"], name: "index_landmarks_on_geom", using: :gist
+    t.index ["osm_type", "osm_id"], name: "index_landmarks_on_osm_type_and_osm_id"
     t.index ["search_text"], name: "index_landmarks_on_search_text", opclass: :gin_trgm_ops, using: :gin
     t.index ["slug"], name: "index_landmarks_on_slug", unique: true
   end
@@ -101,6 +107,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_03_150000) do
     t.datetime "updated_at", null: false
     t.index ["property_id", "provider"], name: "index_listings_on_property_id_and_provider", unique: true
     t.index ["property_id"], name: "index_listings_on_property_id"
+  end
+
+  create_table "map_areas", force: :cascade do |t|
+    t.geography "geom", limit: {:srid=>4326, :type=>"st_polygon", :geographic=>true}, null: false
+    t.datetime "fetched_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["geom"], name: "index_map_areas_on_geom", using: :gist
   end
 
   create_table "outbound_clicks", force: :cascade do |t|
@@ -199,7 +213,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_03_150000) do
   end
 
   create_table "walk_edges", force: :cascade do |t|
-    t.bigint "destination_id", null: false
     t.bigint "osm_way_id", null: false
     t.bigint "source", null: false
     t.bigint "target", null: false
@@ -208,18 +221,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_03_150000) do
     t.boolean "busy", default: false, null: false
     t.float "length_m", default: 0.0, null: false
     t.geography "geom", limit: {:srid=>4326, :type=>"line_string", :geographic=>true}, null: false
-    t.index ["destination_id", "source"], name: "index_walk_edges_on_destination_id_and_source"
-    t.index ["destination_id", "target"], name: "index_walk_edges_on_destination_id_and_target"
+    t.datetime "seen_at"
     t.index ["geom"], name: "index_walk_edges_on_geom", using: :gist
+    t.index ["osm_way_id"], name: "index_walk_edges_on_osm_way_id"
   end
 
   create_table "walk_vertices", force: :cascade do |t|
-    t.bigint "destination_id", null: false
     t.bigint "node_id", null: false
     t.boolean "busy", default: false, null: false
     t.geography "geom", limit: {:srid=>4326, :type=>"st_point", :geographic=>true}, null: false
-    t.index ["destination_id", "node_id"], name: "index_walk_vertices_on_destination_id_and_node_id", unique: true
+    t.datetime "seen_at"
     t.index ["geom"], name: "index_walk_vertices_on_geom", using: :gist
+    t.index ["node_id"], name: "index_walk_vertices_on_node_id", unique: true
   end
 
   create_table "water_features", force: :cascade do |t|
@@ -245,6 +258,4 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_03_150000) do
   add_foreign_key "property_walks", "landmarks", on_delete: :cascade
   add_foreign_key "property_walks", "properties", on_delete: :cascade
   add_foreign_key "verifications", "properties", on_delete: :cascade
-  add_foreign_key "walk_edges", "destinations"
-  add_foreign_key "walk_vertices", "destinations"
 end

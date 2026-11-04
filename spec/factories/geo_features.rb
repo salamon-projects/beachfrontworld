@@ -27,5 +27,11 @@ FactoryBot.define do
     kind { "attraction" }
     sequence(:name) { |n| "Sample Sight #{n}" }
     geom { point_at(north_m: 300) }
+    measured_at { Time.current }
+
+    trait :searched do
+      source { "search" }
+      measured_at { nil }
+    end
   end
 end

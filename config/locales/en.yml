@@ -65,6 +65,7 @@ en:
       beach: Beach
       station: Station
       market: Market
+      place: Place
     unnamed:
       attraction: a sight
       museum: a museum
@@ -77,6 +78,21 @@ en:
       beach: a beach
       station: a station
       market: a market
+      place: a place
+    measuring:
+      title: "Measuring the walks around %{name}…"
+      note: "We are fetching the streets and paths around it from OpenStreetMap and measuring the walk from every stay within %{km} km. This usually takes a minute or two."
+      refresh: This page updates by itself.
+      stays_found:
+        one: "Found 1 stay nearby. Measuring the walk along the streets…"
+        other: "Found %{count} stays nearby. Measuring the walks along the streets…"
+      measured_so_far:
+        one: "1 walk measured so far, still measuring the rest…"
+        other: "%{count} walks measured so far, the shortest first. Still measuring the rest…"
+      straight_line: In a straight line · measuring the walk…
+      straight_line_only: In a straight line, walk not measured yet
+      failed: The OpenStreetMap servers did not answer in time. Their data is free and shared by everyone, so they are sometimes busy.
+      retry: Try again
 
   walks:
     measured_label: Measured walk
@@ -86,6 +102,7 @@ en:
     to: "to %{landmark}"
     steps: "%{steps} steps"
     no_busy_roads: No busy road to cross on the way
+    no_busy_roads_short: no busy roads
     busy_roads:
       one: Crosses 1 busy road on the way
       other: Crosses %{count} busy roads on the way
@@ -205,8 +222,11 @@ en:
     results_for: You searched for
     which_one: Several places match. Which one did you mean?
     which_destination: "Where would you like to be near %{kind}?"
-    not_found: We could not find that place in the destinations we have measured.
-    not_measured_place: "We have not measured %{place} yet."
-    try_instead: "These are the destinations we have measured so far:"
+    not_found: "We could not find that place on the map. Try its name as a map writes it, with the town: “Sagrada Família, Barcelona”."
+    not_measured_place: "We could not find that place in %{place} on the map. Try its name as a map writes it."
+    too_big: "%{place} is a whole town or region. Tell us what you want to stay close to there: a sight, a square, a street or an address."
+    busy: You have looked up many new places in the last hour. Please try again later, or choose a place we have already measured.
+    unavailable: The map search is not answering right now. Please try again in a minute.
+    try_instead: "Or choose one of the destinations we have measured:"
     dates_and_filters: Dates & filters
     any_dates: Any dates

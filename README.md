@@ -78,7 +78,7 @@ The database connection reads `DB_HOST`, `DB_PORT`, `DB_USER` and `DB_PASSWORD`,
    lakes, beaches, roads, landmarks) that OSM no longer returns inside the bounding
    box are removed, so measurements always use the current map (features within
    about 100 m of the box's edge are kept, and a layer that comes back empty removes
-   nothing); the walk network is rebuilt. Properties are never deleted: one that OSM
+   nothing); the same goes for the walk network. Properties are never deleted: one that OSM
    no longer returns is taken off the site and listed under "Not in OSM" in the
    admin. Until an admin edits or hides a property, its name, position and details
    follow OSM.
@@ -111,23 +111,45 @@ stay. Answers are cached for 30 days. Without a key, or when the call fails, lan
 names are matched against the words of the text directly.
 
 `Search::Resolver` matches the names with trigrams against every `name:*` tag of the
-imported landmarks (`Landmark.search`), then sends the visitor to the landmark's page
+landmarks we have (`Landmark.search`), then sends the visitor to the landmark's page
 (`/near/:slug`), to a destination ordered by the walk to the nearest landmark of a
 kind (`?near=beach`), to a destination, or to a page of choices.
+
+A place we do not have yet (or one in a town that none of our destinations is named
+after) is **measured on demand**. `Search::Locator` looks it up with Nominatim,
+OpenStreetMap's own search (`Osm::Nominatim`: one request a second, answers cached
+for 30 days, `NOMINATIM_URL` for another instance), and saves it as a landmark with
+`source: "search"` — any sight, square, street, station, venue or address; a whole
+town or region is refused. It goes into the destination around it, else one of the
+same town, else a new `on_demand` destination for the town, which grows with each
+place searched in it. Its landmark page then shows "Measuring…" and reloads itself
+while `MeasureLandmarkJob` (queue `areas`, two at a time) fetches the walk network
+and accommodation around it (`Osm::AreaImport#walks`, about 5.5 × 5.5 km, unless
+`MapArea` says that part of the map was fetched in the last 30 days) and measures the
+walks to it. On public Overpass servers this takes about one to two minutes in a
+city centre, almost all of it waiting for Overpass; measuring itself takes seconds.
+`MeasureAreaJob` then adds water, beaches and roads for the waterfront badge and
+measures the newly imported properties against the other landmarks nearby. If
+Overpass does not answer, the page offers to try again. One visitor can look up 20
+new places an hour. Searched places are re-measured once their map data is 30 days
+old (`config/recurring.yml`).
 
 ## How walks are measured
 
 `Osm::Importers::WalkNetwork` imports the ways people can walk on (footways, paths,
 steps, pedestrian streets and roads; not motorways, private ways or ways closed to
-pedestrians), split at junctions into `walk_edges`/`walk_vertices` whose vertex ids
-are OSM node ids. Primary, secondary and trunk roads are marked busy.
+pedestrians) into `walk_edges`/`walk_vertices`, one edge per pair of consecutive
+nodes, with OSM node ids as vertex ids. The network is one map shared by all
+destinations and searched places, filled in box by box: a re-fetched way replaces its
+edges, and ways inside the box that OSM no longer returns are removed. Primary,
+secondary and trunk roads are marked busy.
 `Osm::Importers::Landmarks` imports sights and monuments with a Wikidata or
 Wikipedia entry, museums, squares, pedestrian streets (one per name), parks, beaches,
 stations and markets.
 
 `Walks::Measurement` then grows a pgRouting shortest-path tree
 (`pgr_drivingDistance`) from each landmark over the network, up to 2.5 km, and stores
-for every property within reach its walk in `property_walks`: the distance, the busy
+for every property within reach (of any destination) its walk in `property_walks`: the distance, the busy
 roads crossed (rather than walked along) and the flights of steps. Minutes and steps
 are derived with the pace in `config/walks.yml`. `Walks::Route` traces a walk for the
 property page's map. The public "How we measure and rank" page describes the same
@@ -253,8 +275,8 @@ variable `KAMAL_SERVER` overrides it.
 
 ## Jobs
 
-Production uses Solid Queue for imports, classification after edits, price refreshes
-and the recurring tasks. Run `bin/jobs`, or set `SOLID_QUEUE_IN_PUMA=1` to run it
+Production uses Solid Queue for imports, measuring searched places (queue `areas`),
+classification after edits, price refreshes and the recurring tasks. Run `bin/jobs`, or set `SOLID_QUEUE_IN_PUMA=1` to run it
 inside Puma.
 
 ## Configuration
@@ -263,6 +285,7 @@ inside Puma.
 |---|---|
 | `ADMIN_USER`, `ADMIN_PASSWORD` | Admin sign-in on `/admin/login` (or credentials `admin.user` / `admin.password`). Required in production |
 | `OVERPASS_URLS` | Overpass API endpoints, comma-separated (default: overpass-api.de, private.coffee, kumi.systems) |
+| `NOMINATIM_URL` | Nominatim instance for looking up searched places (default: nominatim.openstreetmap.org) |
 | `MAP_TILE_URL` | Map tile template (default: OpenStreetMap's tile server) |
 | `PRICE_PROVIDERS` | Price providers to use, e.g. `stay22` |
 | `LLM_API_KEY` | Key for the language model that reads searches (optional; without it names are matched directly). A repository secret for deploys |

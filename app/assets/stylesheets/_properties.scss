@@ -833,3 +833,58 @@
     font-size: 0.85rem;
   }
 }
+
+// Waiting for the walks to a searched place to be measured.
+.measuring {
+  max-width: 40rem;
+  padding-top: 2rem;
+  padding-bottom: 4rem;
+}
+
+.measuring__title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-family: $serif;
+  font-size: 1.35rem;
+  color: $ink;
+}
+
+.measuring__pulse {
+  flex: none;
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 50%;
+  background: $measure;
+  animation: measuring-pulse 1.2s ease-in-out infinite;
+}
+
+.measuring__note {
+  color: $muted;
+}
+
+@keyframes measuring-pulse {
+  50% { opacity: 0.25; transform: scale(0.7); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .measuring__pulse { animation: none; }
+}
+
+.measuring__list {
+  margin: 1.5rem 0;
+}
+
+// Found, not measured yet: a straight line is not our measurement, so it is
+// not drawn in the measuring colour.
+.walk-list__item--pending {
+  .walk-list__place {
+    font-weight: 500;
+  }
+
+  .walk-list__minutes {
+    color: $faint;
+    font-family: $font;
+    font-size: 1rem;
+  }
+}

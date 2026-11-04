@@ -16,7 +16,7 @@ module Osm
       https://overpass.kumi.systems/api/interpreter
     ].freeze
     RETRYABLE_STATUSES = [ 429, 502, 503, 504 ].freeze
-    USER_AGENT = "stepsfrom/1.0 (+https://stepsfrom.com; waterfront verification)".freeze
+    USER_AGENT = "stepsfrom/1.0 (+https://stepsfrom.com; walk measurement)".freeze
 
     def self.configured_urls
       urls = ENV.fetch("OVERPASS_URLS", ENV.fetch("OVERPASS_URL", "")).split(",").map(&:strip).compact_blank

@@ -70,10 +70,10 @@ module Search
           When it lies in one of our destinations below, use that destination's name exactly.
         - anchors: at most 2 specific named places to stay near. name in English, local_name as locals write it.
         - kinds: kinds of place wanted when none is named ("near a beach" → ["beach"]). Allowed kinds:
-          #{Landmark::KINDS.join(', ')}.
+          #{(Landmark::KINDS - %w[place]).join(', ')}.
         - max_walk_minutes: only when the visitor gives a time or distance (500 m ≈ 6 minutes).
         - property_kinds: only when asked for. Allowed: #{Property::KINDS.join(', ')}.
-        Our destinations: #{Destination.published.ordered.pluck(:name).join(', ').presence || 'none yet'}.
+        Our destinations: #{Destination.published.curated.ordered.pluck(:name).join(', ').presence || 'none yet'}.
       PROMPT
     end
 

@@ -20,7 +20,8 @@ module Osm
 
       def model = Landmark
 
-      def layer_scope = destination.landmarks
+      # Places found for a search stay until OSM drops them from a search.
+      def layer_scope = destination.landmarks.source_import
 
       def selectors
         [ 'nwr["tourism"~"^(attraction|museum|gallery|viewpoint|zoo|theme_park|aquarium)$"]["name"]',
@@ -89,7 +90,7 @@ module Osm
         landmark.assign_attributes(
           kind: main[:kind], name: names["en"].presence || tags["name"].presence, local_name: tags["name"].presence,
           names: names.merge(tags.slice("alt_name", "official_name")),
-          wikidata: tags["wikidata"].presence, prominence: prominence(tags), seen_at:,
+          wikidata: tags["wikidata"].presence, prominence: prominence(tags), seen_at:, source: "import",
           geom: combined_geometry(candidates.map { |c| c[:geom] }, main[:geom])
         )
         landmark.save!

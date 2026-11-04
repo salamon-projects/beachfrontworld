@@ -3,9 +3,15 @@ default: &default
     - polling_interval: 1
       batch_size: 500
   workers:
-    - queues: "*"
+    - queues: "default"
       threads: 3
       processes: <%= ENV.fetch("JOB_CONCURRENCY", 1) %>
+      polling_interval: 1
+    # Fetching the map around searched places: a visitor is waiting, and
+    # public Overpass servers allow only a couple of queries at a time.
+    - queues: "areas"
+      threads: 2
+      processes: 1
       polling_interval: 1
 
 development:

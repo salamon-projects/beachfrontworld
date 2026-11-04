@@ -11,8 +11,7 @@
     - when :choose_destination
       %p.page-header__lead= t("search.which_destination", kind: t("landmarks.unnamed.#{@outcome.kind}"))
     - else
-      %p.page-header__lead
-        = @outcome.place ? t("search.not_measured_place", place: @outcome.place) : t("search.not_found")
+      %p.page-header__lead= search_failure(@outcome, @status, @place)
 
 .container.search-results
   - case @outcome.status

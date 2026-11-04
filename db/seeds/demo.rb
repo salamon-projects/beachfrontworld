@@ -68,12 +68,12 @@ ActiveRecord::Base.transaction do
   rows.each_key do |north_m|
     lanes.each do |east_m|
       lon, lat = demo_offset(north_m, east_m)
-      WalkVertex.create!(destination: demo, node_id: node.(north_m, east_m), busy: rows[north_m] == "primary",
+      WalkVertex.create!(node_id: node.(north_m, east_m), busy: rows[north_m] == "primary",
                          geom: Geo.point(lon:, lat:))
     end
   end
   edge = lambda do |from, to, highway|
-    WalkEdge.create!(destination: demo, osm_way_id: 0, source: node.(*from), target: node.(*to), highway:,
+    WalkEdge.create!(osm_way_id: 0, source: node.(*from), target: node.(*to), highway:,
                      busy: highway == "primary", steps: highway == "steps",
                      geom: Geo.line([ demo_offset(*from), demo_offset(*to) ]))
   end
@@ -83,7 +83,8 @@ ActiveRecord::Base.transaction do
       edge.([ north, east_m ], [ south, east_m ], east_m == 300 && north == 140 ? "steps" : "footway")
     end
   end
-  demo.walk_edges.update_all("length_m = ST_Length(geom)")
+  WalkEdge.where(osm_way_id: 0).update_all("length_m = ST_Length(geom)")
+  MapArea.record!(demo.bbox)
 
   [ [ "Demo Lighthouse", "attraction", 60, Geo.point(lon: demo_offset(200, 900)[0], lat: demo_offset(200, 900)[1]) ],
     [ "Demo Old Town Square", "square", 40, demo_box(-390, -300, -200, 0) ],
@@ -96,7 +97,7 @@ ActiveRecord::Base.transaction do
     end
 
   demo.properties.find_each { |property| Waterfront::Classification.new(property).call }
-  Walks::Measurement.new(demo).call
+  Walks::Measurement.new(demo.landmarks).call
 end
 
 puts "Demo Bay: " + Destination.find_by!(slug: "demo-bay").properties.joins(:waterfront)

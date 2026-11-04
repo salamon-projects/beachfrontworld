@@ -19,7 +19,7 @@ RSpec.describe Walks::Measurement do
   end
 
   it "measures walks along the network, with stairs and busy-road crossings on the way" do
-    described_class.new(destination).call
+    described_class.new(destination.landmarks).call
 
     # Up the footway to the promenade, then east along it to the lighthouse.
     expect(walk(hotel, lighthouse)).to have_attributes(busy_crossings: 0, stairs: 0)
@@ -39,7 +39,7 @@ RSpec.describe Walks::Measurement do
     stale = create(:property, destination:, lonlat: point_at(north_m: 5_000))
     stale.walks.create!(landmark: lighthouse, walk_m: 100, measured_at: 1.day.ago)
 
-    stored = described_class.new(destination, config: Walks.config.merge(max_walk_m: 500)).call
+    stored = described_class.new(destination.landmarks, config: Walks.config.merge(max_walk_m: 500)).call
 
     riva = destination.landmarks.find_by!(name: "Riva")
     expect(PropertyWalk.where(property: hotel).map(&:landmark)).to contain_exactly(castle, riva)
@@ -48,10 +48,10 @@ RSpec.describe Walks::Measurement do
   end
 
   it "can measure only some properties" do
-    described_class.new(destination).call
+    described_class.new(destination.landmarks).call
     hotel.walks.update_all(walk_m: 1)
 
-    described_class.new(destination).call(property_ids: [ apartments.id ])
+    described_class.new(destination.landmarks).call(property_ids: [ apartments.id ])
 
     expect(hotel.walks.pluck(:walk_m)).to all(eq(1))
     expect(apartments.walks.count).to be_positive
@@ -59,7 +59,7 @@ RSpec.describe Walks::Measurement do
 
   describe Walks::Route do
     it "traces the measured walk over the network" do
-      Walks::Measurement.new(destination).call
+      Walks::Measurement.new(destination.landmarks).call
 
       lines = Walks::Route.new(walk(apartments, lighthouse), cache: ActiveSupport::Cache::NullStore.new).lines
 

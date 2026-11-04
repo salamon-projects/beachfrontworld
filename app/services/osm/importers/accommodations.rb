@@ -1,16 +1,19 @@
 module Osm
   module Importers
-    # Named tourism=* accommodation. New properties start pending review.
-    # Reviewed (approved or rejected) properties keep their name, geometry and
-    # any details already set, so a re-import never overrides a manual
-    # correction. Properties are never deleted: one that OSM no longer returns
-    # is flagged (osm_missing_since) for a person to decide.
+    # Named tourism=* accommodation. Properties an admin edited or hid keep
+    # their name, geometry and any details already set, so a re-import never
+    # overrides a manual correction. Properties are never deleted: one that
+    # OSM no longer returns is flagged (osm_missing_since) and leaves the site.
     class Accommodations < Base
       KINDS = { "hotel" => "hotel", "motel" => "motel", "guest_house" => "guest_house", "hostel" => "hostel",
                 "apartment" => "apartment", "chalet" => "chalet", "camp_site" => "camp_site" }.freeze
 
+      # Properties created or moved by the last #call, for measuring.
+      attr_reader :moved_ids
+
       def call
         @seen_ids = Set.new
+        @moved_ids = []
         elements = client.query(query)
         count = elements.count { |element| import_element(element) }
         flag_missing if elements.any?
@@ -19,12 +22,12 @@ module Osm
 
       private
 
-      # Flags this destination's OSM properties inside the box that the query
+      # Flags the OSM properties inside the box that the query
       # did not return (deleted from OSM, or no longer a named accommodation),
       # and clears the flag on those that are back.
       def flag_missing
         Property.where(id: @seen_ids.to_a).where.not(osm_missing_since: nil).update_all(osm_missing_since: nil)
-        destination.properties.where.not(osm_id: nil).where(osm_missing_since: nil).where.not(id: @seen_ids.to_a)
+        Property.where.not(osm_id: nil).where(osm_missing_since: nil).where.not(id: @seen_ids.to_a)
                    .where(*inside_bbox("properties.lonlat")).update_all(osm_missing_since: Time.current)
       end
 
@@ -46,8 +49,10 @@ module Osm
         details = details.select { |attribute, _| property.public_send(attribute).blank? } unless unreviewed
         property.assign_attributes(details)
         property.assign_attributes(name:, lonlat: point, footprint: element.polygon) if unreviewed
+        property.skip_measurement = true
         property.save!
         @seen_ids << property.id
+        @moved_ids << property.id if property.saved_change_to_lonlat? || property.saved_change_to_footprint?
         true
       rescue ActiveRecord::RecordInvalid => e
         Rails.logger.warn("Skipping OSM #{element.type}/#{element.id}: #{e.message}")

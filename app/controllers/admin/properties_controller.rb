@@ -90,7 +90,7 @@ module Admin
     # Waterfront result and walks, right away rather than in the background.
     def measure
       Waterfront::Classification.new(@property).call
-      Walks::Measurement.new(@property.destination).call(property_ids: [ @property.id ])
+      Walks::Measurement.new(Landmark.within_walk_of(@property.lonlat)).call(property_ids: [ @property.id ])
     end
 
     # The properties of an index view with its filters, unordered.

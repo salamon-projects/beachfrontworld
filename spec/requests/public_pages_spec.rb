@@ -178,8 +178,64 @@ RSpec.describe "Public pages" do
       get search_path(q: "old town")
       expect(response.body).to include("Which one did you mean?", "Old Town Gate", "Old Town Hall")
 
+      stub_request(:get, %r{nominatim\.openstreetmap\.org/search}).to_return(body: "[]")
       get search_path(q: "Atlantis")
-      expect(response.body).to include("could not find that place", "Makarska Riviera")
+      expect(response.body).to include("could not find that place on the map", "Makarska Riviera")
+    end
+
+    it "looks up a place we have not measured on the map and measures it while the page waits" do
+      stub_request(:get, %r{nominatim\.openstreetmap\.org/search}).to_return(body: file_fixture("nominatim/eiffel.json").read)
+
+      get search_path(q: "eiffel torony", **stay_params)
+
+      landmark = Landmark.searched.sole
+      expect(response).to redirect_to(landmark_path(landmark, stay_params))
+      expect { get landmark_path(landmark, stay_params) }.to have_enqueued_job(MeasureLandmarkJob).with(landmark.id)
+      page = Nokogiri::HTML5(response.body)
+      expect(page.at_css("h1").text.squish).to eq("Stays near Eiffel Tower")
+      expect(page.at_css("[role=status]").text).to include("Found 1 stay nearby")
+      expect(page.at_css(".walk-list__item--pending").text.squish).to include("Hotel Riva", "In a straight line")
+      expect(page.at_css("noscript meta[http-equiv=refresh]")["content"]).to eq("4")
+      expect(page.at_css("[data-measuring]")["data-measuring"]).to eq("4")
+      expect(response.body).to include("measuring")
+      expect(response.body).to include("noindex")
+
+      expect { get landmark_path(landmark) }.not_to have_enqueued_job(MeasureLandmarkJob)
+    end
+
+    it "shows a searched place in a destination not published yet, without linking to it" do
+      destination.update!(published: false)
+      searched = create(:landmark, :searched, destination:, name: "Bus Station", measured_at: Time.current)
+      hidden = create(:landmark, destination:, name: "Old Harbour")
+
+      get landmark_path(searched)
+      expect(response).to have_http_status(:ok)
+      expect(Nokogiri::HTML(response.body).css(".breadcrumbs a").map(&:text)).to eq([ "Destinations" ])
+
+      get landmark_path(hidden)
+      expect(response).to have_http_status(:not_found)
+    end
+
+    it "offers to try again when measuring failed" do
+      landmark = create(:landmark, :searched, destination:, name: "Bus Station", measure_requested_at: 2.minutes.ago,
+                                              measure_failed_at: 1.minute.ago)
+
+      get landmark_path(landmark, stay_params)
+      expect(response.body).to include("did not answer in time", "Hotel Riva", "In a straight line")
+      expect(Nokogiri::HTML(response.body).at_css("meta[http-equiv=refresh]")).to be_nil
+
+      expect { post measure_landmark_path(landmark, stay_params) }.to have_enqueued_job(MeasureLandmarkJob).with(landmark.id)
+      expect(response).to redirect_to(landmark_path(landmark, stay_params))
+    end
+
+    it "limits how many new places one visitor looks up on the map" do
+      allow(Rails).to receive(:cache).and_return(ActiveSupport::Cache::MemoryStore.new)
+      stub_request(:get, %r{nominatim\.openstreetmap\.org/search}).to_return(body: "[]")
+
+      SearchController::LOCATE_PER_HOUR.times { get search_path(q: "Atlantis") }
+      get search_path(q: "Atlantis")
+
+      expect(response.body).to include("many new places")
     end
 
     it "leads the property page with the walk to the landmark searched near" do

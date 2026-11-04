@@ -37,9 +37,10 @@ module WalksHelper
     ruler_x(minutes, WALK_RULER_MAX)
   end
 
-  # Kinds of landmark a destination has, for the "Close to" filter.
+  # Kinds of landmark a destination has, for the "Close to" filter. Places
+  # searched by address are not a kind anyone looks for.
   def near_kind_options(destination)
-    kinds = destination.landmarks.distinct.pluck(:kind)
+    kinds = destination.landmarks.distinct.pluck(:kind) - %w[place]
     Landmark::KINDS.select { |kind| kinds.include?(kind) }.map { |kind| [ t("search.near_kinds.#{kind}"), kind ] }
   end
 

@@ -12,8 +12,9 @@
   .container
     %nav.breadcrumbs{ "aria-label": "Breadcrumb" }
       = link_to "Destinations", root_path(anchor: "destinations")
-      %span{ "aria-hidden": "true" } ›
-      = link_to destination.name, destination_path(destination, stay_params)
+      - if destination.published?
+        %span{ "aria-hidden": "true" } ›
+        = link_to destination.name, destination_path(destination, stay_params)
       - if walk&.landmark&.name
         %span{ "aria-hidden": "true" } ›
         = link_to walk.landmark.name, landmark_path(walk.landmark, stay_params)

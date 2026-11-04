@@ -20,9 +20,11 @@ RSpec.describe Search::Resolver do
       expect(resolve("la rambla barcelona")).to have_attributes(status: :landmark, landmark: rambla)
     end
 
-    it "goes to a destination named in the text, and says when nothing matches" do
-      expect(resolve("something in Barcelona")).to have_attributes(status: :destination, destination: barcelona)
-      expect(resolve("Atlantis")).to have_attributes(status: :none)
+    it "goes to a destination named in the text, and looks up other places on the map" do
+      expect(resolve("hotels in Barcelona")).to have_attributes(status: :destination, destination: barcelona)
+      expect(resolve("Atlantis")).to have_attributes(status: :locate, queries: [ "atlantis" ], destination: nil)
+      expect(resolve("near Plaça Reial in Barcelona"))
+        .to have_attributes(status: :locate, queries: [ "placa reial, Barcelona" ], destination: barcelona)
     end
 
     it "offers a choice when several places match about equally" do
@@ -36,7 +38,7 @@ RSpec.describe Search::Resolver do
     it "leaves out unpublished destinations" do
       paris.update!(published: false)
 
-      expect(resolve("eiffel tower").status).to eq(:none)
+      expect(resolve("eiffel tower").status).to eq(:locate)
     end
   end
 
@@ -69,10 +71,19 @@ RSpec.describe Search::Resolver do
     end
 
     context "when the place is one we have not measured" do
-      let(:interpretation) { interpreted(place: "Rome", anchors: [ { name: "Colosseum", local_name: "Colosseo", kind: nil } ]) }
+      let(:interpretation) { interpreted(place: "Rome", anchors: [ { name: "Colosseum", local_name: "Colosseo", kind: "historic" } ]) }
 
-      it "says so" do
-        expect(resolve("colosseum")).to have_attributes(status: :none, place: "Rome")
+      it "looks it up on the map in its town" do
+        expect(resolve("colosseum")).to have_attributes(status: :locate, place: "Rome",
+                                                       queries: [ "Colosseum, Rome", "Colosseo, Rome" ])
+      end
+    end
+
+    context "when a measured landmark has the name, but in another town" do
+      let(:interpretation) { interpreted(place: "Budapest", anchors: [ { name: "Eiffel Tower", local_name: nil, kind: nil } ]) }
+
+      it "looks the place up in the town meant" do
+        expect(resolve("eiffel tower budapest")).to have_attributes(status: :locate, queries: [ "Eiffel Tower, Budapest" ])
       end
     end
   end

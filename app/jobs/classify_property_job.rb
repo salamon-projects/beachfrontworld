@@ -6,6 +6,6 @@ class ClassifyPropertyJob < ApplicationJob
   def perform(property_id)
     property = Property.find(property_id)
     Waterfront::Classification.new(property).call
-    Walks::Measurement.new(property.destination).call(property_ids: [ property.id ])
+    Walks::Measurement.new(Landmark.within_walk_of(property.lonlat)).call(property_ids: [ property.id ])
   end
 end

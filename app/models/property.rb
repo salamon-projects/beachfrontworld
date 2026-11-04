@@ -17,6 +17,9 @@ class Property < ApplicationRecord
   attribute :latitude, :float
   attribute :longitude, :float
 
+  # Set by imports, which measure all the properties they bring in at once.
+  attr_accessor :skip_measurement
+
   before_validation :build_lonlat_from_coordinates, if: :coordinates_entered?
   after_initialize :load_coordinates, if: -> { has_attribute?(:lonlat) && lonlat.present? && latitude.nil? }
 
@@ -26,7 +29,7 @@ class Property < ApplicationRecord
   validates :longitude, numericality: { in: -180..180 }, allow_nil: true
   validates :website, format: { with: WEBSITE_FORMAT }, allow_blank: true
 
-  after_commit :enqueue_classification, on: %i[create update], if: :geometry_changed?
+  after_commit :enqueue_classification, on: %i[create update], if: -> { geometry_changed? && !skip_measurement }
 
   # Shown on the site: measured within walking distance of a landmark, or on
   # the waterfront, unless an admin hid it or OSM no longer has it.

@@ -1,5 +1,5 @@
-# Published properties of a destination, filtered and ordered for the
-# listing pages. With a target (one landmark, or the nearest landmark of a
+# Published properties of a destination, or near a landmark whichever
+# destination they belong to, filtered and ordered for the listing pages. With a target (one landmark, or the nearest landmark of a
 # kind, such as the closest beach) properties are ordered by the walk to it;
 # without one, by how many landmarks are within a short walk. With a stay
 # and known prices the cheapest come first.
@@ -41,7 +41,7 @@ class PropertySearch
   # near_busy_crossings, near_stairs and near_landmark_id; without one,
   # nearby_count.
   def filtered
-    scope = destination.properties.published
+    scope = (landmark ? Property : destination.properties).published
     scope = scope.where(kind:) if kind
     return scope.select("properties.*", "(#{nearby_count_sql}) AS nearby_count") unless target?
 

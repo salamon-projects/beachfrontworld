@@ -34,6 +34,7 @@ module Osm
         removed += importer.removed
         [ layer, imported ]
       end
+      MapArea.record!(@destination.bbox) if counts[:walk_network].positive?
       counts.merge(removed_features: removed, missing_from_osm: @destination.properties.missing_from_osm.count,
                    measurement_failures: classify_properties(step: total - 2, total:),
                    walks: measure_walks(step: total - 1, total:))
@@ -57,7 +58,7 @@ module Osm
     end
 
     def measure_walks(step:, total:)
-      Walks::Measurement.new(@destination).call(progress: ->(done, count) {
+      Walks::Measurement.new(@destination.landmarks).call(progress: ->(done, count) {
         @progress.call("walks #{done}/#{count}", step, total) if (done % 25).zero?
       })
     end
