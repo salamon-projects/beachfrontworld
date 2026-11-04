@@ -39,7 +39,7 @@ RSpec.describe Walks::Measurement do
     stale = create(:property, destination:, lonlat: point_at(north_m: 5_000))
     stale.walks.create!(landmark: lighthouse, walk_m: 100, measured_at: 1.day.ago)
 
-    stored = described_class.new(destination.landmarks, config: Walks.config.merge(max_walk_m: 500)).call
+    stored = described_class.new(destination.landmarks, config: Walks.measurement_config.merge(max_walk_m: 500)).call
 
     riva = destination.landmarks.find_by!(name: "Riva")
     expect(PropertyWalk.where(property: hotel).map(&:landmark)).to contain_exactly(castle, riva)

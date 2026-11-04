@@ -16,7 +16,7 @@ module Walks
     ROOT = Network::ROOT
 
     # landmarks: a Landmark relation, such as a destination's landmarks.
-    def initialize(landmarks, config: Walks.config)
+    def initialize(landmarks, config: Walks.measurement_config)
       @landmark_ids = landmarks.order(:id).pluck(:id)
       @config = config
     end

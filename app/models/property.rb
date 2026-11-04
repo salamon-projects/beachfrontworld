@@ -35,7 +35,7 @@ class Property < ApplicationRecord
   # the waterfront, unless an admin hid it or OSM no longer has it.
   scope :published, -> {
     where(hidden_at: nil, osm_missing_since: nil)
-      .where(PropertyWalk.where("property_walks.property_id = properties.id").arel.exists
+      .where(PropertyWalk.within_reach.where("property_walks.property_id = properties.id").arel.exists
         .or(Verifications::Waterfront.listed.where("verifications.property_id = properties.id").arel.exists))
   }
   scope :hidden, -> { where.not(hidden_at: nil) }

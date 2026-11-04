@@ -32,6 +32,6 @@
       %p.measuring__title{ role: "status" }
         %span.measuring__pulse{ "aria-hidden": "true" }
         = measuring_status(@landmark, @measured_count, @pending_count)
-      %p.measuring__note= t("landmarks.measuring.note", km: number_with_precision(Walks.config.fetch(:max_walk_m) / 1000.0, precision: 1, strip_insignificant_zeros: true))
+      %p.measuring__note= t("landmarks.measuring.note", km: number_with_precision(Walks.max_walk_m / 1000.0, precision: 1, strip_insignificant_zeros: true))
       = render "landmarks/preview", walks: @walks, pending: @pending
       %p.measuring__note= t("landmarks.measuring.refresh")

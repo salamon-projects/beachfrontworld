@@ -18,10 +18,15 @@ class PropertySearch
     @landmark = landmark
     @stay = stay if stay&.valid?
     @near = params[:near].presence_in(Landmark::KINDS) unless landmark
-    @max_minutes = Integer(params[:max_minutes].to_s, exception: false).presence_in(MINUTES)
+    @max_minutes = Integer(params[:max_minutes].to_s, exception: false).presence_in(self.class.minute_options)
     @kind = params[:kind].presence_in(Property::KINDS)
     @quiet = params[:quiet].to_s == "1"
     @sort = params[:sort].presence_in(SORTS)
+  end
+
+  # The walking limits worth offering below the longest walk we list.
+  def self.minute_options
+    MINUTES.select { |minutes| minutes * Walks.config.fetch(:metres_per_minute) <= Walks.max_walk_m }
   end
 
   def sort
@@ -80,7 +85,7 @@ class PropertySearch
       JOIN LATERAL (
         SELECT w.walk_m, w.busy_crossings, w.stairs, w.landmark_id
         FROM property_walks w JOIN landmarks l ON l.id = w.landmark_id
-        WHERE w.property_id = properties.id AND #{target}
+        WHERE w.property_id = properties.id AND w.walk_m <= #{Integer(Walks.max_walk_m)} AND #{target}
         ORDER BY w.walk_m LIMIT 1
       ) nearest ON true
     SQL

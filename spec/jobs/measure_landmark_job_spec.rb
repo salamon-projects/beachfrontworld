@@ -28,11 +28,11 @@ RSpec.describe MeasureLandmarkJob do
 
     described_class.perform_now(landmark.id)
 
-    near, full = landmark.walk_area(described_class::NEAR_WALK_M), landmark.walk_area
+    near, full = landmark.walk_area(described_class.near_walk_m), landmark.walk_area
     expect(client.queries.map { |ql| ql[/\(([\d.,]+)\);/, 1] })
       .to eq([ full.join(","), near.join(","), full.join(",") ])
     expect(client.queries.first).to include('"tourism"')
-    expect(walks_before_full_network).to be_present.and all(be <= described_class::NEAR_WALK_M)
+    expect(walks_before_full_network).to be_present.and all(be <= described_class.near_walk_m)
   end
 
   it "only measures when the map around it is fresh" do
@@ -79,5 +79,17 @@ RSpec.describe MeasureAreaJob do
 
     expect(property.walks.map(&:landmark)).to contain_exactly(searched, other)
     expect(far.walks).to be_empty
+  end
+end
+
+RSpec.describe RemeasureWalksJob do
+  it "measures curated destinations again and queues the searched places" do
+    destination = create(:destination)
+    imported = create(:landmark, destination:)
+    searched = create(:landmark, :searched, destination:)
+    allow(Walks::Measurement).to receive(:new).and_call_original
+
+    expect { described_class.perform_now }.to have_enqueued_job(MeasureLandmarkJob).with(searched.id)
+    expect(Walks::Measurement).to have_received(:new).with(match_array([ imported ]))
   end
 end

@@ -31,6 +31,7 @@ Rails.application.routes.draw do
       post :import, on: :member
     end
     resources :imports, only: :index
+    resource :settings, only: %i[edit update]
     resources :properties do
       member do
         post :hide

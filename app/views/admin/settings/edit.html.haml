@@ -1,0 +1,14 @@
+- content_for :title, "Settings"
+%h1 Settings
+= form_with model: @setting, url: admin_settings_path, method: :patch, class: "admin-form" do |f|
+  = render "admin/shared/errors", record: @setting
+  .field
+    = f.label :max_walk_m, "Longest walk that counts as near (metres)"
+    = f.number_field :max_walk_m, in: SiteSetting::MAX_WALK_RANGE, step: 50, required: true
+    %small
+      = "#{Walks.minutes(@setting.max_walk_m)} minutes at an easy pace."
+      Stays further than this from a place are not listed near it, and searched places fetch the map this far
+      around them, so a longer walk makes a first search slower. Lowering it takes effect at once; raising it
+      measures every walk again in the background.
+  .actions
+    = f.submit "Save", class: "button button--primary"

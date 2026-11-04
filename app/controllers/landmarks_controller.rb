@@ -33,12 +33,12 @@ class LandmarksController < ApplicationController
   private
 
   def load_preview
-    walks = @landmark.walks.joins(:property).merge(Property.published)
+    walks = @landmark.walks.within_reach.joins(:property).merge(Property.published)
     @measured_count = walks.count
     @walks = walks.preload(:property).order(:walk_m).limit(PREVIEW).to_a
-    pending = Property.where(hidden_at: nil, osm_missing_since: nil).where.not(id: @landmark.walks.select(:property_id))
+    pending = Property.where(hidden_at: nil, osm_missing_since: nil).where.not(id: walks.select(:property_id))
                       .where("ST_DWithin(lonlat, (SELECT geom FROM landmarks WHERE id = ?), ?)",
-                             @landmark.id, Walks.config.fetch(:max_walk_m))
+                             @landmark.id, Walks.max_walk_m)
     @pending_count = pending.count
     @pending = pending.select("properties.*", Property.sanitize_sql_array(
       [ "ST_Distance(lonlat, (SELECT geom FROM landmarks WHERE id = ?)) AS straight_m", @landmark.id ]

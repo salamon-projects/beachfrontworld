@@ -20,7 +20,7 @@
           .field
             = label_tag :max_minutes, t("search.max_minutes")
             = select_tag :max_minutes,
-              options_for_select(PropertySearch::MINUTES.map { |m| [ t("search.minutes", count: m), m ] }, search.max_minutes),
+              options_for_select(PropertySearch.minute_options.map { |m| [ t("search.minutes", count: m), m ] }, search.max_minutes),
               include_blank: t("search.any_walk")
           .field.field--check
             = check_box_tag :quiet, "1", search.quiet?

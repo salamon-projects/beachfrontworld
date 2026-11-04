@@ -296,4 +296,26 @@ RSpec.describe "Admin" do
       expect(flash[:alert]).to be_present
     end
   end
+
+  describe "settings" do
+    before { sign_in_admin }
+
+    it "sets the longest walk, measuring again only when it grows" do
+      get edit_admin_settings_path
+      expect(response.body).to include("Longest walk that counts as near", "13 minutes")
+
+      expect { patch admin_settings_path, params: { site_setting: { max_walk_m: 800 } } }
+        .not_to have_enqueued_job(RemeasureWalksJob)
+      expect(Walks.max_walk_m).to eq(800)
+
+      expect { patch admin_settings_path, params: { site_setting: { max_walk_m: 1500 } } }
+        .to have_enqueued_job(RemeasureWalksJob)
+      expect(response).to redirect_to(edit_admin_settings_path)
+      expect(Walks.max_walk_m).to eq(1500)
+
+      patch admin_settings_path, params: { site_setting: { max_walk_m: 50 } }
+      expect(response).to have_http_status(:unprocessable_content)
+      expect(Walks.max_walk_m).to eq(1500)
+    end
+  end
 end

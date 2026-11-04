@@ -31,7 +31,7 @@ class Landmark < ApplicationRecord
   scope :visible, -> { joins(:destination).where("destinations.published OR landmarks.searched_at IS NOT NULL") }
   # Close enough to a point for a walk to be measured.
   scope :within_walk_of, ->(point) {
-    where("ST_DWithin(geom, ST_GeogFromText(?), ?)", point.as_text, Walks.config.fetch(:max_walk_m))
+    where("ST_DWithin(geom, ST_GeogFromText(?), ?)", point.as_text, Walks.max_walk_m)
   }
   scope :by_prominence, -> { order(prominence: :desc, name: :asc, id: :asc) }
 
@@ -79,7 +79,7 @@ class Landmark < ApplicationRecord
   # [south, west, north, east] around the landmark holding every walk to
   # it up to walk_m (by default the longest measured), and the way from a
   # property to the network.
-  def walk_area(walk_m = Walks.config.fetch(:max_walk_m))
+  def walk_area(walk_m = Walks.max_walk_m)
     margin = walk_m + Walks.config.fetch(:max_access_m)
     west, south, east, north = self.class.where(id:).pick(*%w[XMin YMin XMax YMax].map { |f| Arel.sql("ST_#{f}(geom::geometry)") })
     dlat = margin / METRES_PER_DEGREE

@@ -1,8 +1,10 @@
 # Walking measurements (see Walks::Measurement and the "How we verify" page;
 # keep them in sync).
 shared:
-  # Walks longer than this are not stored: the property is not "near" it.
-  max_walk_m: 2500
+  # Walks longer than this are not stored or shown: the property is not
+  # "near" it. Admins change it in /admin/settings (SiteSetting); this is
+  # the starting value.
+  default_max_walk_m: 1000
   # An easy walking pace (4.8 km/h) and an average adult step.
   metres_per_minute: 80
   metres_per_step: 0.75

@@ -17,7 +17,7 @@ class MeasureAreaJob < ApplicationJob
     south, west, north, east = area
     landmarks = Landmark.where.not(measured_at: nil)
                         .where("ST_DWithin(geom, ST_MakeEnvelope(?, ?, ?, ?, 4326)::geography, ?)",
-                               west, south, east, north, Walks.config.fetch(:max_walk_m))
+                               west, south, east, north, Walks.max_walk_m)
     Walks::Measurement.new(landmarks).call(property_ids: moved_property_ids)
   end
 end

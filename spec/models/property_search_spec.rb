@@ -13,7 +13,7 @@ RSpec.describe PropertySearch do
   before do
     walk(close, tower, 200, busy_crossings: 1)
     walk(middle, tower, 700)
-    walk(far, tower, 1_500)
+    walk(far, tower, 950)
     walk(far, beach, 100)
     walk(close, other_beach, 900)
     walk(create(:property, :hidden, destination:), tower, 50)
@@ -53,6 +53,17 @@ RSpec.describe PropertySearch do
     2.times { walk(middle, create(:landmark, destination:), 300) }
 
     expect(described_class.new(destination:).results.to_a).to eq([ middle, close, far ])
+  end
+
+  it "leaves out walks longer than the admin's limit" do
+    SiteSetting.current.update!(max_walk_m: 800)
+
+    only_far = create(:property, destination:)
+    walk(only_far, tower, 950)
+
+    expect(described_class.new(destination:, landmark: tower).results.to_a).to eq([ close, middle ])
+    expect(Property.published).not_to include(only_far)
+    expect(described_class.minute_options).to eq([ 5, 10 ])
   end
 
   it "orders by the cheapest fresh price with a stay, unpriced last" do

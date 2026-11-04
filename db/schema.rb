@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_04_130000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_04_140000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "postgis"
@@ -197,6 +197,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_04_130000) do
     t.datetime "seen_at"
     t.index ["geom"], name: "index_road_segments_on_geom", using: :gist
     t.index ["osm_id"], name: "index_road_segments_on_osm_id", unique: true
+  end
+
+  create_table "site_settings", force: :cascade do |t|
+    t.integer "max_walk_m", default: 1000, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "verifications", force: :cascade do |t|

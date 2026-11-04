@@ -122,12 +122,17 @@ for 30 days, `NOMINATIM_URL` for another instance), and saves it as a landmark w
 `source: "search"` — any sight, square, street, station, venue or address; a whole
 town or region is refused. It goes into the destination around it, else one of the
 same town, else a new `on_demand` destination for the town, which grows with each
-place searched in it. Its landmark page then shows "Measuring…" and reloads itself
-while `MeasureLandmarkJob` (queue `areas`, two at a time) fetches the walk network
-and accommodation around it (`Osm::AreaImport#walks`, about 5.5 × 5.5 km, unless
-`MapArea` says that part of the map was fetched in the last 30 days) and measures the
-walks to it. On public Overpass servers this takes about one to two minutes in a
-city centre, almost all of it waiting for Overpass; measuring itself takes seconds.
+place searched in it. `MeasureLandmarkJob` (queue `areas`, two at a time) then
+fetches the map around it — as far as the walking limit plus 250 m, unless `MapArea`
+says that part was fetched in the last 30 days — in stages, so its landmark page has
+something to show early: the accommodation first (`Osm::AreaImport#stays`, a quick
+query; listed by straight-line distance, marked as not measured yet), then the walk
+network for half the limit (`#network`) and the walks up to there, which are already
+exact since a walk never leaves a box as far around the landmark as it is long, then
+the rest. The page updates itself in place (`measuring.js`; without JS a
+`<noscript>` meta refresh reloads it). On public Overpass servers the first stays
+show within seconds and the whole area takes a minute or two in a city centre,
+almost all of it waiting for Overpass; measuring itself takes seconds.
 `MeasureAreaJob` then adds water, beaches and roads for the waterfront badge and
 measures the newly imported properties against the other landmarks nearby. If
 Overpass does not answer, the page offers to try again. One visitor can look up 20
@@ -148,10 +153,13 @@ Wikipedia entry, museums, squares, pedestrian streets (one per name), parks, bea
 stations and markets.
 
 `Walks::Measurement` then grows a pgRouting shortest-path tree
-(`pgr_drivingDistance`) from each landmark over the network, up to 2.5 km, and stores
+(`pgr_drivingDistance`) from each landmark over the network, up to the walking limit
+(1 km by default; admins change it in Admin → Settings, `SiteSetting`), and stores
 for every property within reach (of any destination) its walk in `property_walks`: the distance, the busy
 roads crossed (rather than walked along) and the flights of steps. Minutes and steps
-are derived with the pace in `config/walks.yml`. `Walks::Route` traces a walk for the
+are derived with the pace in `config/walks.yml`. Lowering the limit hides longer walks
+at once (`PropertyWalk.within_reach`); raising it measures every walk again in the
+background (`RemeasureWalksJob`). `Walks::Route` traces a walk for the
 property page's map. The public "How we measure and rank" page describes the same
 rules; keep it accurate when you change them.
 

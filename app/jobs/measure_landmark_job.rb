@@ -1,15 +1,15 @@
 # Measures the walks to one landmark, typically a place a visitor just
 # searched for, while its page waits. The first time, results arrive in
 # stages so the visitor need not wait for the whole map: the stays around it
-# (a quick query), then the walks up to NEAR_WALK_M over a small part of the
-# network, then the rest. A walk up to NEAR_WALK_M never leaves a box that
-# far around the landmark, so the early walks are already exact. A part of
+# (a quick query), then the shorter walks (NEAR_SHARE of the limit) over a
+# small part of the network, then the rest. A walk never leaves a box as far
+# around the landmark as it is long, so the early walks are already exact. A part of
 # the map fetched recently (MapArea) is not fetched again. The rest of the
 # area is left to MeasureAreaJob. Overpass gets a few quick retries, and a
 # server that has not answered in 90 seconds is given up for the next one,
 # rather than the import's long waits.
 class MeasureLandmarkJob < ApplicationJob
-  NEAR_WALK_M = 1000
+  NEAR_SHARE = 0.5
 
   queue_as :areas
   discard_on ActiveRecord::RecordNotFound
@@ -32,6 +32,10 @@ class MeasureLandmarkJob < ApplicationJob
     Rails.logger.warn("Could not measure landmark #{landmark_id}: #{e.message}")
   end
 
+  def self.near_walk_m
+    (Walks.max_walk_m * NEAR_SHARE).round(-1)
+  end
+
   private
 
   def import(landmark, bbox)
@@ -39,9 +43,9 @@ class MeasureLandmarkJob < ApplicationJob
   end
 
   def measure_near(landmark)
-    near = landmark.walk_area(NEAR_WALK_M)
+    near = landmark.walk_area(self.class.near_walk_m)
     import(landmark, near).network unless MapArea.covers?(near)
-    Walks::Measurement.new(Landmark.where(id: landmark.id), config: Walks.config.merge(max_walk_m: NEAR_WALK_M))
+    Walks::Measurement.new(Landmark.where(id: landmark.id), config: Walks.config.merge(max_walk_m: self.class.near_walk_m))
                       .call(complete: false)
   end
 end

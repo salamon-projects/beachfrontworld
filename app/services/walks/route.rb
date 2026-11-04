@@ -22,7 +22,7 @@ module Walks
 
       virtual = starts.map { |node, cost| [ Network::ROOT, node, cost ] } +
                 [ [ Network::PROPERTY, snap["source"], snap["to_source"] ], [ Network::PROPERTY, snap["target"], snap["to_target"] ] ]
-      edges_sql = Network.edges_sql(@walk.landmark_id, Walks.config.fetch(:max_walk_m), virtual)
+      edges_sql = Network.edges_sql(@walk.landmark_id, Walks.max_walk_m, virtual)
       sql = ActiveRecord::Base.sanitize_sql_array([ <<~SQL, edges_sql, Network::PROPERTY, Network::ROOT ])
         SELECT ST_AsGeoJSON(ST_LineMerge(ST_Collect(e.geom::geometry ORDER BY path.seq)))
         FROM pgr_dijkstra(?, ?::bigint, ?::bigint, directed => false) path

@@ -3,6 +3,8 @@ require "rails_helper"
 RSpec.describe Osm::DestinationImport do
   let(:destination) { create(:destination, south: 43.28, west: 16.98, north: 43.32, east: 17.04) }
 
+  before { SiteSetting.current.update!(max_walk_m: 2500) }
+
   it "imports every layer and classifies the properties" do
     counts = described_class.new(destination, client: FakeOverpassClient.new).call
 

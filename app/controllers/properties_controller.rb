@@ -9,7 +9,7 @@ class PropertiesController < ApplicationController
     Prices.refresh(@property.active_listings.to_a, current_stay) if current_stay
     @offers = Offer.for_properties([ @property ], current_stay).fetch(@property.id, [])
 
-    walks = @property.walks.preload(:landmark).joins(:landmark).order(:walk_m)
+    walks = @property.walks.within_reach.preload(:landmark).joins(:landmark).order(:walk_m)
     @featured_walk = featured_walk(walks)
     @nearby_walks = walks.where(walk_m: ..(NEARBY_MINUTES * Walks.config.fetch(:metres_per_minute)))
                          .where.not(id: @featured_walk&.id).limit(NEARBY).to_a
