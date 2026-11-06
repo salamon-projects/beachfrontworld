@@ -17,6 +17,7 @@ Rails.application.routes.draw do
   get "go/:listing_id", to: "outbound#show", as: :outbound
 
   get "how-we-verify", to: "pages#how_we_verify", as: :how_we_verify
+  get "changes", to: "pages#changes", as: :changes
   get "affiliate-disclosure", to: "pages#affiliate_disclosure", as: :affiliate_disclosure
   get "privacy", to: "pages#privacy", as: :privacy
   get "sitemap.xml", to: "sitemaps#show", as: :sitemap, defaults: { format: :xml }

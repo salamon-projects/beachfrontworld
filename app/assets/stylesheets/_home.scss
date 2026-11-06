@@ -21,6 +21,15 @@
       column-gap: 3rem;
       row-gap: 2.5rem;
     }
+
+    &--showcase {
+      @media (min-width: $bp-lg) {
+        grid-template-areas:
+          "text figure"
+          "showcase figure"
+          "search search";
+      }
+    }
   }
 
   @media (min-width: $bp-lg) {
@@ -34,6 +43,11 @@
 
     &__search {
       grid-area: search;
+    }
+
+    &__showcase {
+      grid-area: showcase;
+      align-self: start;
     }
   }
 
@@ -337,5 +351,96 @@
     font-weight: 700;
     letter-spacing: 0.12em;
     text-transform: uppercase;
+  }
+}
+
+// Example searches written the way a visitor might type them.
+.query-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.25rem;
+  padding: 0.25rem 0.9rem;
+  border: 1px dashed $border-strong;
+  border-radius: 999px;
+  color: $sea;
+  font-family: $serif;
+  font-size: 1rem;
+  font-style: italic;
+  text-decoration: none;
+  transition: border-color 0.15s, color 0.15s;
+
+  &:hover {
+    border-color: $sea;
+    border-style: solid;
+  }
+}
+
+// A real result under the hero sketch: the closest stays to one landmark.
+.showcase {
+  padding: 1.25rem 1.5rem;
+  border: 1px solid $border;
+  border-radius: $radius-lg;
+  background: $white;
+
+  &__title {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    margin: 0 0 0.5rem;
+    font-family: $serif;
+    font-size: 1.3rem;
+
+    a {
+      color: $ink;
+      text-decoration: none;
+    }
+  }
+
+  &__label {
+    color: $faint;
+    font-family: $font;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  &__list .walk-list__item:last-child {
+    border-bottom: 0;
+  }
+
+  &__more {
+    margin-top: 0.75rem;
+    font-size: 0.9rem;
+  }
+}
+
+// What a visitor gets, above the method.
+.benefits {
+  display: grid;
+  gap: 1.5rem;
+  margin: 2rem 0 0;
+  padding: 0;
+  list-style: none;
+
+  @media (min-width: $bp-md) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem 3rem;
+  }
+}
+
+.benefit {
+  padding-top: 1rem;
+  border-top: 2px solid $sea;
+
+  &__title {
+    margin-bottom: 0.4rem;
+    font-size: 1.3rem;
+  }
+
+  p {
+    max-width: 30rem;
+    margin: 0;
+    color: $muted;
   }
 }

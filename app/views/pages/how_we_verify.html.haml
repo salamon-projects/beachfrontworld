@@ -59,7 +59,7 @@
     %dd The water is at most #{@config.fetch(:walkable_max_m)} m away.
   %p
     When a booking site reports a position for the property more than #{@config.fetch(:coordinate_mismatch_m)} m from
-    ours, we check it by hand.
+    ours, we flag it; we still measure from the OpenStreetMap position.
 
   %h2#ranking How results are ordered
   %ul
@@ -74,6 +74,11 @@
     = succeed ")." do
       = link_to "affiliate disclosure", affiliate_disclosure_path
     Commissions never influence measurements or ordering.
+
+  %p
+    Changes to this method, and the limits we know about, are listed on
+    = succeed "." do
+      = link_to "What changed", changes_path
 
   %h2 Prices
   %p

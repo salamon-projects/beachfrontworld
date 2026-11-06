@@ -20,7 +20,26 @@ RSpec.describe "Public pages" do
       expect(response).to have_http_status(:ok)
       expect(response.body).to include("Makarska Riviera", "1 measured stay", "1 place to stay near")
       expect(response.body).not_to include("Hidden Coast")
-      expect(Nokogiri::HTML(response.body).at_css(".hero__examples a")["href"]).to eq(landmark_path(gate))
+      page = Nokogiri::HTML(response.body)
+      expect(page.at_css(".landmark-chip")["href"]).to eq(landmark_path(gate))
+      expect(page.css(".query-chip").map { |chip| chip.text.delete("“”") })
+        .to eq([ "Hotel a 5-minute walk from Old Town Gate", "Near a beach in Makarska Riviera" ])
+      expect(page.at_css(".showcase")).to be_nil
+    end
+
+    it "shows the closest measured stays to the best-known landmark, and example searches that lead there" do
+      gate = create(:landmark, destination:, name: "Old Town Gate", prominence: 40)
+      hotel.walks.create!(landmark: gate, walk_m: 640, busy_crossings: 1, measured_at: Time.current)
+      far = create(:property, :direct, destination:, name: "Far Hotel")
+      far.walks.create!(landmark: gate, walk_m: Walks.max_walk_m + 1, measured_at: Time.current)
+
+      get root_path
+
+      page = Nokogiri::HTML(response.body)
+      expect(page.css(".showcase .walk-list__place a").map(&:text)).to eq([ "Hotel Riva" ])
+      expect(page.at_css(".showcase").text.squish).to include("Stays near Old Town Gate", "8 min", "1 busy road")
+      query = page.at_css(".query-chip")
+      expect(query["href"]).to eq(search_path(q: "Apartment within 10 minutes of Old Town Gate", src: "example"))
     end
 
     it "sends the search form to the destination with the stay" do
@@ -308,6 +327,13 @@ RSpec.describe "Public pages" do
       expect(response.body).to include("How results are ordered", "at most #{Waterfront.config.fetch(:direct_max_m)} m away")
     end
 
+    it "lists the changes to the method and the known limits" do
+      get changes_path
+
+      expect(response.body).to include("Known limits", "#{Walks.measurement_config.fetch(:max_access_m)} m from any mapped street")
+      expect(response.body).to include(changes_path)
+    end
+
     it "renders the disclosure and privacy pages" do
       get affiliate_disclosure_path
       expect(response).to have_http_status(:ok)
@@ -327,7 +353,7 @@ RSpec.describe "Public pages" do
       expect(response.media_type).to eq("application/xml")
       expect(response.body).to include(destination_url(destination), property_url(hotel), landmark_url(gate))
       expect(response.body).not_to include("lonely-rock")
-      expect(response.body.scan("<url>").size).to eq(5)
+      expect(response.body.scan("<url>").size).to eq(6)
     end
 
     it "points robots to the sitemap and away from redirects" do

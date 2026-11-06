@@ -194,3 +194,29 @@ main:focus {
     margin-bottom: 0.4rem;
   }
 }
+
+// Dated entries on the "What changed" page.
+.changes {
+  margin: 0;
+
+  dt {
+    padding-top: 1.25rem;
+    border-top: 1px solid $border;
+    color: $faint;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  dd {
+    margin: 0.35rem 0 1.25rem;
+
+    strong {
+      display: block;
+      font-family: $serif;
+      font-size: 1.25rem;
+      font-weight: 500;
+    }
+  }
+}

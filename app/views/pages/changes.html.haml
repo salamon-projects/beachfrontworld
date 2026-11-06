@@ -1,0 +1,60 @@
+- content_for :title, "What changed and what we know is missing"
+- content_for :description, "Every change to how StepsFrom measures walks and orders stays, and the known limits of the measurements."
+
+%section.page-header
+  .container
+    %h1.page-header__title What changed, and what is missing
+    %p.page-header__lead
+      Changes to how we measure and rank, newest first, and the limits we know about. The method itself is on
+      = succeed "." do
+        = link_to "How we measure and rank", how_we_verify_path
+
+.container.prose
+  %h2#known-limits Known limits
+  %ul
+    %li
+      A walk is only as good as OpenStreetMap: a footpath missing from the map can make a walk look longer than it
+      is, and a stay mapped in the wrong spot is measured from there.
+    %li Stays more than #{@walks.fetch(:max_access_m)} m from any mapped street have no measured walks.
+    %li
+      When the OpenStreetMap servers are busy, a place you searched for may show stays by straight-line distance
+      until its walks are measured.
+    %li Map changes reach our destinations with the weekly refresh, so a new path or stay can take up to a week to appear.
+    %li Many stays have no price yet: prices come only from booking sites’ official partner programmes.
+
+  %h2#changes Changes
+  %dl.changes
+    %dt
+      %time{ datetime: "2026-11-04" } 4 November 2026
+    %dd
+      %strong Walks up to 1 km count as near.
+      The limit was 2.5 km. Longer walks are no longer listed; the current limit is always on the method page.
+    %dt
+      %time{ datetime: "2026-11-04" } 4 November 2026
+    %dd
+      %strong Any place you search for is measured.
+      A sight, street, venue or address we had not measured is looked up on OpenStreetMap, and the walks from the
+      stays around it are measured while you wait.
+    %dt
+      %time{ datetime: "2026-11-03" } 3 November 2026
+    %dd
+      %strong Walks along the streets, from every stay to every sight.
+      Walks to sights, squares, pedestrian streets, parks and beaches are measured along streets, paths and steps,
+      counting busy roads to cross and flights of steps. Places can be searched for by any of their names, in any
+      language.
+    %dt
+      %time{ datetime: "2026-11-03" } 3 November 2026
+    %dd
+      %strong No more hand-picked list.
+      Every stay we can measure is listed automatically; we can only hide a stay, never move it up.
+    %dt
+      %time{ datetime: "2026-10-30" } 30 October 2026
+    %dd
+      %strong Stays follow OpenStreetMap.
+      A stay removed from OpenStreetMap leaves the site at the next refresh.
+    %dt
+      %time{ datetime: "2026-10-29" } 29 October 2026
+    %dd
+      %strong Waterfront badges.
+      Distance to the shoreline is measured from each stay’s outline, and a road or railway in between rules out
+      “beachfront”.

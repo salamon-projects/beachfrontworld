@@ -2,7 +2,7 @@
 - content_for :description, "Tell us what you want to be near. We measure the real walk from every hotel and apartment along the streets, with the busy roads on the way, and show the closest first."
 
 %section.hero
-  .container.hero__inner
+  .container.hero__inner{ class: ("hero__inner--showcase" if @showcase) }
     .hero__text
       %span.eyebrow Measured, not marketed
       %h1.hero__title
@@ -19,11 +19,19 @@
         %p.hero__notice We are still measuring our first destination. Check back soon.
       - else
         = render "home/search_form"
+        - if @example_queries.any?
+          %p.hero__examples.hero__examples--queries
+            %span.hero__examples-label Ask it like this
+            - @example_queries.each do |query|
+              = link_to "“#{query}”", search_path(q: query, src: "example"), class: "query-chip", rel: "nofollow"
         - if @examples.any?
           %p.hero__examples
-            %span.hero__examples-label Try
+            %span.hero__examples-label Or go straight to
             - @examples.each do |landmark|
               = link_to landmark.name, landmark_path(landmark), class: "landmark-chip"
+    - if @showcase
+      .hero__showcase
+        = render "home/showcase", landmark: @showcase, walks: @showcase_walks
 
 %section.section#destinations
   .container
@@ -47,6 +55,27 @@
                 - if landmarks.positive?
                   %span.destination-tile__direct= "· #{pluralize(landmarks, 'place')} to stay near"
               %span.destination-tile__arrow{ "aria-hidden": "true" } →
+
+%section.section
+  .container
+    %span.eyebrow What you get
+    %h2.section__title Booked close, not just “close”
+    %ul.benefits
+      %li.benefit
+        %h3.benefit__title Know the walk before you book
+        %p Minutes and steps along the real streets, with the busy roads you would cross and the flights of steps.
+      %li.benefit
+        %h3.benefit__title Every stay in reach, not a top ten
+        %p Every stay we measured within walking distance is listed, closest first — not only the ones a booking site promotes.
+      %li.benefit
+        %h3.benefit__title Any place you name
+        %p A sight, a street, a venue or an address. If we have not measured it yet, we measure it while you wait.
+      %li.benefit
+        %h3.benefit__title Nobody pays to rank higher
+        %p
+          The order comes from the measurements. Commissions from booking sites never change it —
+          = succeed "." do
+            = link_to "see how we rank", how_we_verify_path(anchor: "ranking")
 
 %section.section.section--sand
   .container

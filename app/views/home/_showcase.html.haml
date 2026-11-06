@@ -1,0 +1,17 @@
+-# locals: (landmark:, walks:)
+-# The closest measured stays to a real landmark, as a search shows them.
+.showcase
+  %p.showcase__title
+    %span.showcase__label A real result
+    = link_to "Stays near #{landmark.name}", landmark_path(landmark)
+  %ol.walk-list.showcase__list
+    - walks.each do |walk|
+      %li.walk-list__item
+        %span.walk-list__place
+          = link_to walk.property.name, property_path(walk.property, near: landmark.slug)
+          %small= property_kind(walk.property)
+        %span.walk-list__minutes= t("walks.minutes", count: walk.minutes)
+        %span.walk-list__notes
+          = walk_steps(walk)
+          = "· #{walk.busy_crossings.zero? ? t("walks.no_busy_roads_short") : t("walks.busy_roads_short", count: walk.busy_crossings)}"
+  = link_to "See every stay near #{landmark.name}", landmark_path(landmark), class: "text-link showcase__more"

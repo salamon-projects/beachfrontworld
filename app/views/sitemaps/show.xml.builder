@@ -20,4 +20,5 @@ xml.urlset xmlns: "http://www.sitemaps.org/schemas/sitemap/0.9" do
     end
   end
   xml.url { xml.loc how_we_verify_url }
+  xml.url { xml.loc changes_url }
 end

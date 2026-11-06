@@ -4,6 +4,10 @@ class PagesController < ApplicationController
     @walks = Walks.measurement_config
   end
 
+  def changes
+    @walks = Walks.measurement_config
+  end
+
   def affiliate_disclosure; end
 
   def privacy; end
