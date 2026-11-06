@@ -13,6 +13,7 @@ bundle exec rspec                         # all specs (need PostgreSQL + PostGIS
 bundle exec rspec spec/services/waterfront/classifier_spec.rb:42   # single file / example
 bin/rubocop                               # rubocop-rails-omakase style
 bin/brakeman && bin/bundler-audit         # security checks run in CI
+bin/ci                                    # local CI: setup, rubocop, bundler-audit, brakeman (not the specs)
 bin/rails osm:import[makarska-riviera]    # import + measure one destination (osm:import_all for all)
 bin/rails waterfront:classify[makarska-riviera]   # re-measure waterfront without re-importing
 bin/rails walks:measure[makarska-riviera]         # re-measure walks without re-importing
@@ -24,7 +25,7 @@ Every push to `main` deploys to production (Kamal) once CI passes — a green co
 
 ## Stack constraints
 
-Rails 8.1, Ruby 3.3, HAML views, SCSS via dartsass-rails, Propshaft. Server-rendered only: **no Hotwire, Stimulus or importmap**. JavaScript is limited to small plain scripts in `app/assets/javascripts/` (`map.js` draws Leaflet maps from vendored `vendor/assets/leaflet`; `filters.js` and `stay_fields.js` — range calendar and guest steppers over `shared/_stay_fields` — are progressive enhancement). Pages must work without JS, and the enhanced fields must submit the same params as the plain ones. Solid Queue / Solid Cache for jobs and cache.
+Rails 8.1, Ruby 3.3, HAML views, SCSS via dartsass-rails, Propshaft. Server-rendered only: **no Hotwire, Stimulus or importmap**. JavaScript is limited to small plain scripts in `app/assets/javascripts/` (`map.js` draws Leaflet maps from vendored `vendor/assets/leaflet`; `filters.js` and `stay_fields.js` — range calendar and guest steppers over `shared/_stay_fields` — are progressive enhancement; `measuring.js` polls a landmark's "Measuring…" page and swaps in the `[data-measuring]` block, with a `<noscript>` meta refresh as the fallback). Pages must work without JS, and the enhanced fields must submit the same params as the plain ones. Solid Queue / Solid Cache for jobs and cache.
 
 The CSP (`config/initializers/content_security_policy.rb`) allows only same-origin scripts, styles and fonts and no inline `style` attributes: fonts are self-hosted in `app/assets/fonts`, and data-driven positions are drawn as inline SVG attributes (e.g. `shared/_distance_ruler`). Design tokens live in `_variables.scss`; the orange `$measure` colour is reserved for measurements.
 
