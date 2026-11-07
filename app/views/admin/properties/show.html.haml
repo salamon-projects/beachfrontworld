@@ -36,7 +36,7 @@
     - else
       = button_to "Hide from the site", hide_admin_property_path(@property), class: "button button--danger"
   %p
-    Properties are listed automatically once they are within walking distance of a landmark, or on the waterfront.
+    Properties are listed automatically once they are measured on the waterfront.
     Hide one that is closed, misplaced or not a real accommodation.
 
 .admin-card
@@ -59,29 +59,6 @@
           No reported positions
 
 %h2 Measurements
-.admin-card
-  %h3 Walks to landmarks
-  - if @walks.empty?
-    %p No landmark within walking distance, or the walk network has not been imported yet.
-  - else
-    .table-wrap
-      %table.admin-table
-        %thead
-          %tr
-            %th Landmark
-            %th Walk
-            %th Busy roads crossed
-            %th Stairs
-        %tbody
-          - @walks.each do |walk|
-            %tr
-              %td
-                = walk.landmark.display_name
-                %small= t("landmarks.kinds.#{walk.landmark.kind}")
-              %td= "#{walk.walk_m} m · #{walk.minutes} min"
-              %td= walk.busy_crossings
-              %td= walk.stairs
-
 .admin-card
   %h3 Waterfront
   - if waterfront.nil?

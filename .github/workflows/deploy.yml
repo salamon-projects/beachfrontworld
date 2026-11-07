@@ -48,7 +48,6 @@ jobs:
       POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
       ADMIN_USER: ${{ secrets.ADMIN_USER }}
       ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
-      LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v7

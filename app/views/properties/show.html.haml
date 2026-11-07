@@ -1,23 +1,17 @@
 - destination = @property.destination
 - waterfront = @property.waterfront
-- walk = @featured_walk
-- headline = walk ? "#{t("walks.minutes", count: walk.minutes)} walk to #{landmark_label(walk.landmark)}" : t("waterfront.categories.#{waterfront.category}")
-- content_for :title, "#{@property.name}, #{destination.name} — #{headline}"
-- content_for :description, [ (walk ? "Measured: #{headline}, #{walk_steps(walk)}" : measured_distance(@property)), "#{property_kind(@property)} in #{destination.name}, #{destination.country_name}." ].compact.join(". ")
+- content_for :title, "#{@property.name}, #{destination.name} — #{t("waterfront.categories.#{waterfront.category}")}"
+- content_for :description, [ measured_distance(@property), "#{property_kind(@property)} in #{destination.name}, #{destination.country_name}." ].compact.join(". ")
 - content_for :canonical, property_url(@property)
-- content_for(:noindex, true) if current_stay || params[:near]
+- content_for(:noindex, true) if current_stay
 = render "layouts/map_assets"
 
 %section.page-header
   .container
     %nav.breadcrumbs{ "aria-label": "Breadcrumb" }
       = link_to "Destinations", root_path(anchor: "destinations")
-      - if destination.published?
-        %span{ "aria-hidden": "true" } ›
-        = link_to destination.name, destination_path(destination, stay_params)
-      - if walk&.landmark&.name
-        %span{ "aria-hidden": "true" } ›
-        = link_to walk.landmark.name, landmark_path(walk.landmark, stay_params)
+      %span{ "aria-hidden": "true" } ›
+      = link_to destination.name, destination_path(destination, stay_params)
     %h1.page-header__title= @property.name
     %p.page-header__lead
       = property_kind(@property)
@@ -26,20 +20,12 @@
 
 .container.property-layout
   .property-layout__summary
-    - if walk
-      = render "shared/walk_summary", walk:, large: true
-      - if waterfront&.listed?
-        %p.property-waterfront
-          = waterfront_badge(@property)
-          = measured_distance(@property)
-    - else
-      = render "shared/waterfront_summary", property: @property, large: true
+    = render "shared/waterfront_summary", property: @property, large: true
 
   %aside.property-layout__booking
     .booking-panel
       %h2.booking-panel__title Compare booking sites
       = form_with url: property_path(@property), method: :get, class: "filter-form filter-form--compact" do
-        = hidden_field_tag :near, params[:near] if params[:near].present?
         = render "shared/stay_fields", stay: @stay
         .field.field--submit
           = submit_tag "Check prices", name: nil, class: "button button--primary"
@@ -47,49 +33,24 @@
       %p.booking-panel__disclosure= t("offers.disclosure")
 
   .property-layout__details
-    = map_tag(property_map_data(@property, walk:, route: @route), css_class: "map map--property",
-      label: walk ? "Map of the walk from #{@property.name} to #{landmark_label(walk.landmark)}" : "Map of #{@property.name} and the nearest shoreline")
-
-    - if @nearby_walks.any?
-      %section.checks
-        %h2.checks__title Within walking distance
-        %ul.walk-list
-          - @nearby_walks.each do |nearby|
-            %li.walk-list__item
-              %span.walk-list__place
-                - if nearby.landmark.name
-                  = link_to nearby.landmark.name, landmark_path(nearby.landmark, stay_params)
-                - else
-                  = landmark_label(nearby.landmark).upcase_first
-                %small= t("landmarks.kinds.#{nearby.landmark.kind}")
-              %span.walk-list__minutes= t("walks.minutes", count: nearby.minutes)
-              %span.walk-list__notes
-                = walk_steps(nearby)
-                - if nearby.busy_crossings.positive?
-                  = "· #{t("walks.busy_roads_short", count: nearby.busy_crossings)}"
+    = map_tag(property_map_data(@property), css_class: "map map--property", label: "Map of #{@property.name} and the nearest shoreline")
 
     %section.checks
       %h2.checks__title What we checked
       %ul.checklist
-        - if walk
-          %li.checklist__item.checklist__item--ok
-            Walks measured along the streets and paths of OpenStreetMap, not in a straight line
-            - if walk.measured_at
-              = "on #{l(walk.measured_at.to_date, format: :long)}"
-        - if waterfront&.listed?
-          %li.checklist__item.checklist__item--ok
-            Distance to the water measured from OpenStreetMap data
-            - if waterfront.measured_at && !walk
-              = "on #{l(waterfront.measured_at.to_date, format: :long)}"
-          - if waterfront.crosses_road?
-            %li.checklist__item.checklist__item--warn= t("waterfront.road_between")
-          - else
-            %li.checklist__item.checklist__item--ok No road or railway between the property and the water
-          - if waterfront.crosses_promenade?
-            %li.checklist__item.checklist__item--info= t("waterfront.promenade_between")
-          - if (surface = beach_surface_label(@property))
-            %li.checklist__item.checklist__item--info
-              = surface
-              - if waterfront.distance_to_beach_m.to_i.positive?
-                = "#{waterfront.distance_to_beach_m} m away"
+        %li.checklist__item.checklist__item--ok
+          Distance to the water measured from OpenStreetMap data
+          - if waterfront.measured_at
+            = "on #{l(waterfront.measured_at.to_date, format: :long)}"
+        - if waterfront.crosses_road?
+          %li.checklist__item.checklist__item--warn= t("waterfront.road_between")
+        - else
+          %li.checklist__item.checklist__item--ok No road or railway between the property and the water
+        - if waterfront.crosses_promenade?
+          %li.checklist__item.checklist__item--info= t("waterfront.promenade_between")
+        - if (surface = beach_surface_label(@property))
+          %li.checklist__item.checklist__item--info
+            = surface
+            - if waterfront.distance_to_beach_m.to_i.positive?
+              = "#{waterfront.distance_to_beach_m} m away"
       %p.checks__more= link_to "How we verify", how_we_verify_path, class: "text-link"

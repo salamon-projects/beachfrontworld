@@ -19,20 +19,4 @@ FactoryBot.define do
     highway { "residential" }
     geom { east_west_line(north_m: 30) }
   end
-
-  factory :landmark do
-    destination
-    osm_type { "node" }
-    sequence(:osm_id) { |n| 4_000 + n }
-    kind { "attraction" }
-    sequence(:name) { |n| "Sample Sight #{n}" }
-    geom { point_at(north_m: 300) }
-    measured_at { Time.current }
-
-    trait :searched do
-      source { "search" }
-      searched_at { Time.current }
-      measured_at { nil }
-    end
-  end
 end

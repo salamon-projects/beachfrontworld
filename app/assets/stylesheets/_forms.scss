@@ -673,26 +673,3 @@ html.calendar-open {
     width: 100%;
   }
 }
-
-// A checkbox with its label on one line ("No busy road to cross").
-.field--check {
-  flex-direction: row;
-  align-items: center;
-  gap: 0.6rem;
-  min-height: 2.75rem;
-
-  input[type="checkbox"] {
-    width: 1.15rem;
-    height: 1.15rem;
-    margin: 0;
-    accent-color: $sea;
-  }
-
-  label {
-    color: $ink;
-    font-size: 0.95rem;
-    font-weight: 500;
-    letter-spacing: 0;
-    text-transform: none;
-  }
-}

@@ -1,7 +1,7 @@
 en:
   site_name: StepsFrom
   skip_to_content: Skip to content
-  tagline: Stays steps from what you came for, with every walk measured.
+  tagline: Only stays that are really on the water.
 
   activerecord:
     errors:
@@ -21,8 +21,6 @@ en:
               missing: "are needed for every child"
 
   countries:
-    ES: Spain
-    FR: France
     GR: Greece
     HR: Croatia
 
@@ -51,73 +49,6 @@ en:
       sand: Sandy beach
       pebble: Pebble beach
       rock: Rocky shore
-
-  landmarks:
-    kinds:
-      attraction: Sight
-      museum: Museum
-      historic: Historic site
-      place_of_worship: Church or temple
-      viewpoint: Viewpoint
-      square: Square
-      pedestrian_street: Pedestrian street
-      park: Park
-      beach: Beach
-      station: Station
-      market: Market
-      place: Place
-    unnamed:
-      attraction: a sight
-      museum: a museum
-      historic: a historic site
-      place_of_worship: a church
-      viewpoint: a viewpoint
-      square: a square
-      pedestrian_street: a pedestrian street
-      park: a park
-      beach: a beach
-      station: a station
-      market: a market
-      place: a place
-    measuring:
-      title: "Measuring the walks around %{name}…"
-      note: "We are fetching the streets and paths around it from OpenStreetMap and measuring the walk from every stay within %{km} km. This usually takes a minute or two."
-      refresh: This page updates by itself.
-      stays_found:
-        one: "Found 1 stay nearby. Measuring the walk along the streets…"
-        other: "Found %{count} stays nearby. Measuring the walks along the streets…"
-      measured_so_far:
-        one: "1 walk measured so far, still measuring the rest…"
-        other: "%{count} walks measured so far, the shortest first. Still measuring the rest…"
-      straight_line: In a straight line · measuring the walk…
-      straight_line_only: In a straight line, walk not measured yet
-      failed: The OpenStreetMap servers did not answer in time. Their data is free and shared by everyone, so they are sometimes busy.
-      retry: Try again
-
-  walks:
-    measured_label: Measured walk
-    minutes:
-      one: 1 min
-      other: "%{count} min"
-    to: "to %{landmark}"
-    steps: "%{steps} steps"
-    no_busy_roads: No busy road to cross on the way
-    no_busy_roads_short: no busy roads
-    busy_roads:
-      one: Crosses 1 busy road on the way
-      other: Crosses %{count} busy roads on the way
-    busy_roads_short:
-      one: 1 busy road
-      other: "%{count} busy roads"
-    stairs:
-      one: 1 flight of steps on the way
-      other: "%{count} flights of steps on the way"
-    ruler_label: "Measured walk in minutes on a scale up to %{max}"
-    ruler_start: Here
-    nearby:
-      zero: No sights within a 15-minute walk
-      one: 1 sight within a 15-minute walk
-      other: "%{count} sights within a 15-minute walk"
 
   properties:
     kinds:
@@ -182,51 +113,16 @@ en:
       other: "%{count} years"
     submit: Search
     update: Update
+    category: Waterfront
+    any_category: Any waterfront
+    surface: Beach
+    any_surface: Any beach
     kind: Type
     any_kind: Any type
     sort: Sort by
     sorts:
       price: Lowest price
-      walk: Shortest walk
-      most_nearby: Most to see on foot
-    near: Close to
-    near_anything: Anything worth seeing
-    near_kinds:
-      attraction: The nearest sight
-      museum: The nearest museum
-      historic: The nearest historic site
-      place_of_worship: The nearest church or temple
-      viewpoint: The nearest viewpoint
-      square: The nearest square
-      pedestrian_street: The nearest pedestrian street
-      park: The nearest park
-      beach: The nearest beach
-      station: The nearest station
-      market: The nearest market
-    max_minutes: Walk at most
-    any_walk: Any walk
-    minutes:
-      one: 1 minute
-      other: "%{count} minutes"
-    quiet: No busy road to cross
-    map_label: Map of the listed properties
-    no_results: No measured stays match these filters yet.
-    ranking:
-      walk: by the measured walk
-      nearby: "by how many sights are within a %{minutes}-minute walk"
-      price: "Ordered by the lowest price we know for your dates, then %{then}."
+      waterfront: Closest to the water
     choose_destination: Please choose a destination.
-    enter_place: Tell us what you want to stay close to.
-    query: What do you want to stay close to?
-    query_placeholder: "e.g. Eiffel Tower, La Rambla, a beach in Makarska"
-    results_for: You searched for
-    which_one: Several places match. Which one did you mean?
-    which_destination: "Where would you like to be near %{kind}?"
-    not_found: "We could not find that place on the map. Try its name as a map writes it, with the town: “Sagrada Família, Barcelona”."
-    not_measured_place: "We could not find that place in %{place} on the map. Try its name as a map writes it."
-    too_big: "%{place} is a whole town or region. Tell us what you want to stay close to there: a sight, a square, a street or an address."
-    busy: You have looked up many new places in the last hour. Please try again later, or choose a place we have already measured.
-    unavailable: The map search is not answering right now. Please try again in a minute.
-    try_instead: "Or choose one of the destinations we have measured:"
     dates_and_filters: Dates & filters
     any_dates: Any dates

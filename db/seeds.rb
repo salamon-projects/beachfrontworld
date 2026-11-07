@@ -1,9 +1,7 @@
 # Launch destinations. Bounding boxes are approximate and can be adjusted in
 # the admin; they only decide which OSM data `bin/rails osm:import[slug]`
-# fetches. Properties and landmarks come from that import, never from seeds.
-# Destinations start unpublished: publish them in the admin once imported.
-# Keep city boxes to the central districts: the walk network of a whole city
-# is more than a public Overpass server returns in one query.
+# fetches. Properties come from that import, never from seeds. Destinations
+# start unpublished: publish them in the admin once imported and measured.
 #
 # In development, `bin/rails db:seed` also loads a small fictional demo bay
 # (db/seeds/demo.rb) so the site can be tried without an OSM import.
@@ -26,13 +24,7 @@ DESTINATIONS = [
     summary: "Long sandy beaches west of Chania town, from Agia Marina to Platanias." },
   { name: "Rhodes east coast", country_code: "GR", sea_name: "Mediterranean Sea", zoom: 11,
     south: 36.08, west: 28.05, north: 36.36, east: 28.25,
-    summary: "Sunny east coast from Faliraki to Lindos, with sandy and pebble bays." },
-  { name: "Paris", country_code: "FR", zoom: 13,
-    south: 48.845, west: 2.285, north: 48.875, east: 2.365,
-    summary: "From the Eiffel Tower to the Marais: the walk to every sight, measured." },
-  { name: "Barcelona", country_code: "ES", sea_name: "Mediterranean Sea", zoom: 14,
-    south: 41.370, west: 2.150, north: 41.405, east: 2.195,
-    summary: "The old town, the Eixample and the beaches of Barceloneta." }
+    summary: "Sunny east coast from Faliraki to Lindos, with sandy and pebble bays." }
 ].freeze
 
 DESTINATIONS.each_with_index do |attrs, position|

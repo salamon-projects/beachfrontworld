@@ -8,7 +8,7 @@
 
 %p
   “Import from OSM” fetches coastline, lakes, beaches, roads and accommodation inside the bounding box from the
-  Overpass API, then measures every property. New properties land in the review queue.
+  Overpass API, then measures every property. Properties measured on the waterfront are listed automatically.
   = link_to "Import history", admin_imports_path
 - if importing
   %p.flash An import is running. This page refreshes every 10 seconds.

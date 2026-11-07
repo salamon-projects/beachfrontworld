@@ -1,7 +1,6 @@
 module Osm
   module Importers
-    # Imports one OSM layer for a box: a destination's, or the area around a
-    # searched place (Osm::AreaImport). Features inside
+    # Imports one OSM layer for a destination's bounding box. Features inside
     # the box that the layer's query no longer returns were deleted from OSM
     # (or retagged), so they are removed and measurements use the current map.
     class Base
@@ -9,12 +8,10 @@ module Osm
       # PostGIS may disagree on what touches the edge.
       EDGE_MARGIN = 0.001 # degrees, about 100 m
 
-      attr_reader :destination, :bbox, :client, :removed
+      attr_reader :destination, :client, :removed
 
-      # New features belong to destination; bbox is [south, west, north, east].
-      def initialize(destination, client: OverpassClient.new, bbox: destination.bbox)
+      def initialize(destination, client: OverpassClient.new)
         @destination = destination
-        @bbox = bbox
         @client = client
         @removed = 0
       end
@@ -37,7 +34,7 @@ module Osm
       end
 
       def bbox_filter
-        "(#{bbox.join(',')})"
+        "(#{destination.bbox.join(',')})"
       end
 
       def import(rows)
@@ -63,7 +60,7 @@ module Osm
       # bounding box, shrunk by EDGE_MARGIN. Compared in plain lon/lat as
       # Overpass does; the && pre-filter lets the spatial index help.
       def inside_bbox(column)
-        south, west, north, east = bbox
+        south, west, north, east = destination.bbox
         envelope = "ST_MakeEnvelope(:west, :south, :east, :north, 4326)"
         [ "#{column} && #{envelope}::geography AND ST_Intersects(#{column}::geometry, #{envelope})",
           { west: west + EDGE_MARGIN, south: south + EDGE_MARGIN, east: east - EDGE_MARGIN, north: north - EDGE_MARGIN } ]

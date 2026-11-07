@@ -1,14 +1,8 @@
--# locals: (property:, offers:, walk: nil)
+-# locals: (property:, offers:)
 %article.property-card
   .property-card__main
     %p.property-card__kind= property_kind(property)
-    %h2.property-card__name= link_to property.name, property_path(property, stay_params.merge(walk_landmark_param(walk)))
-    - if walk
-      = render "shared/walk_summary", walk:
-    - else
-      - if property.has_attribute?(:nearby_count)
-        %p.property-card__nearby= t("walks.nearby", count: property.nearby_count)
-      - if property.waterfront&.listed?
-        = render "shared/waterfront_summary", property:
+    %h2.property-card__name= link_to property.name, property_path(property, stay_params)
+    = render "shared/waterfront_summary", property:
   .property-card__offers
     = render "shared/offers", offers:

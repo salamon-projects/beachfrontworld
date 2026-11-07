@@ -3,13 +3,11 @@ require "rails_helper"
 RSpec.describe Osm::DestinationImport do
   let(:destination) { create(:destination, south: 43.28, west: 16.98, north: 43.32, east: 17.04) }
 
-  before { SiteSetting.current.update!(max_walk_m: 2500) }
-
   it "imports every layer and classifies the properties" do
     counts = described_class.new(destination, client: FakeOverpassClient.new).call
 
-    expect(counts).to eq(coastline: 1, inland_water: 1, beaches: 1, roads: 3, walk_network: 8, landmarks: 5, accommodations: 2,
-                         removed_features: 0, missing_from_osm: 0, measurement_failures: 0, walks: 10)
+    expect(counts).to eq(coastline: 1, inland_water: 1, beaches: 1, roads: 3, accommodations: 2,
+                         removed_features: 0, missing_from_osm: 0, measurement_failures: 0)
 
     hotel = Property.find_by!(osm_id: 501).waterfront
     expect(hotel).to have_attributes(category: "direct", crosses_promenade: true, crosses_road: false, beach_surface: "sand")

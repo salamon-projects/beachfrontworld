@@ -24,8 +24,6 @@ RSpec.configure do |config|
 
   config.include FactoryBot::Syntax::Methods
   config.include ActiveJob::TestHelper
-  # The walking limit is remembered per process; each example starts from the default.
-  config.before { Walks.reset_max_walk_m! }
   config.include ActiveSupport::Testing::TimeHelpers
 
   config.before(:each, type: :feature) { Capybara.current_driver = :rack_test }

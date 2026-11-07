@@ -9,15 +9,12 @@ Rails.application.routes.draw do
 
   get "search", to: "search#show", as: :search
   resources :destinations, only: :show
-  get "near/:id", to: "landmarks#show", as: :landmark
-  post "near/:id/measure", to: "landmarks#measure", as: :measure_landmark
   resources :properties, only: :show
 
   # Outbound click to a booking site; logged, then redirected.
   get "go/:listing_id", to: "outbound#show", as: :outbound
 
   get "how-we-verify", to: "pages#how_we_verify", as: :how_we_verify
-  get "changes", to: "pages#changes", as: :changes
   get "affiliate-disclosure", to: "pages#affiliate_disclosure", as: :affiliate_disclosure
   get "privacy", to: "pages#privacy", as: :privacy
   get "sitemap.xml", to: "sitemaps#show", as: :sitemap, defaults: { format: :xml }
@@ -32,7 +29,6 @@ Rails.application.routes.draw do
       post :import, on: :member
     end
     resources :imports, only: :index
-    resource :settings, only: %i[edit update]
     resources :properties do
       member do
         post :hide

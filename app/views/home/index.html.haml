@@ -1,49 +1,44 @@
-- content_for :title, "Stays steps from what you came for"
-- content_for :description, "Tell us what you want to be near. We measure the real walk from every hotel and apartment along the streets, with the busy roads on the way, and show the closest first."
+- content_for :title, "Verified beachfront hotels and apartments"
+- content_for :description, "Beachfront stays in Croatia and Greece, each measured against map data so you know exactly how far the water is. Compare booking sites in one place."
 
 %section.hero
-  .container.hero__inner{ class: ("hero__inner--showcase" if @showcase) }
+  .container.hero__inner
     .hero__text
       %span.eyebrow Measured, not marketed
       %h1.hero__title
-        Stay
-        %em steps from
-        what you came for.
+        Only stays that are
+        %em really
+        on the water.
       %p.hero__lead
-        Booking sites say “0.4 km from the centre” in a straight line. We measure the walk itself — along the
-        streets, past the busy roads you would have to cross — from every stay to every sight, square and beach.
+        Booking sites call almost anything “beachfront”. We measure every property’s distance to the water from
+        map data, check for roads in between, and only list the ones that pass.
     .hero__figure
       = render "home/hero_plan"
     .hero__search
       - if @destinations.empty?
-        %p.hero__notice We are still measuring our first destination. Check back soon.
+        %p.hero__notice We are still measuring our first coastline. Check back soon.
       - else
-        = render "home/search_form"
-        - if @example_queries.any?
-          %p.hero__examples.hero__examples--queries
-            %span.hero__examples-label Ask it like this
-            - @example_queries.each do |query|
-              = link_to "“#{query}”", search_path(q: query, src: "example"), class: "query-chip", rel: "nofollow"
-        - if @examples.any?
-          %p.hero__examples
-            %span.hero__examples-label Or go straight to
-            - @examples.each do |landmark|
-              = link_to landmark.name, landmark_path(landmark), class: "landmark-chip"
-    - if @showcase
-      .hero__showcase
-        = render "home/showcase", landmark: @showcase, walks: @showcase_walks
+        = form_with url: search_path, method: :get, class: "search-form" do
+          .field.field--wide
+            = label_tag :destination, t("search.destination")
+            = select_tag :destination,
+              grouped_options_for_select(@destinations.group_by(&:country_name).transform_values { |ds| ds.map { |d| [ d.name, d.slug ] } }),
+              prompt: "Where to?", required: true
+          = render "shared/stay_fields", stay: nil
+          .field.field--submit
+            = submit_tag t("search.submit"), name: nil, class: "button button--primary"
 
 %section.section#destinations
   .container
     %span.eyebrow Destinations
-    %h2.section__title Places we have measured
+    %h2.section__title Coastlines we have measured
     - if @destinations.empty?
-      %p.empty-state We are still measuring our first destination. Check back soon.
+      %p.empty-state We are still measuring our first coastline. Check back soon.
     - @destinations.group_by(&:country_name).each do |country, destinations|
       %h3.country-title= country
       %ul.destination-grid
         - destinations.each do |destination|
-          - landmarks = @landmark_counts.fetch(destination.id, 0)
+          - direct = @direct_counts.fetch(destination.id, 0)
           %li.destination-tile
             = link_to destination_path(destination), class: "destination-tile__link" do
               - if destination.sea_name.present?
@@ -51,48 +46,27 @@
               %span.destination-tile__name= destination.name
               %span.destination-tile__counts
                 %span.destination-tile__count
-                  = pluralize(@listed_counts.fetch(destination.id, 0), "measured stay")
-                - if landmarks.positive?
-                  %span.destination-tile__direct= "· #{pluralize(landmarks, 'place')} to stay near"
+                  = pluralize(@listed_counts.fetch(destination.id, 0), "verified stay")
+                - if direct.positive?
+                  %span.destination-tile__direct= "· #{direct} right on the beach"
               %span.destination-tile__arrow{ "aria-hidden": "true" } →
-
-%section.section
-  .container
-    %span.eyebrow What you get
-    %h2.section__title Booked close, not just “close”
-    %ul.benefits
-      %li.benefit
-        %h3.benefit__title Know the walk before you book
-        %p Minutes and steps along the real streets, with the busy roads you would cross and the flights of steps.
-      %li.benefit
-        %h3.benefit__title Every stay in reach, not a top ten
-        %p Every stay we measured within walking distance is listed, closest first — not only the ones a booking site promotes.
-      %li.benefit
-        %h3.benefit__title Any place you name
-        %p A sight, a street, a venue or an address. If we have not measured it yet, we measure it while you wait.
-      %li.benefit
-        %h3.benefit__title Nobody pays to rank higher
-        %p
-          The order comes from the measurements. Commissions from booking sites never change it —
-          = succeed "." do
-            = link_to "see how we rank", how_we_verify_path(anchor: "ranking")
 
 %section.section.section--sand
   .container
     .method
       .method__intro
         %span.eyebrow Method
-        %h2.section__title How we measure
+        %h2.section__title How we verify
         %p.section__intro
-          Every result is a measurement on the map, not a booking site’s label. No property can pay to rank higher.
+          Every listing starts as a measurement. A booking site’s “beachfront” label is only ever a hint.
         %p= link_to "Read the full method", how_we_verify_path, class: "text-link"
       %ol.steps
         %li.step
-          %h3.step__title Find the place
-          %p Sights, squares, pedestrian streets, parks and beaches come from OpenStreetMap, in every language they are named in.
+          %h3.step__title Measure
+          %p We measure the distance from the building to the shoreline using OpenStreetMap data — not the booking site’s label.
         %li.step
-          %h3.step__title Walk the streets
-          %p We measure each walk along the streets, paths and steps people actually use — never in a straight line.
+          %h3.step__title Check what’s in between
+          %p A road or railway between the property and the water rules out “beachfront”. Promenades and beach surfaces are noted too.
         %li.step
-          %h3.step__title Count what’s in the way
-          %p Busy roads to cross and flights of steps are counted, and everything is measured again when the map changes.
+          %h3.step__title Re-measure
+          %p Every property is measured again whenever the map changes, so the result stays current.

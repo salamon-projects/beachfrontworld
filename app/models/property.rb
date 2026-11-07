@@ -7,7 +7,6 @@ class Property < ApplicationRecord
   belongs_to :destination
   has_many :verifications, dependent: :destroy
   has_one :waterfront, class_name: "Verifications::Waterfront", inverse_of: :property
-  has_many :walks, class_name: "PropertyWalk", dependent: :delete_all
   has_many :listings, dependent: :destroy
   has_many :active_listings, -> { active }, class_name: "Listing", inverse_of: :property
   has_many :price_quotes, through: :active_listings
@@ -16,9 +15,6 @@ class Property < ApplicationRecord
 
   attribute :latitude, :float
   attribute :longitude, :float
-
-  # Set by imports, which measure all the properties they bring in at once.
-  attr_accessor :skip_measurement
 
   before_validation :build_lonlat_from_coordinates, if: :coordinates_entered?
   after_initialize :load_coordinates, if: -> { has_attribute?(:lonlat) && lonlat.present? && latitude.nil? }
@@ -29,14 +25,13 @@ class Property < ApplicationRecord
   validates :longitude, numericality: { in: -180..180 }, allow_nil: true
   validates :website, format: { with: WEBSITE_FORMAT }, allow_blank: true
 
-  after_commit :enqueue_classification, on: %i[create update], if: -> { geometry_changed? && !skip_measurement }
+  after_commit :enqueue_classification, on: %i[create update], if: :geometry_changed?
 
-  # Shown on the site: measured within walking distance of a landmark, or on
-  # the waterfront, unless an admin hid it or OSM no longer has it.
+  # Shown on the site: measured on the waterfront, unless an admin hid it or
+  # OSM no longer has it.
   scope :published, -> {
     where(hidden_at: nil, osm_missing_since: nil)
-      .where(PropertyWalk.within_reach.where("property_walks.property_id = properties.id").arel.exists
-        .or(Verifications::Waterfront.listed.where("verifications.property_id = properties.id").arel.exists))
+      .where(Verifications::Waterfront.listed.where("verifications.property_id = properties.id").arel.exists)
   }
   scope :hidden, -> { where.not(hidden_at: nil) }
 
@@ -73,7 +68,7 @@ class Property < ApplicationRecord
 
   # The properties just before and after this one in by_waterfront order
   # within scope. Works when this one is no longer in scope, for example right
-  # after it was reviewed off the "To review" list.
+  # after it was hidden from the "On the site" view.
   def neighbors_in(scope)
     key_sql = self.class.waterfront_sort_key.map { |sql| Arel.sql(sql) }
     key = Property.left_joins(:waterfront).where(id:).pick(*key_sql)

@@ -41,7 +41,6 @@ env:
     - STEPSFROM_DATABASE_PASSWORD
     - ADMIN_USER
     - ADMIN_PASSWORD
-    - LLM_API_KEY
 
 ssh:
   user: deploy
@@ -65,10 +64,11 @@ aliases:
   dbc: app exec --interactive --reuse "bin/rails dbconsole"
 
 accessories:
-  # PostgreSQL with PostGIS and pgRouting (walking distances). The app reaches
-  # it as stepsfrom-db on the kamal Docker network; the port is only exposed on
-  # the server's loopback. After changing the image, run the db-upgrade
-  # command of the Deploy workflow (kamal accessory reboot db).
+  # PostgreSQL with PostGIS. The image also ships pgRouting, which the app no
+  # longer uses. The app reaches it as stepsfrom-db on the kamal Docker
+  # network; the port is only exposed on the server's loopback. After changing
+  # the image, run the db-upgrade command of the Deploy workflow (kamal
+  # accessory reboot db).
   db:
     image: pgrouting/pgrouting:16-3.5-3.8.0
     host: <%= server %>

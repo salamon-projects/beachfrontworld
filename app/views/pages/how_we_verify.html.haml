@@ -1,49 +1,29 @@
-- content_for :title, "How we measure and rank"
-- content_for :description, "How StepsFrom measures the walk from every stay to sights, squares and beaches, what the waterfront badges mean and how results are ordered."
-- pace = @walks.fetch(:metres_per_minute)
+- content_for :title, "How we verify and rank"
+- content_for :description, "How StepsFrom measures waterfront properties, what each badge means and how results are ordered."
 
 %section.page-header
   .container
-    %h1.page-header__title How we measure and rank
-    %p.page-header__lead Our results are measurements on the map, not what booking sites say.
+    %h1.page-header__title How we verify and rank
+    %p.page-header__lead Our listings are based on measurements, not on what booking sites say.
 
 .container.prose
   %h2 Where the data comes from
   %p
-    Properties, streets, paths, sights, squares, parks, beaches, coastlines and roads come from
+    Properties, coastlines, lakes, beaches and roads come from
     = link_to "OpenStreetMap", "https://www.openstreetmap.org/copyright", rel: "noopener"
-    (© OpenStreetMap contributors, ODbL). We do not copy content from booking sites. The map data is refreshed and
-    every property measured again each week.
+    (© OpenStreetMap contributors, ODbL). We do not copy content from booking sites.
 
-  %h2 Places to stay near
+  %h2 How we measure
   %p
-    We take the sights and monuments that have a Wikipedia or Wikidata entry, museums, named squares, pedestrian
-    streets, parks, beaches, stations and markets. We keep every name a place has on the map, so you can search in
-    your own language. When you type a search, a language model reads it to find the place you mean; only the text
-    you typed is sent to it. A place we have not measured yet — any sight, street, venue or address — is looked up
-    on OpenStreetMap and measured there and then: we fetch the streets and stays around it and measure every walk
-    the same way.
+    We take the property’s building outline (or its position, when no outline is mapped) and measure the shortest
+    distance to the shoreline. We then look at the straight line between the two: if a road or railway crosses it,
+    the property cannot be “beachfront”, however close it is. Promenades, footpaths and the beach surface are shown
+    for information.
+  %p
+    When a booking site reports a position for the property more than #{@config.fetch(:coordinate_mismatch_m)} m from
+    ours, we flag it; we still measure from the OpenStreetMap position. Every property is measured again whenever the map data is refreshed.
 
-  %h2 How we measure a walk
-  %p
-    We build the network of streets, footpaths, pedestrian areas and steps that people can walk on, leaving out
-    motorways, private roads and ways closed to pedestrians. From every property we find the shortest way along
-    that network to each place within #{number_with_delimiter(@walks.fetch(:max_walk_m))} m, starting from the
-    nearest street and ending where the path meets the square, park, street or building — never in a straight line.
-  %ul
-    %li Minutes assume an easy pace of #{(pace * 60 / 1000.0).round(1)} km/h (#{pace} m a minute).
-    %li Steps assume #{@walks.fetch(:metres_per_step)} m a step, rounded to tens.
-    %li
-      A busy road is a primary, secondary or trunk road. Each one the walk crosses — rather than walks along — is
-      counted, as are flights of steps.
-  %p
-    Properties more than #{@walks.fetch(:max_access_m)} m from any mapped street are not measured. A walk is only
-    as good as the map: a missing footpath can make it look longer than it is.
-
-  %h2#badges Waterfront badges
-  %p
-    On the coast we also measure the shortest distance from the property’s outline to the shoreline. If a road or
-    railway crosses the straight line between them, the property cannot be “beachfront”, however close it is.
+  %h2 What the badges mean
   %dl.badge-legend
     %dt
       %span.badge.badge--direct= t("waterfront.categories.direct")
@@ -57,28 +37,19 @@
     %dt
       %span.badge.badge--walkable= t("waterfront.categories.walkable")
     %dd The water is at most #{@config.fetch(:walkable_max_m)} m away.
-  %p
-    When a booking site reports a position for the property more than #{@config.fetch(:coordinate_mismatch_m)} m from
-    ours, we flag it; we still measure from the OpenStreetMap position.
+  %p Anything further than #{@config.fetch(:walkable_max_m)} m is not listed, even if a booking site calls it beachfront.
 
   %h2#ranking How results are ordered
   %ul
-    %li Near a place you searched for: by the measured walk to it, shortest first.
-    %li Near a kind of place, such as a beach: by the walk to the nearest one of that kind.
-    %li In a destination without a place: by how many sights are within a #{PropertySearch::NEARBY_MINUTES}-minute walk.
-    %li With dates: by the lowest price we have for your dates, then by the walk. Properties without a known price come last.
-    %li You can switch between price and walk with “Sort by”.
+    %li Without dates: by badge (beachfront first), then by measured distance to the water.
+    %li With dates: by the lowest price we have for your dates, then by badge and distance. Properties without a known price come last.
+    %li You can switch between the two with “Sort by”.
   %p
     No property can pay to be listed or to rank higher. We earn a commission from booking sites when you book
     through our links (see the
     = succeed ")." do
       = link_to "affiliate disclosure", affiliate_disclosure_path
-    Commissions never influence measurements or ordering.
-
-  %p
-    Changes to this method, and the limits we know about, are listed on
-    = succeed "." do
-      = link_to "What changed", changes_path
+    Commissions never influence measurements, badges or ordering.
 
   %h2 Prices
   %p

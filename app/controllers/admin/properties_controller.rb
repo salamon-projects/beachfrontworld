@@ -2,7 +2,7 @@ module Admin
   class PropertiesController < BaseController
     VIEWS = {
       "listed" => "On the site",
-      "unlisted" => "Nothing nearby",
+      "unlisted" => "Not on the waterfront",
       "hidden" => "Hidden",
       "conflicts" => "OTA claim conflicts",
       "mismatch" => "Position mismatch",
@@ -28,7 +28,6 @@ module Admin
     def show
       @list = session[:admin_property_list].presence || { "view" => "all" }
       @list_nav = @property.neighbors_in(list_scope(@list))
-      @walks = @property.walks.joins(:landmark).preload(:landmark).order(:walk_m).limit(15)
     end
 
     def new
@@ -87,10 +86,9 @@ module Admin
       params.expect(property: %i[destination_id name slug kind stars address website latitude longitude])
     end
 
-    # Waterfront result and walks, right away rather than in the background.
+    # The waterfront result, right away rather than in the background.
     def measure
       Waterfront::Classification.new(@property).call
-      Walks::Measurement.new(Landmark.within_walk_of(@property.lonlat)).call(property_ids: [ @property.id ])
     end
 
     # The properties of an index view with its filters, unordered.

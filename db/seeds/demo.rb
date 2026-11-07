@@ -1,8 +1,6 @@
 # Fictional demo data for development only: a straight coastline, a beach, a
-# road and a promenade around a made-up bay, a small grid of streets to walk
-# (with a busy avenue and a flight of steps), a few landmarks, and sample
-# properties at different distances. Nothing here describes a real place or
-# business.
+# road and a promenade around a made-up bay, with sample properties at
+# different distances. Nothing here describes a real place or business.
 
 EARTH_RADIUS_M = 6_371_008.8
 BASE = { lat: 43.30, lon: 17.02 }.freeze
@@ -46,7 +44,7 @@ ActiveRecord::Base.transaction do
     [ "Sample Villa Rocks", "villa", nil, 185, 700 ],     # right above the pebbles
     [ "Sample Guest House", "guest_house", 3, 110, 500 ], # behind the coast road
     [ "Sample Garden Hotel", "hotel", 3, -20, -100 ],     # a short walk inland
-    [ "Sample Inland Inn", "hotel", 2, -700, 0 ]          # inland, across the busy avenue
+    [ "Sample Inland Inn", "hotel", 2, -700, 0 ]          # too far: never listed
   ]
   providers = %w[booking expedia agoda]
   samples.each_with_index do |(name, kind, stars, north_m, east_m), index|
@@ -61,45 +59,8 @@ ActiveRecord::Base.transaction do
     end
   end
 
-  # Streets in a grid: rows north of the base point, lanes east of it.
-  rows = { 140 => "residential", 55 => "footway", -20 => "pedestrian", -400 => "primary", -700 => "residential" }
-  lanes = [ -900, -500, -100, 300, 700 ]
-  node = ->(north_m, east_m) { 9_000_000 + (rows.keys.index(north_m) * lanes.size) + lanes.index(east_m) }
-  rows.each_key do |north_m|
-    lanes.each do |east_m|
-      lon, lat = demo_offset(north_m, east_m)
-      WalkVertex.create!(node_id: node.(north_m, east_m), busy: rows[north_m] == "primary",
-                         geom: Geo.point(lon:, lat:))
-    end
-  end
-  edge = lambda do |from, to, highway|
-    WalkEdge.create!(osm_way_id: 0, source: node.(*from), target: node.(*to), highway:,
-                     busy: highway == "primary", steps: highway == "steps",
-                     geom: Geo.line([ demo_offset(*from), demo_offset(*to) ]))
-  end
-  rows.each { |north_m, highway| lanes.each_cons(2) { |west, east| edge.([ north_m, west ], [ north_m, east ], highway) } }
-  lanes.each do |east_m|
-    rows.keys.each_cons(2) do |north, south|
-      edge.([ north, east_m ], [ south, east_m ], east_m == 300 && north == 140 ? "steps" : "footway")
-    end
-  end
-  WalkEdge.where(osm_way_id: 0).update_all("length_m = ST_Length(geom)")
-  MapArea.record!(demo.bbox)
-
-  [ [ "Demo Lighthouse", "attraction", 60, Geo.point(lon: demo_offset(200, 900)[0], lat: demo_offset(200, 900)[1]) ],
-    [ "Demo Old Town Square", "square", 40, demo_box(-390, -300, -200, 0) ],
-    [ "Demo Walk", "pedestrian_street", 20, Geo.line([ demo_offset(-20, -500), demo_offset(-20, 300) ]) ],
-    [ "Demo Beach", "beach", 10, demo_box(60, 200, -900, 100) ],
-    [ "Demo Market", "market", 5, Geo.point(lon: demo_offset(-700, 300)[0], lat: demo_offset(-700, 300)[1]) ] ]
-    .each_with_index do |(name, kind, prominence, geom), index|
-      demo.landmarks.create!(osm_type: "demo", osm_id: index + 1, name:, kind:, prominence:, geom:,
-                             names: { "hu" => "#{name} (HU)" })
-    end
-
   demo.properties.find_each { |property| Waterfront::Classification.new(property).call }
-  Walks::Measurement.new(demo.landmarks).call
 end
 
 puts "Demo Bay: " + Destination.find_by!(slug: "demo-bay").properties.joins(:waterfront)
   .pluck(:name, "verifications.category", "verifications.distance_m").map { |n, c, d| "#{n}=#{c}(#{d}m)" }.join(", ")
-puts "Demo Bay walks: #{PropertyWalk.joins(:landmark).where(landmarks: { destination_id: Destination.find_by!(slug: 'demo-bay').id }).count}"

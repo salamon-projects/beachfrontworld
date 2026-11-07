@@ -23,7 +23,6 @@
             = link_to "Properties", admin_properties_path
             = link_to "Destinations", admin_destinations_path
             = link_to "Imports", admin_imports_path
-            = link_to "Settings", edit_admin_settings_path
           = link_to "View site", root_path
           - if admin_signed_in?
             = button_to "Log out", admin_logout_path, method: :delete, class: "site-nav__button"

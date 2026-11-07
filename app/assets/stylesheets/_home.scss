@@ -21,15 +21,6 @@
       column-gap: 3rem;
       row-gap: 2.5rem;
     }
-
-    &--showcase {
-      @media (min-width: $bp-lg) {
-        grid-template-areas:
-          "text figure"
-          "showcase figure"
-          "search search";
-      }
-    }
   }
 
   @media (min-width: $bp-lg) {
@@ -43,11 +34,6 @@
 
     &__search {
       grid-area: search;
-    }
-
-    &__showcase {
-      grid-area: showcase;
-      align-self: start;
     }
   }
 
@@ -94,19 +80,27 @@
   border-radius: $radius-lg;
   background: $white;
 
-  &__streets path {
+  &__sea {
+    fill: $sea;
+  }
+
+  &__contour {
+    fill: none;
+    stroke: rgba($white, 0.12);
+    stroke-width: 1;
+  }
+
+  &__beach {
+    fill: #ead9b8;
+  }
+
+  &__road {
     fill: none;
     stroke: $paper-deep;
-    stroke-width: 12;
+    stroke-width: 16;
   }
 
-  &__avenue {
-    fill: none;
-    stroke: $border;
-    stroke-width: 20;
-  }
-
-  &__avenue-line {
+  &__road-line {
     fill: none;
     stroke: $white;
     stroke-dasharray: 8 8;
@@ -125,65 +119,60 @@
     stroke-width: 2;
   }
 
-  &__crow {
-    fill: none;
-    stroke: $faint;
-    stroke-dasharray: 4 5;
-    stroke-width: 1.5;
-  }
-
-  &__route {
-    fill: none;
-    stroke: $measure;
-    stroke-linejoin: round;
-    stroke-width: 3.5;
-  }
-
-  &__crossing {
-    fill: none;
-    stroke: $warn;
-    stroke-width: 2.5;
-  }
-
-  &__landmark {
-    fill: $white;
-    stroke: $measure;
-    stroke-width: 3.5;
-  }
-
   text {
     font-family: $font;
     font-size: 15px;
     font-weight: 700;
   }
 
-  &__route-label {
-    fill: $measure;
-  }
-
-  &__crow-label {
-    fill: $faint;
-    font-size: 11px;
-    font-weight: 600;
-  }
-
   &__note {
-    fill: $muted;
     font-size: 11px;
     font-weight: 600;
     letter-spacing: 0.08em;
     text-transform: uppercase;
   }
 
-  &__scale {
+  &__verified {
+    .hero-plan__measure-line {
+      fill: none;
+      stroke: $measure;
+      stroke-width: 2.5;
+    }
+
+    text {
+      fill: $measure;
+    }
+
+    .hero-plan__note {
+      fill: $measure-light;
+    }
+  }
+
+  &__rejected {
     path {
       fill: none;
       stroke: $faint;
-      stroke-width: 1.5;
+      stroke-width: 2;
+    }
+
+    .hero-plan__measure-line {
+      stroke-dasharray: 4 5;
     }
 
     text {
       fill: $faint;
+    }
+  }
+
+  &__scale {
+    path {
+      fill: none;
+      stroke: rgba($white, 0.7);
+      stroke-width: 1.5;
+    }
+
+    text {
+      fill: rgba($white, 0.7);
       font-size: 11px;
       font-weight: 600;
     }
@@ -332,114 +321,6 @@
 
   p {
     max-width: 36rem;
-    margin: 0;
-    color: $muted;
-  }
-}
-
-.hero__examples {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem;
-  margin: 1rem 0 0;
-
-  &-label {
-    margin-right: 0.25rem;
-    color: $faint;
-    font-size: 0.7rem;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-  }
-}
-
-// Example searches written the way a visitor might type them.
-.query-chip {
-  display: inline-flex;
-  align-items: center;
-  min-height: 2.25rem;
-  padding: 0.25rem 0.9rem;
-  border: 1px dashed $border-strong;
-  border-radius: 999px;
-  color: $sea;
-  font-family: $serif;
-  font-size: 1rem;
-  font-style: italic;
-  text-decoration: none;
-  transition: border-color 0.15s, color 0.15s;
-
-  &:hover {
-    border-color: $sea;
-    border-style: solid;
-  }
-}
-
-// A real result under the hero sketch: the closest stays to one landmark.
-.showcase {
-  padding: 1.25rem 1.5rem;
-  border: 1px solid $border;
-  border-radius: $radius-lg;
-  background: $white;
-
-  &__title {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-    margin: 0 0 0.5rem;
-    font-family: $serif;
-    font-size: 1.3rem;
-
-    a {
-      color: $ink;
-      text-decoration: none;
-    }
-  }
-
-  &__label {
-    color: $faint;
-    font-family: $font;
-    font-size: 0.7rem;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-  }
-
-  &__list .walk-list__item:last-child {
-    border-bottom: 0;
-  }
-
-  &__more {
-    margin-top: 0.75rem;
-    font-size: 0.9rem;
-  }
-}
-
-// What a visitor gets, above the method.
-.benefits {
-  display: grid;
-  gap: 1.5rem;
-  margin: 2rem 0 0;
-  padding: 0;
-  list-style: none;
-
-  @media (min-width: $bp-md) {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 2rem 3rem;
-  }
-}
-
-.benefit {
-  padding-top: 1rem;
-  border-top: 2px solid $sea;
-
-  &__title {
-    margin-bottom: 0.4rem;
-    font-size: 1.3rem;
-  }
-
-  p {
-    max-width: 30rem;
     margin: 0;
     color: $muted;
   }

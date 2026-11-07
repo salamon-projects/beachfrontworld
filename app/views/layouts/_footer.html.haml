@@ -2,16 +2,15 @@
   .container
     .site-footer__top
       %p.site-footer__brand
-        Every walk,
+        Beachfront,
         %em measured.
       %nav.site-footer__links{ "aria-label": "Footer" }
         = link_to "How we verify & rank", how_we_verify_path
-        = link_to "Changes & known limits", changes_path
         = link_to "Affiliate disclosure", affiliate_disclosure_path
         = link_to "Privacy", privacy_path
     %p.site-footer__disclosure= t("offers.disclosure")
     %p.site-footer__attribution
-      Map data, walks and waterfront measurements based on
+      Map data and waterfront measurements based on
       = succeed "," do
         = link_to "© OpenStreetMap contributors", "https://www.openstreetmap.org/copyright", rel: "noopener"
       available under the Open Database License.

@@ -86,17 +86,9 @@ module PropertiesHelper
     notes
   end
 
-  # The property, and either the walk to a landmark (with its route when it
-  # could be traced) or the measurement to the water.
-  def property_map_data(property, walk: nil, route: nil)
+  def property_map_data(property)
     data = { properties: [ map_point(property) ], maxZoom: 18 }
     data[:footprint] = property.footprint.exterior_ring.points.map { |p| [ p.y, p.x ] } if property.footprint
-    if walk
-      data[:landmarks] = [ landmark_map_point(walk.landmark) ]
-      data[:route] = route if route
-      return data
-    end
-
     water_lon, water_lat = property.waterfront&.water_point
     if water_lon && water_lat
       from_lon, from_lat = property.footprint ? closest_footprint_vertex(property, water_lon, water_lat) : [ property.lonlat.x, property.lonlat.y ]
@@ -114,9 +106,9 @@ module PropertiesHelper
     parts << (stay ? "#{l(stay.check_in, format: '%-d %b')} – #{l(stay.check_out, format: '%-d %b')}" : t("search.any_dates"))
     parts << pluralize(stay.adults, "adult") if stay
     parts << pluralize(stay.children, "child") if stay&.children&.positive?
-    active = [ search.near, search.max_minutes, search.kind, (true if search.quiet?) ].compact.size
+    active = [ search.category, search.surface, search.kind ].compact.size
     parts << pluralize(active, "filter") if active.positive?
-    parts << sort_options(search).to_h.invert.fetch(search.sort)
+    parts << t("search.sorts.#{search.sort}")
     parts.join(" · ")
   end
 

@@ -172,14 +172,10 @@ RSpec.describe "Admin" do
       expect(response.body).to include("Measurements", "Waterfront", "Booking.com", "data-map=")
     end
 
-    it "shows the walks to landmarks in valid HTML" do
-      landmark = create(:landmark, destination:, name: "Old Town Gate", kind: "historic")
-      candidate.walks.create!(landmark:, walk_m: 640, busy_crossings: 1, measured_at: Time.current)
-
+    it "renders the property page as valid HTML" do
       get admin_property_path(candidate)
 
       expect(Nokogiri::HTML5(response.body, max_errors: 10).errors).to be_empty
-      expect(response.body).to include("Old Town Gate", "640 m · 8 min")
     end
 
     it "re-renders the form on invalid input" do
@@ -294,28 +290,6 @@ RSpec.describe "Admin" do
 
       expect(Destination.exists?(destination.id)).to be(true)
       expect(flash[:alert]).to be_present
-    end
-  end
-
-  describe "settings" do
-    before { sign_in_admin }
-
-    it "sets the longest walk, measuring again only when it grows" do
-      get edit_admin_settings_path
-      expect(response.body).to include("Longest walk that counts as near", "13 minutes")
-
-      expect { patch admin_settings_path, params: { site_setting: { max_walk_m: 800 } } }
-        .not_to have_enqueued_job(RemeasureWalksJob)
-      expect(Walks.max_walk_m).to eq(800)
-
-      expect { patch admin_settings_path, params: { site_setting: { max_walk_m: 1500 } } }
-        .to have_enqueued_job(RemeasureWalksJob)
-      expect(response).to redirect_to(edit_admin_settings_path)
-      expect(Walks.max_walk_m).to eq(1500)
-
-      patch admin_settings_path, params: { site_setting: { max_walk_m: 50 } }
-      expect(response).to have_http_status(:unprocessable_content)
-      expect(Walks.max_walk_m).to eq(1500)
     end
   end
 end

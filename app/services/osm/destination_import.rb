@@ -1,15 +1,12 @@
 module Osm
   # Imports every OSM layer for a destination, then reclassifies its
-  # properties against the fresh geometry and measures their walks to the
-  # landmarks.
+  # properties against the fresh geometry.
   class DestinationImport
     LAYERS = {
       coastline: Importers::Coastline,
       inland_water: Importers::InlandWater,
       beaches: Importers::Beaches,
       roads: Importers::Roads,
-      walk_network: Importers::WalkNetwork,
-      landmarks: Importers::Landmarks,
       accommodations: Importers::Accommodations
     }.freeze
 
@@ -25,7 +22,7 @@ module Osm
     # features were removed because OSM no longer has them, how many
     # properties OSM no longer has, and how many could not be measured.
     def call
-      total = LAYERS.size + 2
+      total = LAYERS.size + 1
       removed = 0
       counts = LAYERS.each_with_index.to_h do |(layer, importer_class), index|
         @progress.call(layer.to_s, index, total)
@@ -34,10 +31,8 @@ module Osm
         removed += importer.removed
         [ layer, imported ]
       end
-      MapArea.record!(@destination.bbox) if counts[:walk_network].positive?
       counts.merge(removed_features: removed, missing_from_osm: @destination.properties.missing_from_osm.count,
-                   measurement_failures: classify_properties(step: total - 2, total:),
-                   walks: measure_walks(step: total - 1, total:))
+                   measurement_failures: classify_properties(step: total - 1, total:))
     end
 
     private
@@ -55,12 +50,6 @@ module Osm
         Rails.logger.error("Could not measure property #{property.id} (#{property.slug}): #{e.message}")
       end
       failures
-    end
-
-    def measure_walks(step:, total:)
-      Walks::Measurement.new(@destination.landmarks).call(progress: ->(done, count) {
-        @progress.call("walks #{done}/#{count}", step, total) if (done % 25).zero?
-      })
     end
   end
 end

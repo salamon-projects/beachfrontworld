@@ -7,12 +7,6 @@ xml.urlset xmlns: "http://www.sitemaps.org/schemas/sitemap/0.9" do
       xml.lastmod destination.updated_at.to_date.iso8601
     end
   end
-  @landmarks.each do |landmark|
-    xml.url do
-      xml.loc landmark_url(landmark)
-      xml.lastmod landmark.updated_at.to_date.iso8601
-    end
-  end
   @properties.each do |property|
     xml.url do
       xml.loc property_url(property)
@@ -20,5 +14,4 @@ xml.urlset xmlns: "http://www.sitemaps.org/schemas/sitemap/0.9" do
     end
   end
   xml.url { xml.loc how_we_verify_url }
-  xml.url { xml.loc changes_url }
 end

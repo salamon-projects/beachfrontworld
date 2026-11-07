@@ -4,7 +4,7 @@ module AdminHelper
     "roads" => "Roads", "accommodations" => "Accommodation"
   }.freeze
 
-  # "To review · Kassandra" for the property list a property page steps through.
+  # "On the site · Kassandra" for the property list a property page steps through.
   def property_list_label(list)
     destination = Destination.find_by(id: list["destination_id"]) if list["destination_id"].present?
     search = "“#{list['q']}”" if list["q"].present?
