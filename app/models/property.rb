@@ -105,7 +105,7 @@ class Property < ApplicationRecord
   end
 
   # The "Official website" link is shown unless the weekly check found that it
-  # leads nowhere (Websites::Check).
+  # leads nowhere (Websites::Checker).
   def website_link?
     website.present? && website_broken_at.nil?
   end

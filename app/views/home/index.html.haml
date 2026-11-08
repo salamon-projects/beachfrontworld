@@ -1,5 +1,6 @@
 - content_for :title, "Verified beachfront hotels and apartments"
-- content_for :description, "Beachfront stays in Croatia and Greece, each measured against map data so you know exactly how far the water is. Compare booking sites in one place."
+- content_for :description, "Beachfront hotels and apartments in #{@destinations.map(&:country_name).uniq.to_sentence}, each measured against map data so you know exactly how far the water is. Compare booking sites in one place."
+- content_for :head, json_ld(website_ld)
 
 %section.hero
   .container.hero__inner

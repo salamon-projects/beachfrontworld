@@ -198,6 +198,45 @@ RSpec.describe "Public pages" do
     end
   end
 
+  describe "search engines and sharing" do
+    def json_ld(type)
+      response.body.scan(%r{<script type="application/ld\+json">(.*?)</script>}m)
+              .map { |(data)| JSON.parse(data) }.find { |data| data["@type"] == type }
+    end
+
+    it "describes the site, with sharing tags" do
+      get root_path
+
+      expect(json_ld("WebSite")).to include("name" => "StepsFrom", "url" => "http://www.example.com/")
+      expect(response.body).to include('content="http://www.example.com/og-image.jpg" property="og:image"',
+                                       'content="summary_large_image" name="twitter:card"')
+    end
+
+    it "lists a destination's stays and its place in the site" do
+      get destination_path(destination) + "/"
+
+      expect(response.body).to include('<link href="http://www.example.com/destinations/makarska-riviera" rel="canonical">')
+      expect(json_ld("ItemList")["itemListElement"].first).to include("position" => 1, "name" => "Hotel Riva",
+                                                                       "url" => property_url(hotel))
+      expect(json_ld("BreadcrumbList")["itemListElement"].pluck("name")).to eq([ "Destinations", "Makarska Riviera" ])
+    end
+
+    it "describes a property as a hotel at its measured position" do
+      hotel.update!(name: "Hotel </script> Riva", address: "Obala 1", website: "https://riva.example/")
+
+      get property_path(hotel)
+
+      expect(response.body).not_to include("Hotel </script> Riva\"")
+      expect(json_ld("Hotel")).to include(
+        "name" => "Hotel </script> Riva", "url" => property_url(hotel), "sameAs" => "https://riva.example/",
+        "starRating" => { "@type" => "Rating", "ratingValue" => 4 },
+        "address" => { "@type" => "PostalAddress", "streetAddress" => "Obala 1",
+                       "addressLocality" => "Makarska Riviera", "addressCountry" => destination.country_code })
+      expect(json_ld("Hotel")["geo"]).to include("latitude" => hotel.latitude.round(6))
+      expect(json_ld("BreadcrumbList")["itemListElement"].size).to eq(3)
+    end
+  end
+
   describe "static pages" do
     it "explains the method with the configured thresholds" do
       get how_we_verify_path

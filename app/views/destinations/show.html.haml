@@ -1,5 +1,9 @@
 - content_for :title, "Beachfront stays in #{@destination.name}, #{@destination.country_name}"
-- content_for :description, "#{@destination.name}: hotels and apartments measured to be on or near #{@destination.sea_name.presence || 'the water'}. Compare booking sites for your dates."
+- content_for :description, "#{pluralize(@pagy.count, 'hotel and apartment', plural: 'hotels and apartments')} in #{@destination.name}, #{@destination.country_name}, measured to be on or right by #{@destination.sea_name.presence ? "the #{@destination.sea_name}" : 'the water'}. Compare booking sites for your dates."
+- content_for :canonical, destination_url(@destination)
+- content_for :head do
+  = json_ld(breadcrumb_ld([ [ "Destinations", root_url ], [ @destination.name, destination_url(@destination) ] ]))
+  = json_ld(destination_ld(@destination, @properties, offset: @pagy.offset))
 - if params.keys.intersect?(%w[check_in check_out adults children child_ages category surface kind sort page])
   - content_for :noindex, true
 = render "layouts/map_assets"

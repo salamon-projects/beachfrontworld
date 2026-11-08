@@ -8,7 +8,8 @@ module ApplicationHelper
   end
 
   def canonical_url
-    content_for(:canonical).presence || "#{request.base_url}#{request.path}"
+    # /destinations/x/ and /destinations/x are one page.
+    content_for(:canonical).presence || "#{request.base_url}#{request.path.chomp('/').presence || '/'}"
   end
 
   def format_price(cents, currency = "EUR")

@@ -4,6 +4,9 @@
 - content_for :description, [ measured_distance(@property), "#{property_kind(@property)} in #{destination.name}, #{destination.country_name}." ].compact.join(". ")
 - content_for :canonical, property_url(@property)
 - content_for(:noindex, true) if current_stay
+- content_for :head do
+  = json_ld(breadcrumb_ld([ [ "Destinations", root_url ], [ destination.name, destination_url(destination) ], [ @property.name, property_url(@property) ] ]))
+  = json_ld(lodging_ld(@property))
 = render "layouts/map_assets"
 
 %section.page-header
