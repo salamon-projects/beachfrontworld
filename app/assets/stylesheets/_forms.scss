@@ -958,24 +958,71 @@ $guests-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' 
   }
 
   // Same element as in the plain form; only the layout differs here.
+  // One row per child, like the steppers above: name left, age box right.
   .search-form & .child-ages {
+    flex-flow: column nowrap;
     order: 0;
-    gap: 0.6rem;
-    padding: 0;
+    gap: 0.5rem;
+    padding: 0.85rem 1rem;
     border: 0;
-    border-radius: 0;
-    background: none;
+    border-radius: $radius;
+    background: $paper-deep;
 
-    .field {
-      flex: 1 1 8rem;
+    .child-ages__field {
+      flex: none;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
       max-width: none;
     }
+
+    label {
+      margin: 0;
+      color: $ink;
+      font-size: 0.95rem;
+      font-weight: 600;
+      letter-spacing: 0;
+      text-transform: none;
+    }
+  }
+
+  // Beats the borderless selects of the search bar fields.
+  .search-form > .field & .child-ages select {
+    flex: none;
+    width: 8.5rem;
+    min-height: 2.5rem;
+    padding: 0 2rem 0 0.85rem;
+    border: 1px solid $border-strong;
+    border-radius: $radius;
+    background-color: $white;
+    background-position: right 0.75rem center;
+    color: $ink;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+
+    &:focus,
+    &:focus-visible {
+      border-color: $sea-bright;
+      outline: none;
+      box-shadow: 0 0 0 3px rgba($sea-bright, 0.18);
+    }
+
+    // Still on "Age": muted, so the ones left to pick stand out.
+    &:has(option[value=""]:checked) {
+      color: $muted;
+      font-weight: 500;
+    }
+  }
+
+  &:has(.guests-panel__ages-note.is-error) .child-ages select:has(option[value=""]:checked) {
+    border-color: $warn;
   }
 
   &__ages-note {
     order: -1;
-    flex-basis: 100%;
-    margin: 0;
+    margin: 0 0 0.25rem;
     color: $muted;
     font-size: 0.82rem;
 
