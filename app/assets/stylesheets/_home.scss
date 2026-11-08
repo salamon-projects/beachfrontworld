@@ -1,8 +1,12 @@
 @use "variables" as *;
 
+// Soft sea-and-sky light behind the hero; decoration only.
 .hero {
   padding: 2.5rem 0 3rem;
-  border-bottom: 1px solid $border;
+  background:
+    radial-gradient(36rem 26rem at 8% -10%, rgba($sea-bright, 0.2), transparent 70%),
+    radial-gradient(40rem 28rem at 100% 10%, rgba($sea, 0.14), transparent 70%),
+    linear-gradient(180deg, $white 0%, $paper 100%);
 
   @media (min-width: $bp-md) {
     padding: 4rem 0 4.5rem;
@@ -40,14 +44,16 @@
   &__title {
     max-width: 14ch;
     margin-bottom: 1.25rem;
-    font-size: clamp(2.6rem, 7vw, 4.6rem);
-    font-weight: 400;
-    letter-spacing: -0.03em;
+    font-size: clamp(2.6rem, 7vw, 4.4rem);
+    font-weight: 800;
+    letter-spacing: -0.045em;
     line-height: 1.02;
 
     em {
-      color: $measure;
-      font-style: italic;
+      background: $ocean-gradient;
+      background-clip: text;
+      color: transparent;
+      font-style: normal;
     }
   }
 
@@ -63,9 +69,10 @@
     padding: 1.25rem 1.5rem;
     border: 1px dashed $border-strong;
     border-radius: $radius-lg;
-    font-family: $serif;
-    font-size: 1.2rem;
-    font-style: italic;
+    background: rgba($white, 0.7);
+    font-family: $display;
+    font-size: 1.15rem;
+    font-weight: 600;
   }
 }
 
@@ -76,9 +83,10 @@
   max-width: 34rem;
   height: auto;
   margin: 0 auto;
-  border: 1px solid $border;
-  border-radius: $radius-lg;
+  border: 1px solid rgba($white, 0.9);
+  border-radius: 28px;
   background: $white;
+  box-shadow: $shadow-lg;
 
   &__sea {
     fill: $sea;
@@ -91,12 +99,12 @@
   }
 
   &__beach {
-    fill: #ead9b8;
+    fill: $sand-strong;
   }
 
   &__road {
     fill: none;
-    stroke: $paper-deep;
+    stroke: #e8eef2;
     stroke-width: 16;
   }
 
@@ -108,7 +116,7 @@
   }
 
   &__blocks rect {
-    fill: none;
+    fill: $paper;
     stroke: $border-strong;
     stroke-width: 1.5;
   }
@@ -144,7 +152,7 @@
     }
 
     .hero-plan__note {
-      fill: $measure-light;
+      fill: $white;
     }
   }
 
@@ -184,11 +192,11 @@
   align-items: center;
   gap: 1rem;
   margin: 2.5rem 0 1rem;
-  color: $muted;
+  color: $sea;
   font-family: $font;
   font-size: 0.8rem;
-  font-weight: 700;
-  letter-spacing: 0.14em;
+  font-weight: 800;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
 
   &::after {
@@ -213,30 +221,45 @@
   flex-direction: column;
   position: relative;
   height: 100%;
+  overflow: hidden;
   min-height: 11rem;
   padding: 1.5rem 1.5rem 1.25rem;
   border: 1px solid $border;
   border-radius: $radius-lg;
-  background: $white;
+  background:
+    radial-gradient(14rem 8rem at 100% 0%, rgba($sea-bright, 0.12), transparent 70%),
+    $white;
+  box-shadow: $shadow-sm;
   color: $ink;
   text-decoration: none;
-  transition: border-color 0.2s, transform 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+
+  // A strip of sea along the top edge.
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto;
+    height: 4px;
+    background: $ocean-gradient;
+  }
 
   &:hover,
   &:focus-visible {
-    border-color: $sea;
+    border-color: rgba($sea-bright, 0.5);
+    box-shadow: $shadow;
     color: $ink;
-    transform: translateY(-2px);
+    transform: translateY(-3px);
 
     .destination-tile__arrow {
-      color: $measure;
+      background: $ocean-gradient;
+      color: $white;
       transform: translateX(3px);
     }
   }
 }
 
 .destination-tile__sea {
-  color: $faint;
+  color: $sea;
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.12em;
@@ -246,9 +269,10 @@
 .destination-tile__name {
   margin: 0.35rem 0 auto;
   padding-bottom: 1.25rem;
-  font-family: $serif;
-  font-size: 1.85rem;
-  letter-spacing: -0.02em;
+  font-family: $display;
+  font-size: 1.7rem;
+  font-weight: 800;
+  letter-spacing: -0.035em;
   line-height: 1.1;
 }
 
@@ -266,12 +290,18 @@
 }
 
 .destination-tile__arrow {
+  display: grid;
+  place-items: center;
   position: absolute;
-  right: 1.5rem;
-  bottom: 1.2rem;
-  color: $faint;
-  font-size: 1.1rem;
-  transition: transform 0.2s, color 0.2s;
+  right: 1.25rem;
+  bottom: 0.95rem;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: $sea-light;
+  color: $sea;
+  font-size: 1rem;
+  transition: transform 0.2s, color 0.2s, background 0.2s;
 }
 
 .method {
@@ -296,27 +326,33 @@
 .step {
   display: grid;
   grid-template-columns: 3.5rem 1fr;
-  padding: 1.5rem 0;
-  border-top: 1px solid $border-strong;
+  margin-bottom: 0.85rem;
+  padding: 1.35rem 1.5rem;
+  border: 1px solid $border;
+  border-radius: $radius-lg;
+  background: rgba($white, 0.85);
+  box-shadow: $shadow-sm;
   counter-increment: step;
 
-  &:last-child {
-    border-bottom: 1px solid $border-strong;
-  }
-
   &::before {
-    content: counter(step, decimal-leading-zero);
+    content: counter(step);
+    display: grid;
+    place-items: center;
     grid-row: span 2;
-    color: $measure;
-    font-family: $serif;
-    font-size: 1.5rem;
-    font-style: italic;
-    line-height: 1.2;
+    width: 2.4rem;
+    height: 2.4rem;
+    border-radius: 12px;
+    background: $ocean-gradient;
+    box-shadow: 0 8px 16px -8px rgba($sea, 0.7);
+    color: $white;
+    font-family: $display;
+    font-size: 1.05rem;
+    font-weight: 800;
   }
 
   &__title {
-    margin-bottom: 0.4rem;
-    font-size: 1.45rem;
+    margin-bottom: 0.3rem;
+    font-size: 1.25rem;
   }
 
   p {

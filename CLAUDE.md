@@ -26,7 +26,7 @@ Every push to `main` deploys to production (Kamal) once CI passes — a green co
 
 Rails 8.1, Ruby 3.3, HAML views, SCSS via dartsass-rails, Propshaft. Server-rendered only: **no Hotwire, Stimulus or importmap**. JavaScript is limited to small plain scripts in `app/assets/javascripts/` (`map.js` draws Leaflet maps from vendored `vendor/assets/leaflet`; `filters.js` and `stay_fields.js` — range calendar and guest steppers over `shared/_stay_fields` — are progressive enhancement). Pages must work without JS, and the enhanced fields must submit the same params as the plain ones. Solid Queue / Solid Cache for jobs and cache.
 
-The CSP (`config/initializers/content_security_policy.rb`) allows only same-origin scripts, styles and fonts and no inline `style` attributes: fonts are self-hosted in `app/assets/fonts`, and data-driven positions are drawn as inline SVG attributes (e.g. `shared/_distance_ruler`). Design tokens live in `_variables.scss`; the orange `$measure` colour is reserved for measurements.
+The CSP (`config/initializers/content_security_policy.rb`) allows only same-origin scripts, styles and fonts and no inline `style` attributes: fonts are self-hosted in `app/assets/fonts`, and data-driven positions are drawn as inline SVG attributes (e.g. `shared/_distance_ruler`). Design tokens live in `_variables.scss`; the coral `$measure` colour is reserved for measurements (ocean blues and `$ocean-gradient` carry the brand).
 
 Project principles (from README): no scraping — property/map data only from OSM, prices and links only from official affiliate programmes/APIs. A booking site's "beachfront" label is a hint used to flag conflicts, never to list a property.
 

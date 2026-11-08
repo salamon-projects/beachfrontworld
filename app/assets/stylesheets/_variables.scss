@@ -1,37 +1,48 @@
-// Palette: warm paper and deep Adriatic water. Orange is reserved for
-// measurements (lines, distances, the ruler) so it always means "we measured".
-$paper: #f6f2ea;
-$paper-deep: #ece5d8;
-$white: #fffdf9;
-$ink: #152321;
-$muted: #5e6a67;
-$faint: #8c9592;
-$sea: #123f47;
-$sea-deep: #0b2a30;
-$sea-light: #e3ecea;
-$measure: #c4542b;
-$measure-light: #f7e4da;
-$border: #e2dbcd;
-$border-strong: #cfc5b3;
+// Palette: sea-foam backgrounds, ocean blues and warm sand. Coral is reserved
+// for measurements (lines, distances, the ruler) so it always means "we
+// measured".
+$paper: #f4fafc;
+$paper-deep: #e3f3f8;
+$white: #ffffff;
+$ink: #0b2540;
+$muted: #4b6177;
+$faint: #8397ab;
+$sea: #0369a1;
+$sea-bright: #06b6d4;
+$sea-deep: #082f49;
+$sea-light: #e0f2fe;
+$sand-light: #fdf4e3;
+$sand-strong: #f2d9a6;
+$measure: #ef5a3c;
+$measure-light: #ffe6de;
+$border: #dbe9f1;
+$border-strong: #b8d0de;
 
 // Waterfront categories (keep map.js in step).
-$teal: #1d6b5a;
-$blue: #2f5f86;
-$slate: #8a7350;
-$gray: #8c9592;
+$teal: #0d9488;
+$blue: #2563eb;
+$slate: #b7791f;
+$gray: #8397ab;
 
 $sand: $paper-deep;
 $coral: $measure;
 $coral-dark: $measure;
-$warn: #a3402a;
+$warn: #c2410c;
 
-$radius: 4px;
-$radius-lg: 8px;
+$ocean-gradient: linear-gradient(120deg, $sea 0%, $sea-bright 100%);
+$shadow-sm: 0 1px 2px rgba($ink, 0.05), 0 4px 12px -6px rgba($ink, 0.12);
+$shadow: 0 1px 2px rgba($ink, 0.04), 0 12px 32px -14px rgba($sea-deep, 0.28);
+$shadow-lg: 0 2px 4px rgba($ink, 0.04), 0 28px 56px -24px rgba($sea-deep, 0.4);
+
+$radius: 12px;
+$radius-lg: 20px;
+$radius-pill: 999px;
 $gap: 1rem;
 $container: 74rem;
 
 $font: "Hanken Grotesk", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-$serif: "Newsreader", "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+// Headings and figures: the same family, set heavier and tighter.
+$display: $font;
 
 $bp-md: 48rem;
 $bp-lg: 64rem;
