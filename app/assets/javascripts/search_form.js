@@ -71,6 +71,7 @@
     this.list.id = this.input.getAttribute("aria-controls");
     this.list.setAttribute("role", "listbox");
     this.list.setAttribute("aria-label", labels.where_to);
+    this.list.tabIndex = -1;
     this.list.hidden = true;
 
     this.clearButton = el("button", "destination-picker__clear");
@@ -283,6 +284,9 @@
     this.panel.id = "guests_panel";
     this.panel.setAttribute("role", "dialog");
     this.panel.setAttribute("aria-label", labels.guests);
+    // Taking focus itself, a tap on a label or blank space inside the panel
+    // does not count as leaving it.
+    this.panel.tabIndex = -1;
     this.panel.hidden = true;
 
     adultsField.parentNode.insertBefore(this.field, adultsField);
