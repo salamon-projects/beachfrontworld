@@ -227,6 +227,17 @@
       border-left: 1px solid $border;
     }
   }
+
+  &--no-offers {
+    @media (min-width: $bp-md) {
+      grid-template-columns: 1fr auto;
+    }
+  }
+
+  &__more {
+    align-self: end;
+    font-size: 0.9rem;
+  }
 }
 
 .offers {

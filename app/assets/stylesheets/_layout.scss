@@ -70,6 +70,11 @@
   color: rgba($white, 0.7);
   font-size: 0.9rem;
 
+  // A page that ends on a coloured band meets the footer without a gap.
+  main:has(> .section--sand:last-child) + & {
+    margin-top: 0;
+  }
+
   a {
     color: $white;
 

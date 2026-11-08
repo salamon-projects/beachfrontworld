@@ -1,7 +1,9 @@
 class Destination < ApplicationRecord
   include Sluggable
 
-  has_many :properties, dependent: :restrict_with_error
+  # Verifications, listings and quotes go with the properties (database
+  # cascades); logged outbound clicks keep their row without the property.
+  has_many :properties, dependent: :delete_all
   has_many :import_runs, dependent: :delete_all
 
   normalizes :country_code, with: ->(code) { code.strip.upcase }

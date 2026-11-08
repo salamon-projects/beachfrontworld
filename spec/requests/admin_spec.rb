@@ -283,13 +283,17 @@ RSpec.describe "Admin" do
       expect(response.body).to include("4 map features removed (gone from OSM)", "1 property no longer in OSM")
     end
 
-    it "refuses to delete a destination that has properties" do
-      create(:property, destination:)
+    it "deletes a destination with its properties and their measurements" do
+      property = create(:property, :direct, destination:)
+
+      get edit_admin_destination_path(destination)
+      expect(response.body).to include("Delete destination and 1 property")
 
       delete admin_destination_path(destination)
 
-      expect(Destination.exists?(destination.id)).to be(true)
-      expect(flash[:alert]).to be_present
+      expect(Destination.exists?(destination.id)).to be(false)
+      expect(Property.exists?(property.id)).to be(false)
+      expect(Verification.where(property_id: property.id)).to be_empty
     end
   end
 end

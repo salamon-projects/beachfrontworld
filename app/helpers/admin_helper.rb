@@ -1,6 +1,6 @@
 module AdminHelper
   IMPORT_STEPS = {
-    "coastline" => "Coastline", "inland_water" => "Lakes and rivers", "beaches" => "Beaches",
+    "coastline" => "Coastline", "inland_water" => "Lakes", "beaches" => "Beaches",
     "roads" => "Roads", "accommodations" => "Accommodation"
   }.freeze
 

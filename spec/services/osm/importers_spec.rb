@@ -28,6 +28,13 @@ RSpec.describe "OSM importers" do
     expect(WaterFeature.count).to eq(1)
   end
 
+  it "leaves rivers out" do
+    river = Osm::Element.from_json("type" => "way", "id" => 9, "tags" => { "natural" => "water", "water" => "river" },
+                                   "geometry" => [ [ 17.0, 43.3 ], [ 17.01, 43.3 ], [ 17.01, 43.31 ], [ 17.0, 43.3 ] ].map { |lon, lat| { "lon" => lon, "lat" => lat } })
+
+    expect(Osm::Importers::InlandWater.new(destination, client: instance_double(Osm::OverpassClient, query: [ river ])).call).to eq(0)
+  end
+
   it "imports closed lake polygons" do
     expect(run(Osm::Importers::InlandWater)).to eq(1)
     expect(WaterFeature.sole).to have_attributes(kind: "lake", name: "Test Lake")
@@ -161,6 +168,20 @@ RSpec.describe "OSM importers" do
       described_class.new(destination, client: instance_double(Osm::OverpassClient, query: [])).call
 
       expect(Property.missing_from_osm).to be_empty
+    end
+
+    it "uses the English name of a property named in another script" do
+      element = ->(id, tags) { Osm::Element.from_json("type" => "node", "id" => id, "lat" => 43.3, "lon" => 17.0, "tags" => tags) }
+      elements = [
+        element.call(1, { "tourism" => "camp_site", "name" => "Κάμπινγκ Μαρμαρά", "name:en" => "Camping Marmara" }),
+        element.call(2, { "tourism" => "hotel", "name" => "Ξενοδοχείο Ήλιος", "int_name" => "Hotel Ilios" }),
+        element.call(3, { "tourism" => "hotel", "name" => "Βίλα Ρόδων" }),
+        element.call(4, { "tourism" => "hotel", "name" => "Hôtel Les Pins", "name:en" => "Pines Hotel" })
+      ]
+
+      described_class.new(destination, client: instance_double(Osm::OverpassClient, query: elements)).call
+
+      expect(Property.order(:osm_id).pluck(:name)).to eq([ "Camping Marmara", "Hotel Ilios", "Βίλα Ρόδων", "Hôtel Les Pins" ])
     end
 
     it "updates the geometry of properties still pending review" do

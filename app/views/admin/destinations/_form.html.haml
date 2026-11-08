@@ -47,4 +47,12 @@
 - if destination.persisted?
   .admin-card
     %h2 Danger zone
-    = button_to "Delete destination", admin_destination_path(destination), method: :delete, class: "button button--danger"
+    - count = destination.properties.count
+    %p
+      - if count.zero?
+        Deletes the destination and its import history.
+      - else
+        Deletes the destination with its #{pluralize(count, "property", "properties")}, their measurements,
+        booking links and prices. This cannot be undone; a new import would bring the properties back from OSM.
+    = button_to(count.zero? ? "Delete destination" : "Delete destination and #{pluralize(count, 'property', 'properties')}",
+      admin_destination_path(destination), method: :delete, class: "button button--danger")

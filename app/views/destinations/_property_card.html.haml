@@ -1,8 +1,15 @@
 -# locals: (property:, offers:)
-%article.property-card
+-# Without booking links the card stays one column, with a link to the
+-# property page (map and measurement) instead of an empty offers panel.
+%article.property-card{ class: ("property-card--no-offers" if offers.empty?) }
   .property-card__main
     %p.property-card__kind= property_kind(property)
     %h2.property-card__name= link_to property.name, property_path(property, stay_params)
     = render "shared/waterfront_summary", property:
-  .property-card__offers
-    = render "shared/offers", offers:
+  - if offers.any?
+    .property-card__offers
+      = render "shared/offers", offers:
+  - else
+    .property-card__more
+      = link_to "Map and measurement", property_path(property, stay_params), class: "text-link",
+        "aria-label": "Map and measurement for #{property.name}"

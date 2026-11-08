@@ -33,7 +33,7 @@ module Osm
 
       def import_element(element)
         point = element.point or return false
-        name = element.tags["name"].presence or return false
+        name = display_name(element.tags) or return false
 
         property = Property.find_or_initialize_by(osm_type: element.type, osm_id: element.id)
         @seen_ids << property.id if property.persisted?
@@ -51,6 +51,15 @@ module Osm
       rescue ActiveRecord::RecordInvalid => e
         Rails.logger.warn("Skipping OSM #{element.type}/#{element.id}: #{e.message}")
         false
+      end
+
+      # The site is in English: a name in another script (Greek, Cyrillic)
+      # gives way to its English or international form when OSM has one.
+      def display_name(tags)
+        name = tags["name"].to_s.strip.presence or return
+        return name if name.match?(/\A[\p{Latin}\p{Common}\p{Inherited}]*\z/)
+
+        [ tags["name:en"], tags["int_name"] ].map { |n| n.to_s.strip }.find(&:present?) || name
       end
 
       def details(tags)

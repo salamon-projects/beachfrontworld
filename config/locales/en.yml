@@ -21,8 +21,10 @@ en:
               missing: "are needed for every child"
 
   countries:
+    ES: Spain
     GR: Greece
     HR: Croatia
+    IT: Italy
 
   waterfront:
     categories:
@@ -64,7 +66,6 @@ en:
     water_kinds:
       sea: the sea
       lake: the lake
-      river: the river
 
   offers:
     check_prices: Check prices on %{provider}

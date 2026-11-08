@@ -90,7 +90,7 @@ bin/rails waterfront:classify[makarska-riviera]
 `Waterfront::Measurer` (`app/services/waterfront/measurer.rb`) measures in PostGIS,
 from the building outline when OSM has one, otherwise from the point:
 
-- the geodesic distance to the nearest sea coastline, lake or river area;
+- the geodesic distance to the nearest sea coastline or lake (rivers are left out: a riverbank is not a beach);
 - whether the straight line to the water crosses a road or railway (tunnels excluded)
   or a promenade/path, and whether it runs over a mapped beach;
 - the nearest beach and its surface (sand, pebble or rock);
@@ -240,5 +240,5 @@ The specs need PostGIS. OSM imports are tested against a fixture
 - Price provider adapters, once a programme grants API access.
 - Automatic matching of booking-site listings to properties (name + distance), or
   GIATA/Vervotech mapping at scale.
-- Lakes and rivers mapped as multipolygon relations; OSM water-polygons import.
+- Lakes mapped as multipolygon relations; OSM water-polygons import.
 - Signals from review text ("across the road", "10 minutes to the beach").
