@@ -148,6 +148,17 @@ RSpec.describe "Public pages" do
       expect(Nokogiri::HTML(response.body).at_css("link[rel=canonical]")["href"]).to eq(property_url(hotel))
     end
 
+    it "shows the official website instead of a price form when no booking site lists it" do
+      hotel.update!(website: "https://hotel-riva.example")
+
+      get property_path(hotel)
+
+      panel = Nokogiri::HTML(response.body).at_css(".booking-panel")
+      expect(panel.text).to include("Not bookable through our partners yet", "More verified stays in Makarska Riviera")
+      expect(panel.at_css("a[href='https://hotel-riva.example']")["rel"]).to eq("nofollow noopener")
+      expect(panel.at_css("form")).to be_nil
+    end
+
     it "warns about a road between the property and the water" do
       hotel.waterfront.update!(crosses_road: true, category: "near")
 

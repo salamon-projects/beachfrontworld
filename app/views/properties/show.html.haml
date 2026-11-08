@@ -23,14 +23,22 @@
     = render "shared/waterfront_summary", property: @property, large: true
 
   %aside.property-layout__booking
+    -# Dates and prices only make sense with a booking site to compare.
     .booking-panel
-      %h2.booking-panel__title Compare booking sites
-      = form_with url: property_path(@property), method: :get, class: "filter-form filter-form--compact" do
-        = render "shared/stay_fields", stay: @stay
-        .field.field--submit
-          = submit_tag "Check prices", name: nil, class: "button button--primary"
-      = render "shared/offers", offers: @offers
-      %p.booking-panel__disclosure= t("offers.disclosure")
+      - if @offers.any?
+        %h2.booking-panel__title Compare booking sites
+        = form_with url: property_path(@property), method: :get, class: "filter-form filter-form--compact" do
+          = render "shared/stay_fields", stay: @stay
+          .field.field--submit
+            = submit_tag "Check prices", name: nil, class: "button button--primary"
+        = render "shared/offers", offers: @offers
+        %p.booking-panel__disclosure= t("offers.disclosure")
+      - else
+        %h2.booking-panel__title Booking
+        %p= t("offers.none")
+        - if @property.website.present?
+          %p= link_to "Official website", @property.website, class: "button button--primary", rel: "nofollow noopener", target: "_blank"
+        %p= link_to "More verified stays in #{destination.name}", destination_path(destination, stay_params), class: "text-link"
 
   .property-layout__details
     = map_tag(property_map_data(@property), css_class: "map map--property", label: "Map of #{@property.name} and the nearest shoreline")
@@ -41,7 +49,7 @@
         %li.checklist__item.checklist__item--ok
           Distance to the water measured from OpenStreetMap data
           - if waterfront.measured_at
-            = "on #{l(waterfront.measured_at.to_date, format: :long)}"
+            = "on #{waterfront.measured_at.to_date.strftime('%-d %B %Y')}"
         - if waterfront.crosses_road?
           %li.checklist__item.checklist__item--warn= t("waterfront.road_between")
         - else
