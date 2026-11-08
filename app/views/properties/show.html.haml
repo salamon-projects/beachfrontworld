@@ -36,7 +36,7 @@
       - else
         %h2.booking-panel__title Booking
         %p= t("offers.none")
-        - if @property.website.present?
+        - if @property.website_link?
           %p= link_to "Official website", @property.website, class: "button button--primary", rel: "nofollow noopener", target: "_blank"
         %p= link_to "More verified stays in #{destination.name}", destination_path(destination, stay_params), class: "text-link"
 

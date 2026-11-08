@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_08_150000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_09_090000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "postgis"
@@ -127,6 +127,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_08_150000) do
     t.datetime "osm_missing_since"
     t.datetime "hidden_at"
     t.datetime "reviewed_at"
+    t.datetime "website_checked_at"
+    t.string "website_status"
+    t.integer "website_failures", default: 0, null: false
+    t.datetime "website_broken_at"
     t.index ["destination_id"], name: "index_properties_on_destination_id"
     t.index ["footprint"], name: "index_properties_on_footprint", using: :gist
     t.index ["lonlat"], name: "index_properties_on_lonlat", using: :gist

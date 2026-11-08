@@ -57,6 +57,21 @@
             %span.flag check
         - else
           No reported positions
+    %div
+      %dt Website
+      %dd
+        - if @property.website.blank?
+          None
+        - else
+          = link_to @property.website, @property.website, rel: "noopener", target: "_blank"
+          %br
+          %small
+            - if @property.website_checked_at.nil?
+              Not checked yet.
+            - else
+              = "#{@property.website_status}, checked #{time_ago_in_words(@property.website_checked_at)} ago."
+            - unless @property.website_link?
+              %span.flag not shown on the site
 
 %h2 Measurements
 .admin-card

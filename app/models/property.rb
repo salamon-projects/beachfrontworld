@@ -17,6 +17,7 @@ class Property < ApplicationRecord
   attribute :longitude, :float
 
   before_validation :build_lonlat_from_coordinates, if: :coordinates_entered?
+  before_save :forget_website_check, if: :will_save_change_to_website?
   after_initialize :load_coordinates, if: -> { has_attribute?(:lonlat) && lonlat.present? && latitude.nil? }
 
   validates :name, :lonlat, presence: true
@@ -49,6 +50,8 @@ class Property < ApplicationRecord
 
   # The last OSM import no longer found it (see Osm::Importers::Accommodations).
   scope :missing_from_osm, -> { where.not(osm_missing_since: nil) }
+  scope :with_website, -> { where.not(website: [ nil, "" ]) }
+  scope :with_broken_website, -> { with_website.where.not(website_broken_at: nil) }
 
   scope :with_coordinate_mismatch, -> {
     where("properties.coord_mismatch_m > ?", Waterfront.config.fetch(:coordinate_mismatch_m))
@@ -101,6 +104,12 @@ class Property < ApplicationRecord
     load_coordinates if lonlat
   end
 
+  # The "Official website" link is shown unless the weekly check found that it
+  # leads nowhere (Websites::Check).
+  def website_link?
+    website.present? && website_broken_at.nil?
+  end
+
   def coordinate_mismatch?
     coord_mismatch_m.to_i > Waterfront.config.fetch(:coordinate_mismatch_m)
   end
@@ -124,6 +133,12 @@ class Property < ApplicationRecord
 
   def geometry_changed?
     saved_change_to_lonlat? || saved_change_to_footprint?
+  end
+
+  # A new address is checked afresh.
+  def forget_website_check
+    self.website_checked_at = self.website_status = self.website_broken_at = nil
+    self.website_failures = 0
   end
 
   def enqueue_classification

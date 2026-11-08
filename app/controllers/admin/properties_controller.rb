@@ -7,6 +7,7 @@ module Admin
       "conflicts" => "OTA claim conflicts",
       "mismatch" => "Position mismatch",
       "missing" => "Not in OSM",
+      "broken_website" => "Broken website",
       "all" => "All"
     }.freeze
 
@@ -107,6 +108,7 @@ module Admin
       when "conflicts" then scope.beachfront_claim_conflicts
       when "mismatch" then scope.with_coordinate_mismatch
       when "missing" then scope.missing_from_osm
+      when "broken_website" then scope.with_broken_website
       else scope
       end
     end

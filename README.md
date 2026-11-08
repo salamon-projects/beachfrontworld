@@ -66,6 +66,14 @@ The database connection reads `DB_HOST`, `DB_PORT`, `DB_USER` and `DB_PASSWORD`,
    nothing). Properties are never deleted: one that OSM no longer returns is
    flagged, leaves the site and is listed under "Not in OSM" in the admin. Until an
    admin edits or hides a property, its name, position and details follow OSM.
+
+   Every Monday the websites of listed properties are checked
+   (`Websites::Checker`, or `bin/rails websites:check` by hand). A page that is
+   empty, missing (404/410), on a parked or vanished domain, or failing twice in a
+   row loses its "Official website" link; sites that refuse automated checks keep
+   it. The admin lists them under "Broken website"; entering a new address there
+   checks it afresh. Whether a property still operates is a different question,
+   left for when booking-site APIs can confirm it is bookable.
 3. **Check.** Properties measured in a listed category (beachfront, steps from the
    water, short walk) are on the site automatically; nobody approves them. In the
    admin, "On the site" lists them. Correct a position if needed (which measures the

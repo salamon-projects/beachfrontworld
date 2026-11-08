@@ -8,6 +8,9 @@ production:
   refresh_osm_data:
     command: "Destination.published.find_each { |destination| OsmImportJob.perform_later(destination.id, destination.import_runs.create!(source: 'osm').id) }"
     schedule: every sunday at 3am
+  check_property_websites:
+    class: CheckWebsitesJob
+    schedule: every monday at 5am
   purge_expired_price_quotes:
     command: "PriceQuote.where(expires_at: ...1.day.ago).delete_all"
     schedule: every day at 4am

@@ -171,6 +171,16 @@ RSpec.describe "Public pages" do
       expect(panel.at_css("form")).to be_nil
     end
 
+    it "leaves out an official website that leads nowhere" do
+      hotel.update!(website: "https://hotel-riva.example")
+      hotel.update_columns(website_broken_at: Time.current, website_status: "empty page")
+
+      get property_path(hotel)
+
+      expect(response.body).not_to include("hotel-riva.example")
+      expect(response.body).to include("More verified stays in Makarska Riviera")
+    end
+
     it "warns about a road between the property and the water" do
       hotel.waterfront.update!(crosses_road: true, category: "near")
 

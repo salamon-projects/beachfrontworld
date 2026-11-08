@@ -140,6 +140,18 @@ RSpec.describe "Admin" do
       expect(response.body).to include("Not in OpenStreetMap any more.", "2 November 2026", "not listed on the site")
     end
 
+    it "lists properties whose website is broken and explains the check" do
+      approved.update_columns(website: "https://approved.example", website_checked_at: 1.day.ago,
+                              website_status: "empty page", website_broken_at: 1.day.ago)
+
+      get admin_properties_path(view: "broken_website")
+      expect(response.body).to include("Hotel Approved", "website broken")
+      expect(response.body).not_to include("Hotel Candidate")
+
+      get admin_property_path(approved)
+      expect(response.body).to include("empty page, checked 1 day ago.", "not shown on the site")
+    end
+
     it "creates a property and measures it straight away" do
       create(:water_feature, geom: east_west_line(north_m: 30))
       lon, lat = offset
