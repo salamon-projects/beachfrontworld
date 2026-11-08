@@ -18,15 +18,20 @@
       - if @destinations.empty?
         %p.hero__notice We are still measuring our first coastline. Check back soon.
       - else
-        = form_with url: search_path, method: :get, class: "search-form" do
-          .field.field--wide
+        -# search_form.js turns the destination select into a searchable list
+        -# and the guest counts into one "2 adults · 0 children" field.
+        = form_with url: search_path, method: :get, class: "search-form",
+          data: { search_form: t("search.picker").merge(stays: t("search.picker_stays")).to_json } do
+          .field.field--wide.field--destination
             = label_tag :destination, t("search.destination")
             = select_tag :destination,
-              grouped_options_for_select(@destinations.group_by(&:country_name).transform_values { |ds| ds.map { |d| [ d.name, d.slug ] } }),
-              prompt: "Where to?", required: true
+              grouped_options_for_select(destination_options(@destinations, @listed_counts)),
+              prompt: t("search.picker.where_to"), required: true
           = render "shared/stay_fields", stay: nil
           .field.field--submit
             = submit_tag t("search.submit"), name: nil, class: "button button--primary"
+- content_for :scripts do
+  = javascript_include_tag "search_form", defer: true
 
 %section.section#destinations
   .container

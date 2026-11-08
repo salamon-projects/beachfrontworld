@@ -405,7 +405,7 @@ $calendar-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
   // The field being picked in the open calendar.
   &:has(.date-trigger.is-active) {
     background: $paper;
-    box-shadow: inset 0 -2px 0 $measure;
+    box-shadow: inset 0 -2px 0 $sea-bright;
   }
 }
 
@@ -574,7 +574,7 @@ html.calendar-open {
 
     &.is-start,
     &.is-end {
-      background: $sea;
+      background: $ocean-gradient;
       color: $white;
       font-weight: 700;
 
@@ -598,7 +598,7 @@ html.calendar-open {
 
     &:focus-visible {
       z-index: 1;
-      outline: 2px solid $measure;
+      outline: 2px solid $sea-bright;
       outline-offset: 1px;
     }
   }
@@ -684,6 +684,308 @@ html.calendar-open {
   }
 
   .calendar__months > .calendar__month {
+    width: 100%;
+  }
+}
+
+// --- Home search bar pickers (search_form.js) -------------------------------
+
+$pin-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230369a1' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z'/%3E%3Ccircle cx='12' cy='9.5' r='2.5'/%3E%3C/svg%3E");
+$guests-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230369a1' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='9' cy='8' r='3.5'/%3E%3Cpath d='M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6'/%3E%3Cpath d='M16 4.6a3.5 3.5 0 0 1 0 6.8M18.5 14.4c1.9.8 3 2.8 3 5.6'/%3E%3C/svg%3E");
+
+.search-form--guests {
+  @media (min-width: $bp-md) {
+    grid-template-columns: 2fr 1.1fr 1.1fr 1.55fr auto;
+  }
+}
+
+.search-form > .field {
+  position: relative;
+}
+
+.destination-picker {
+  position: relative;
+
+  // Beats the search bar's own input reset.
+  .search-form > .field & &__input {
+    width: 100%;
+    min-height: 2.25rem;
+    padding: 0 2rem 0 1.65rem;
+    overflow: hidden;
+    border: 0;
+    background: $pin-icon no-repeat left center / 1.15rem;
+    color: $ink;
+    font-size: 1.05rem;
+    font-weight: 600;
+    text-overflow: ellipsis;
+
+    &::placeholder {
+      color: $faint;
+      font-weight: 500;
+    }
+  }
+
+  &__clear {
+    position: absolute;
+    top: 50%;
+    right: 0;
+    width: 1.6rem;
+    height: 1.6rem;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: $sea-light;
+    color: $sea;
+    transform: translateY(-50%);
+    cursor: pointer;
+
+    &[hidden] {
+      display: none;
+    }
+
+    &::before,
+    &::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0.65rem;
+      height: 1.5px;
+      background: currentColor;
+      transform: translate(-50%, -50%) rotate(45deg);
+    }
+
+    &::after {
+      transform: translate(-50%, -50%) rotate(-45deg);
+    }
+
+    &:hover {
+      background: $sea;
+      color: $white;
+    }
+  }
+
+  &__list {
+    position: absolute;
+    top: calc(100% + 1rem);
+    left: -1.1rem;
+    z-index: 1050;
+    width: min(27rem, calc(100vw - 2rem));
+    max-height: min(27rem, 62vh);
+    margin: 0;
+    padding: 0.5rem;
+    overflow-y: auto;
+    border: 1px solid $border;
+    border-radius: $radius-lg;
+    background: $white;
+    box-shadow: $shadow-lg;
+    list-style: none;
+    overscroll-behavior: contain;
+
+    &[hidden] {
+      display: none;
+    }
+  }
+
+  &__group {
+    padding: 0.8rem 0.75rem 0.35rem;
+    color: $faint;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  &__option {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0.55rem 0.75rem;
+    border-radius: $radius;
+    cursor: pointer;
+
+    &:hover,
+    &.is-active {
+      background: $paper-deep;
+    }
+
+    &[aria-selected="true"] .destination-picker__name {
+      color: $sea;
+    }
+  }
+
+  &__icon {
+    flex: none;
+    width: 2.4rem;
+    height: 2.4rem;
+    border-radius: 12px;
+    background: $sea-light $pin-icon no-repeat center / 1.15rem;
+  }
+
+  &__text {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  &__name {
+    overflow: hidden;
+    color: $ink;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__meta {
+    color: $muted;
+    font-size: 0.82rem;
+  }
+
+  &__count {
+    flex: none;
+    padding: 0.2rem 0.55rem;
+    border-radius: $radius-pill;
+    background: rgba($teal, 0.1);
+    color: $teal;
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+
+  &__empty {
+    padding: 1rem 0.75rem;
+    color: $muted;
+  }
+}
+
+.search-form > .field.has-error {
+  background: rgba($measure-light, 0.5);
+  box-shadow: inset 0 -2px 0 $warn;
+}
+
+.destination-picker__error {
+  margin: 0.35rem 0 0.15rem;
+  color: $warn;
+  font-size: 0.82rem;
+  font-weight: 600;
+
+  &[hidden] {
+    display: none;
+  }
+}
+
+.field--guests.is-open {
+  background: $paper;
+}
+
+.guests-trigger {
+  display: block;
+  width: 100%;
+  min-height: 2.25rem;
+  padding: 0 1.5rem 0 1.65rem;
+  overflow: hidden;
+  border: 0;
+  background:
+    $guests-icon no-repeat left center / 1.15rem,
+    $select-arrow no-repeat right 0.1rem center / 0.7rem;
+  color: $ink;
+  font: inherit;
+  font-size: 1.05rem;
+  font-weight: 600;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline-offset: 4px;
+  }
+}
+
+.guests-panel {
+  display: grid;
+  gap: 1rem;
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  left: 0;
+  z-index: 1050;
+  padding: 1.25rem;
+  border: 1px solid $border;
+  border-radius: $radius-lg;
+  background: $white;
+  box-shadow: $shadow-lg;
+  cursor: default;
+
+  @media (min-width: $bp-md) {
+    left: auto;
+    width: 22rem;
+  }
+
+  &[hidden] {
+    display: none;
+  }
+
+  > .field {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 0.1rem 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid $border;
+
+    label {
+      grid-column: 1;
+      color: $ink;
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0;
+      text-transform: none;
+    }
+
+    .stepper {
+      grid-row: 1 / span 2;
+      grid-column: 2;
+      gap: 0.75rem;
+    }
+  }
+
+  &__hint {
+    grid-column: 1;
+    margin: 0;
+    color: $muted;
+    font-size: 0.82rem;
+  }
+
+  // Same element as in the plain form; only the layout differs here.
+  .search-form & .child-ages {
+    order: 0;
+    gap: 0.6rem;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+
+    .field {
+      flex: 1 1 8rem;
+      max-width: none;
+    }
+  }
+
+  &__ages-note {
+    order: -1;
+    flex-basis: 100%;
+    margin: 0;
+    color: $muted;
+    font-size: 0.82rem;
+
+    &.is-error {
+      color: $warn;
+      font-weight: 600;
+    }
+  }
+
+  &__done {
     width: 100%;
   }
 }

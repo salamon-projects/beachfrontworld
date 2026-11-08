@@ -20,6 +20,18 @@ RSpec.describe "Public pages" do
       expect(response.body).not_to include("Hidden Coast")
     end
 
+    it "gives the destination options what the searchable list shows" do
+      get root_path
+
+      document = Nokogiri::HTML(response.body)
+      option = document.at_css("select#destination option[value='#{destination.slug}']")
+      expect(option.parent["label"]).to eq("Croatia")
+      expect(option.to_h).to include("data-sea" => "Adriatic Sea", "data-count" => "1")
+      expect(document.at_css("select#destination")["required"]).to be_present
+      labels = JSON.parse(document.at_css("form[data-search-form]")["data-search-form"])
+      expect(labels).to include("where_to" => "Where are you going?", "stays" => hash_including("one" => "1 verified stay"))
+    end
+
     it "sends the search form to the destination with the stay" do
       get search_path(destination: destination.slug, **stay_params)
 

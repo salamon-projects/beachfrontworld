@@ -27,6 +27,13 @@
     }
   }
 
+  // Phones: the search right under the headline, the sketch after it.
+  @media (max-width: $bp-lg - 0.01rem) {
+    &__figure {
+      order: 1;
+    }
+  }
+
   @media (min-width: $bp-lg) {
     &__text {
       grid-area: text;

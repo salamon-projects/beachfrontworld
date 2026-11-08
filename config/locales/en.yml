@@ -125,5 +125,21 @@ en:
       price: Lowest price
       waterfront: Closest to the water
     choose_destination: Please choose a destination.
+    picker:
+      where_to: Where are you going?
+      no_results: No coastline matches “%{query}” yet.
+      required: Choose a destination to start searching.
+      guests: Guests
+      adult: adult
+      adults: adults
+      child: child
+      children: children
+      children_hint: Ages 0 to 17
+      ages_needed: Tell us each child’s age so prices match your stay.
+      done: Done
+      clear_destination: Clear destination
+    picker_stays:
+      one: 1 verified stay
+      other: "%{count} verified stays"
     dates_and_filters: Dates & filters
     any_dates: Any dates
