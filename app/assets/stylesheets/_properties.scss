@@ -179,6 +179,18 @@
   margin: 0;
   padding: 0;
   list-style: none;
+
+  // Cards without offers, two to a row (country pages).
+  &--grid {
+    @media (min-width: $bp-md) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    > li,
+    .property-card {
+      height: 100%;
+    }
+  }
 }
 
 .property-card {

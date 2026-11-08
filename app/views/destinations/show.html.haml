@@ -2,7 +2,7 @@
 - content_for :description, "#{pluralize(@pagy.count, 'hotel and apartment', plural: 'hotels and apartments')} in #{@destination.name}, #{@destination.country_name}, measured to be on or right by #{@destination.sea_name.presence ? "the #{@destination.sea_name}" : 'the water'}. Compare booking sites for your dates."
 - content_for :canonical, destination_url(@destination)
 - content_for :head do
-  = json_ld(breadcrumb_ld([ [ "Destinations", root_url ], [ @destination.name, destination_url(@destination) ] ]))
+  = json_ld(breadcrumb_ld([ [ "Destinations", root_url ], [ @destination.country_name, country_url(Country.new(@destination.country_code)) ], [ @destination.name, destination_url(@destination) ] ]))
   = json_ld(destination_ld(@destination, @properties, offset: @pagy.offset))
 - if params.keys.intersect?(%w[check_in check_out adults children child_ages category surface kind sort page])
   - content_for :noindex, true
@@ -15,7 +15,7 @@
     %nav.breadcrumbs{ "aria-label": "Breadcrumb" }
       = link_to "Destinations", root_path(anchor: "destinations")
       %span{ "aria-hidden": "true" } ›
-      %span= @destination.country_name
+      = link_to @destination.country_name, country_path(Country.new(@destination.country_code))
     %h1.page-header__title= @destination.name
     %p.page-header__lead
       = pluralize(@pagy.count, "verified waterfront stay")

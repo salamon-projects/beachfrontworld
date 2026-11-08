@@ -8,6 +8,7 @@ Rails.application.routes.draw do
   root "home#index"
 
   get "search", to: "search#show", as: :search
+  resources :countries, only: :show, path: "beachfront"
   resources :destinations, only: :show
   resources :properties, only: :show
 

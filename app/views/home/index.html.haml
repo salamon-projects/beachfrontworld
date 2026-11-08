@@ -41,21 +41,12 @@
     - if @destinations.empty?
       %p.empty-state We are still measuring our first coastline. Check back soon.
     - @destinations.group_by(&:country_name).each do |country, destinations|
-      %h3.country-title= country
+      %h3.country-title
+        = link_to country, country_path(Country.new(destinations.first.country_code))
       %ul.destination-grid
         - destinations.each do |destination|
-          - direct = @direct_counts.fetch(destination.id, 0)
-          %li.destination-tile
-            = link_to destination_path(destination), class: "destination-tile__link" do
-              - if destination.sea_name.present?
-                %span.destination-tile__sea= destination.sea_name
-              %span.destination-tile__name= destination.name
-              %span.destination-tile__counts
-                %span.destination-tile__count
-                  = pluralize(@listed_counts.fetch(destination.id, 0), "verified stay")
-                - if direct.positive?
-                  %span.destination-tile__direct= "· #{direct} right on the beach"
-              %span.destination-tile__arrow{ "aria-hidden": "true" } →
+          = render "destinations/tile", destination:, listed: @listed_counts.fetch(destination.id, 0),
+            direct: @direct_counts.fetch(destination.id, 0)
 
 %section.section.section--sand
   .container

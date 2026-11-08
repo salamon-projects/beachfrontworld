@@ -4,6 +4,9 @@
       %p.site-footer__brand
         Beachfront,
         %em measured.
+      %nav.site-footer__links.site-footer__countries{ "aria-label": "Countries" }
+        - published_countries.each do |country|
+          = link_to "Beachfront #{country.name}", country_path(country)
       %nav.site-footer__links{ "aria-label": "Footer" }
         = link_to "How we verify & rank", how_we_verify_path
         = link_to "Affiliate disclosure", affiliate_disclosure_path

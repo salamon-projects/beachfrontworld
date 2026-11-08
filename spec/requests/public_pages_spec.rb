@@ -218,7 +218,7 @@ RSpec.describe "Public pages" do
       expect(response.body).to include('<link href="http://www.example.com/destinations/makarska-riviera" rel="canonical">')
       expect(json_ld("ItemList")["itemListElement"].first).to include("position" => 1, "name" => "Hotel Riva",
                                                                        "url" => property_url(hotel))
-      expect(json_ld("BreadcrumbList")["itemListElement"].pluck("name")).to eq([ "Destinations", "Makarska Riviera" ])
+      expect(json_ld("BreadcrumbList")["itemListElement"].pluck("name")).to eq([ "Destinations", destination.country_name, "Makarska Riviera" ])
     end
 
     it "describes a property as a hotel at its measured position" do
@@ -233,7 +233,42 @@ RSpec.describe "Public pages" do
         "address" => { "@type" => "PostalAddress", "streetAddress" => "Obala 1",
                        "addressLocality" => "Makarska Riviera", "addressCountry" => destination.country_code })
       expect(json_ld("Hotel")["geo"]).to include("latitude" => hotel.latitude.round(6))
-      expect(json_ld("BreadcrumbList")["itemListElement"].size).to eq(3)
+      expect(json_ld("BreadcrumbList")["itemListElement"].size).to eq(4)
+    end
+  end
+
+  describe "country" do
+    it "gathers a country's coastlines and the stays closest to the water" do
+      other = create(:destination, name: "Hvar", country_code: destination.country_code)
+      create(:property, :direct, destination: other, name: "Hotel Amfora", distance_to_water_m: 9)
+      create(:property, :near, destination: other, name: "Villa Up The Hill")
+      create(:destination, name: "Hidden Coast", country_code: destination.country_code, published: false)
+      country = Country.new(destination.country_code)
+
+      get country_path(country)
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include("Beachfront stays in #{country.name}", "Makarska Riviera", "Hvar")
+      expect(response.body).not_to include("Hidden Coast", "Villa Up The Hill")
+      expect(response.body.index("Hotel Amfora")).to be < response.body.index("Hotel Riva")
+      expect(response.body).to include(%(href="#{country_path(country)}"))
+    end
+
+    it "is linked from the home page, the destination page and the sitemap" do
+      country = Country.new(destination.country_code)
+
+      [ root_path, destination_path(destination), property_path(hotel) ].each do |path|
+        get path
+        expect(response.body).to include(%(href="#{country_path(country)}"))
+      end
+      get sitemap_path
+      expect(response.body).to include(country_url(country))
+    end
+
+    it "is not found for a country without published destinations" do
+      get country_path("narnia")
+
+      expect(response).to have_http_status(:not_found)
     end
   end
 
@@ -259,7 +294,7 @@ RSpec.describe "Public pages" do
 
       expect(response.media_type).to eq("application/xml")
       expect(response.body).to include(destination_url(destination), property_url(hotel))
-      expect(response.body.scan("<url>").size).to eq(4)
+      expect(response.body.scan("<url>").size).to eq(5)
     end
 
     it "points robots to the sitemap and away from redirects" do

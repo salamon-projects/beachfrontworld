@@ -1,10 +1,11 @@
--# locals: (property:, offers:)
+-# locals: (property:, offers:, place: nil, heading: :h2)
+-# place: the destination, on pages that mix several.
 -# Without booking links the card stays one column, with a link to the
 -# property page (map and measurement) instead of an empty offers panel.
 %article.property-card{ class: ("property-card--no-offers" if offers.empty?) }
   .property-card__main
-    %p.property-card__kind= property_kind(property)
-    %h2.property-card__name= link_to property.name, property_path(property, stay_params)
+    %p.property-card__kind= [ property_kind(property), place ].compact.join(" · ")
+    = content_tag heading, link_to(property.name, property_path(property, stay_params)), class: "property-card__name"
     = render "shared/waterfront_summary", property:
   - if offers.any?
     .property-card__offers

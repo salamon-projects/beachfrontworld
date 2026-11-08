@@ -9,6 +9,12 @@ module SeoHelper
     tag.script(data.to_json.html_safe, type: "application/ld+json") # rubocop:disable Rails/OutputSafety
   end
 
+  # For the footer on every page; a new country shows up within minutes.
+  def published_countries
+    Rails.cache.fetch("published_country_codes", expires_in: 10.minutes) { Country.published.map(&:code) }
+               .map { |code| Country.new(code) }
+  end
+
   def og_image_url
     "#{request.base_url}/og-image.jpg"
   end
@@ -34,6 +40,15 @@ module SeoHelper
       "itemListElement" => properties.each_with_index.map do |property, index|
         { "@type" => "ListItem", "position" => offset + index + 1, "url" => property_url(property),
           "name" => property.name }
+      end }
+  end
+
+  def country_ld(country, destinations)
+    { "@context" => "https://schema.org", "@type" => "ItemList",
+      "name" => "Beachfront stays in #{country.name}",
+      "itemListElement" => destinations.each_with_index.map do |destination, index|
+        { "@type" => "ListItem", "position" => index + 1, "url" => destination_url(destination),
+          "name" => destination.name }
       end }
   end
 

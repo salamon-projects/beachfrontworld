@@ -1,0 +1,11 @@
+-# locals: (destination:, listed:, direct:)
+%li.destination-tile
+  = link_to destination_path(destination), class: "destination-tile__link" do
+    - if destination.sea_name.present?
+      %span.destination-tile__sea= destination.sea_name
+    %span.destination-tile__name= destination.name
+    %span.destination-tile__counts
+      %span.destination-tile__count= pluralize(listed, "verified stay")
+      - if direct.positive?
+        %span.destination-tile__direct= "· #{direct} right on the beach"
+    %span.destination-tile__arrow{ "aria-hidden": "true" } →

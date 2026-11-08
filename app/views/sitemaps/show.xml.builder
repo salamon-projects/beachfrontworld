@@ -1,6 +1,7 @@
 xml.instruct! :xml, version: "1.0", encoding: "UTF-8"
 xml.urlset xmlns: "http://www.sitemaps.org/schemas/sitemap/0.9" do
   xml.url { xml.loc root_url }
+  @countries.each { |country| xml.url { xml.loc country_url(country) } }
   @destinations.each do |destination|
     xml.url do
       xml.loc destination_url(destination)

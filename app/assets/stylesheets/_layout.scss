@@ -111,8 +111,9 @@
     border-bottom: 1px solid rgba($white, 0.12);
 
     @media (min-width: $bp-md) {
-      grid-template-columns: 1fr auto;
+      grid-template-columns: 1fr auto auto;
       align-items: end;
+      column-gap: 2.5rem;
     }
   }
 
