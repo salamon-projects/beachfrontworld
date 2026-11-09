@@ -1,217 +1,349 @@
 @use "variables" as *;
 
-// Soft sea-and-sky light behind the hero; decoration only.
+// --- Hero (inside the masthead) ---------------------------------------------
+
 .hero {
-  padding: 2.5rem 0 3rem;
-  background:
-    radial-gradient(36rem 26rem at 8% -10%, rgba($sea-bright, 0.2), transparent 70%),
-    radial-gradient(40rem 28rem at 100% 10%, rgba($sea, 0.14), transparent 70%),
-    linear-gradient(180deg, $white 0%, $paper 100%);
-
-  @media (min-width: $bp-md) {
-    padding: 4rem 0 4.5rem;
-  }
-
-  &__inner {
-    display: grid;
-    gap: 2rem;
-
-    @media (min-width: $bp-lg) {
-      grid-template-columns: 1.05fr 1fr;
-      grid-template-areas:
-        "text figure"
-        "search search";
-      align-items: center;
-      column-gap: 3rem;
-      row-gap: 2.5rem;
-    }
-  }
-
-  // Phones: the search right under the headline, the sketch after it.
-  @media (max-width: $bp-lg - 0.01rem) {
-    &__figure {
-      order: 1;
-    }
-  }
+  display: grid;
+  grid-template-areas: "copy" "search" "ruler";
+  gap: 2.5rem;
+  padding-top: 1.5rem;
+  padding-bottom: 2.5rem;
 
   @media (min-width: $bp-lg) {
-    &__text {
-      grid-area: text;
-    }
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+    grid-template-areas:
+      "copy search"
+      "ruler search";
+    align-items: start;
+    column-gap: 4rem;
+    row-gap: 3.5rem;
+    padding-top: 2.75rem;
+    padding-bottom: 4.5rem;
+  }
 
-    &__figure {
-      grid-area: figure;
-    }
-
-    &__search {
-      grid-area: search;
-    }
+  &__copy {
+    display: grid;
+    grid-area: copy;
+    justify-items: start;
+    gap: 1.75rem;
   }
 
   &__title {
-    max-width: 14ch;
-    margin-bottom: 1.25rem;
-    font-size: clamp(2.6rem, 7vw, 4.4rem);
+    margin: 0;
+    color: $white;
+    font-size: clamp(3rem, 6.6vw, 6rem);
     font-weight: 800;
-    letter-spacing: -0.045em;
-    line-height: 1.02;
+    letter-spacing: -0.035em;
+    line-height: 0.94;
 
     em {
-      background: $ocean-gradient;
-      background-clip: text;
-      color: transparent;
+      color: $mint;
       font-style: normal;
     }
   }
 
   &__lead {
-    max-width: 32rem;
+    max-width: 33em;
     margin: 0;
-    color: $muted;
-    font-size: 1.15rem;
+    color: rgba($white, 0.8);
+    font-size: 1.1875rem;
+    line-height: 1.6;
+    text-wrap: pretty;
+  }
+
+  &__search {
+    grid-area: search;
+    scroll-margin-top: 1rem;
   }
 
   &__notice {
-    margin: 0;
-    padding: 1.25rem 1.5rem;
-    border: 1px dashed $border-strong;
-    border-radius: $radius-lg;
-    background: rgba($white, 0.7);
-    font-family: $display;
-    font-size: 1.15rem;
-    font-weight: 600;
+    padding: 1.75rem;
+    border-radius: 26px;
+    background: $white;
+    color: $ink;
+  }
+
+  .shoreline-test {
+    grid-area: ruler;
   }
 }
 
-// Plan-view sketch in the hero. Colours live here so the SVG stays plain.
-.hero-plan {
-  display: block;
-  width: 100%;
-  max-width: 34rem;
-  height: auto;
-  margin: 0 auto;
-  border: 1px solid rgba($white, 0.9);
-  border-radius: 28px;
-  background: $white;
-  box-shadow: $shadow-lg;
+// The three listed categories on one scale, on the dark hero.
+.shoreline-test {
+  display: grid;
+  gap: 1.125rem;
 
-  &__sea {
-    fill: $sea;
+  &__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem 1rem;
   }
 
-  &__contour {
-    fill: none;
-    stroke: rgba($white, 0.12);
-    stroke-width: 1;
-  }
-
-  &__beach {
-    fill: $sand-strong;
-  }
-
-  &__road {
-    fill: none;
-    stroke: #e8eef2;
-    stroke-width: 16;
-  }
-
-  &__road-line {
-    fill: none;
-    stroke: $white;
-    stroke-dasharray: 8 8;
-    stroke-width: 1.5;
-  }
-
-  &__blocks rect {
-    fill: $paper;
-    stroke: $border-strong;
-    stroke-width: 1.5;
-  }
-
-  &__building {
-    fill: $white;
-    stroke: $ink;
-    stroke-width: 2;
-  }
-
-  text {
-    font-family: $font;
-    font-size: 15px;
-    font-weight: 700;
-  }
-
-  &__note {
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.08em;
+  &__title {
+    margin: 0;
+    color: rgba($white, 0.72);
+    font-family: $mono;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
   }
 
-  &__verified {
-    .hero-plan__measure-line {
-      fill: none;
-      stroke: $measure;
-      stroke-width: 2.5;
+  &__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    min-height: 2.75rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-decoration: none;
+
+    .icon {
+      width: 1rem;
+      height: 1rem;
     }
 
-    text {
-      fill: $measure;
-    }
-
-    .hero-plan__note {
-      fill: $white;
-    }
-  }
-
-  &__rejected {
-    path {
-      fill: none;
-      stroke: $faint;
-      stroke-width: 2;
-    }
-
-    .hero-plan__measure-line {
-      stroke-dasharray: 4 5;
-    }
-
-    text {
-      fill: $faint;
+    .masthead &:hover {
+      color: $mint;
     }
   }
 
   &__scale {
-    path {
-      fill: none;
-      stroke: rgba($white, 0.7);
-      stroke-width: 1.5;
+    position: relative;
+    padding-top: 2.5rem;
+  }
+
+  &__pin {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: absolute;
+    top: 0;
+    transform: translateX(-50%);
+
+    &::after {
+      content: "";
+      width: 2px;
+      height: 12px;
+      background: currentColor;
     }
 
-    text {
-      fill: rgba($white, 0.7);
-      font-size: 11px;
-      font-weight: 600;
+    &--direct {
+      left: 12%;
+      color: $mint;
+    }
+
+    &--near {
+      left: 44%;
+      color: $amber;
     }
   }
+
+  &__flag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.45rem 0.7rem;
+    border-radius: $radius-pill;
+    color: $ink;
+    font-family: $mono;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    line-height: 1;
+    white-space: nowrap;
+
+    .shoreline-test__pin--direct & {
+      background: $mint;
+    }
+
+    .shoreline-test__pin--near & {
+      background: $amber;
+    }
+
+    .icon {
+      width: 0.875rem;
+      height: 0.875rem;
+      stroke: $ink;
+      stroke-width: 2.6;
+    }
+  }
+
+  &__bar {
+    display: flex;
+    gap: 4px;
+    height: 10px;
+  }
+
+  &__segment {
+    border-radius: 2px;
+
+    &--direct {
+      flex: 34;
+      border-radius: $radius-pill 2px 2px $radius-pill;
+      background: $mint;
+    }
+
+    &--near {
+      flex: 28;
+      background: $amber;
+    }
+
+    &--walkable {
+      flex: 38;
+      border-radius: 2px $radius-pill $radius-pill 2px;
+      background: rgba($white, 0.24);
+    }
+  }
+
+  &__ticks {
+    position: relative;
+    height: 18px;
+    margin-top: 10px;
+    color: rgba($white, 0.72);
+    font-family: $mono;
+    font-size: 0.75rem;
+    line-height: 18px;
+
+    span {
+      position: absolute;
+
+      &:nth-child(1) { left: 0; }
+      &:nth-child(2) { left: 34%; transform: translateX(-50%); }
+      &:nth-child(3) { left: 62%; transform: translateX(-50%); }
+      &:nth-child(4) { right: 0; }
+    }
+  }
+
+  &__legend {
+    display: grid;
+    gap: 1rem;
+    margin: 0.25rem 0 0;
+
+    @media (min-width: $bp-sm) {
+      grid-template-columns: 34fr 28fr 38fr;
+      gap: 1.125rem;
+    }
+
+    div {
+      display: grid;
+      align-content: start;
+      gap: 0.3rem;
+    }
+
+    dd {
+      margin: 0;
+      color: rgba($white, 0.72);
+      font-size: 0.875rem;
+      line-height: 1.45;
+    }
+  }
+
+  &__key {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9375rem;
+    font-weight: 600;
+
+    &::before {
+      content: "";
+      flex: none;
+      width: 10px;
+      height: 10px;
+      border-radius: 3px;
+    }
+
+    &--direct::before { background: $mint; }
+    &--near::before { background: $amber; }
+    &--walkable::before { background: rgba($white, 0.45); }
+  }
+}
+
+// --- Destinations ----------------------------------------------------------
+
+.country-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+
+  &[hidden] {
+    display: none;
+  }
+}
+
+.country-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  min-height: 3rem;
+  padding: 0 1.125rem;
+  border: 1.5px solid $border-strong;
+  border-radius: $radius-pill;
+  background: $white;
+  color: $ink;
+  font: inherit;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover {
+    border-color: $ink;
+  }
+
+  &[aria-pressed="true"] {
+    border-color: $ink;
+    background: $ink;
+    color: $white;
+  }
+
+  &__count {
+    font-family: $mono;
+    font-size: 0.75rem;
+    font-weight: 500;
+    opacity: 0.75;
+  }
+}
+
+.coast-group {
+  &[hidden] {
+    display: none;
+  }
+
+  & + & {
+    margin-top: 1rem;
+  }
+
+  &__more {
+    display: flex;
+    justify-content: flex-end;
+    margin: 1.25rem 0 0;
+  }
+}
+
+// With the country buttons the group's own heading is redundant.
+.has-country-tabs .coast-group .country-title {
+  display: none;
 }
 
 .country-title {
   display: flex;
   align-items: center;
   gap: 1rem;
-  margin: 2.5rem 0 1rem;
-  color: $sea;
-  font-family: $font;
-  font-size: 0.8rem;
-  font-weight: 800;
+  margin: 1.5rem 0 1rem;
+  font-family: $mono;
+  font-size: 0.8125rem;
+  font-weight: 500;
   letter-spacing: 0.12em;
   text-transform: uppercase;
 
   a {
-    color: inherit;
+    color: $sea;
     text-decoration: none;
 
     &:hover {
-      color: $sea-bright;
+      text-decoration: underline;
     }
   }
 
@@ -223,157 +355,407 @@
   }
 }
 
-.destination-grid {
+.coast-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(min(20rem, 100%), 1fr));
+  gap: 1.5rem;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.destination-tile__link {
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  height: 100%;
-  overflow: hidden;
-  min-height: 11rem;
-  padding: 1.5rem 1.5rem 1.25rem;
-  border: 1px solid $border;
-  border-radius: $radius-lg;
-  background:
-    radial-gradient(14rem 8rem at 100% 0%, rgba($sea-bright, 0.12), transparent 70%),
-    $white;
-  box-shadow: $shadow-sm;
-  color: $ink;
-  text-decoration: none;
-  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+.coast-card {
+  $card-sea: #174e7a;
 
-  // A strip of sea along the top edge.
-  &::before {
-    content: "";
-    position: absolute;
-    inset: 0 0 auto;
-    height: 4px;
-    background: $ocean-gradient;
-  }
+  --card-sea: #{$card-sea};
 
-  &:hover,
-  &:focus-visible {
-    border-color: rgba($sea-bright, 0.5);
-    box-shadow: $shadow;
-    color: $ink;
-    transform: translateY(-3px);
-
-    .destination-tile__arrow {
-      background: $ocean-gradient;
-      color: $white;
-      transform: translateX(3px);
+  @each $name, $colour in $seas {
+    &--#{$name} {
+      --card-sea: #{$colour};
     }
   }
-}
 
-.destination-tile__sea {
-  color: $sea;
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
+  &__link {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+    border: 1px solid $border;
+    border-radius: $radius-lg;
+    background: $white;
+    color: $ink;
+    text-decoration: none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 
-.destination-tile__name {
-  margin: 0.35rem 0 auto;
-  padding-bottom: 1.25rem;
-  font-family: $display;
-  font-size: 1.7rem;
-  font-weight: 800;
-  letter-spacing: -0.035em;
-  line-height: 1.1;
-}
-
-.destination-tile__counts {
-  padding-top: 0.85rem;
-  padding-right: 2rem;
-  border-top: 1px solid $border;
-  color: $muted;
-  font-size: 0.9rem;
-}
-
-.destination-tile__count {
-  color: $ink;
-  font-weight: 600;
-}
-
-.destination-tile__arrow {
-  display: grid;
-  place-items: center;
-  position: absolute;
-  right: 1.25rem;
-  bottom: 0.95rem;
-  width: 2rem;
-  height: 2rem;
-  border-radius: 50%;
-  background: $sea-light;
-  color: $sea;
-  font-size: 1rem;
-  transition: transform 0.2s, color 0.2s, background 0.2s;
-}
-
-.method {
-  display: grid;
-  gap: 2.5rem;
-
-  @media (min-width: $bp-lg) {
-    grid-template-columns: 22rem 1fr;
-    gap: 4rem;
+    &:hover {
+      color: $ink;
+      box-shadow: $shadow;
+      transform: translateY(-4px);
+    }
   }
-}
 
-.steps {
-  display: grid;
-  gap: 0;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  counter-reset: step;
-}
-
-.step {
-  display: grid;
-  grid-template-columns: 3.5rem 1fr;
-  margin-bottom: 0.85rem;
-  padding: 1.35rem 1.5rem;
-  border: 1px solid $border;
-  border-radius: $radius-lg;
-  background: rgba($white, 0.85);
-  box-shadow: $shadow-sm;
-  counter-increment: step;
-
-  &::before {
-    content: counter(step);
-    display: grid;
-    place-items: center;
-    grid-row: span 2;
-    width: 2.4rem;
-    height: 2.4rem;
-    border-radius: 12px;
-    background: $ocean-gradient;
-    box-shadow: 0 8px 16px -8px rgba($sea, 0.7);
+  &__top {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    height: 12.5rem;
+    padding: 1.125rem 1.25rem 1.25rem;
+    overflow: hidden;
+    background: var(--card-sea);
     color: $white;
-    font-family: $display;
-    font-size: 1.05rem;
-    font-weight: 800;
+
+    > :not(.coast-card__contours) {
+      position: relative;
+    }
+  }
+
+  &__contours {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    fill: none;
+    stroke: rgba($white, 0.16);
+    stroke-width: 1.2;
+    transform: scale(1.5);
+  }
+
+  @for $turn from 0 through 5 {
+    &--turn-#{$turn} &__contours {
+      transform: rotate(#{$turn * 61}deg) scale(1.5);
+    }
+  }
+
+  &__sea {
+    align-self: flex-start;
+    padding: 0.375rem 0.625rem;
+    border: 1px solid rgba($white, 0.22);
+    border-radius: $radius-pill;
+    background: rgba($white, 0.14);
+    font-family: $mono;
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    line-height: 1;
+    text-transform: uppercase;
   }
 
   &__title {
-    margin-bottom: 0.3rem;
-    font-size: 1.25rem;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  &__name {
+    font-family: $display;
+    font-size: 2.125rem;
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    line-height: 1;
+    text-wrap: balance;
+  }
+
+  &__arrow {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 2.625rem;
+    height: 2.625rem;
+    border-radius: 50%;
+    background: $white;
+    color: $ink;
+
+    .icon {
+      width: 1.125rem;
+      height: 1.125rem;
+    }
+  }
+
+  &__body {
+    display: grid;
+    flex-grow: 1;
+    align-content: start;
+    gap: 1rem;
+    padding: 1.25rem 1.375rem 1.375rem;
+  }
+
+  &__stats {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 0.75rem 2rem;
+  }
+
+  &__stat {
+    display: grid;
+    gap: 0.25rem;
+    color: $muted;
+    font-size: 0.8125rem;
+    font-weight: 500;
+
+    strong {
+      color: $ink;
+      font-family: $display;
+      font-size: 1.875rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1;
+    }
+
+    &--beach strong {
+      color: $teal;
+    }
+  }
+
+  &__share {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  &__bar {
+    flex-grow: 1;
+    height: 6px;
+  }
+
+  &__track {
+    fill: $track;
+  }
+
+  &__fill {
+    fill: $teal-bright;
+  }
+
+  &__percent {
+    color: $muted;
+    font-family: $mono;
+    font-size: 0.75rem;
+    white-space: nowrap;
+  }
+}
+
+// --- Method (sand band) -----------------------------------------------------
+
+.method-steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(18.75rem, 100%), 1fr));
+  gap: 2rem 1.5rem;
+  margin: 0 0 3.5rem;
+  padding: 0;
+  list-style: none;
+}
+
+.method-step {
+  display: grid;
+  align-content: start;
+  gap: 1rem;
+
+  &__art {
+    display: grid;
+    place-items: center;
+    height: 6.5rem;
+    padding: 0 1rem;
+    border-radius: 18px;
+    background: $white;
+  }
+
+  &__number {
+    color: $sea;
+    font-family: $mono;
+    font-size: 0.8125rem;
+    font-weight: 600;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 1.5625rem;
+    line-height: 1.15;
   }
 
   p {
-    max-width: 36rem;
     margin: 0;
-    color: $muted;
+    color: $body;
+    line-height: 1.6;
   }
+}
+
+.method-art {
+  width: 100%;
+  max-width: 300px;
+  height: 96px;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+
+  &__ink {
+    stroke: $ink;
+    stroke-width: 2;
+  }
+
+  &__sea {
+    stroke: $sea;
+    stroke-width: 2;
+  }
+
+  &__bold {
+    stroke-width: 2.2;
+  }
+
+  &__dash {
+    stroke-dasharray: 5 6;
+  }
+
+  &__cross {
+    stroke-width: 2.4;
+  }
+
+  &__stop {
+    fill: $accent;
+  }
+
+  &__label {
+    fill: $ink;
+    font-family: $mono;
+    font-size: 14px;
+    font-weight: 600;
+  }
+}
+
+.trust-note {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem 1.125rem;
+  padding-top: 2rem;
+  border-top: 1px solid rgba($ink, 0.14);
+
+  > .icon {
+    width: 1.75rem;
+    height: 1.75rem;
+    color: $ink;
+    stroke-width: 1.8;
+  }
+
+  p {
+    flex: 1 1 26rem;
+    margin: 0;
+    color: $body;
+    line-height: 1.55;
+  }
+
+  strong {
+    color: $ink;
+  }
+
+  a {
+    color: $ink;
+    font-weight: 600;
+  }
+}
+
+// --- Closing panel ----------------------------------------------------------
+
+.closing {
+  position: relative;
+  margin: 1rem 0 0;
+  overflow: hidden;
+  border-radius: 24px;
+  background: $sea-night;
+  color: $white;
+
+  @media (min-width: $bp-md) {
+    border-radius: $radius-xl;
+  }
+
+  .contours {
+    stroke: rgba($white, 0.07);
+  }
+
+  &__inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2.5rem 3.5rem;
+    position: relative;
+    max-width: 71rem;
+    margin: 0 auto;
+    padding: 3.5rem 1.5rem;
+
+    @media (min-width: $bp-md) {
+      padding: 5rem 4.5rem;
+    }
+  }
+
+  &__copy {
+    display: grid;
+    flex: 1 1 26rem;
+    justify-items: start;
+    gap: 1.75rem;
+  }
+
+  &__title {
+    margin: 0;
+    color: $white;
+    font-size: clamp(2.25rem, 4.4vw, 3.75rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1;
+  }
+
+  &__list {
+    flex: 1 1 23.75rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+    li {
+      border-top: 1px solid rgba($white, 0.18);
+    }
+  }
+
+  &__link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.25rem 0;
+    color: $white;
+    text-decoration: none;
+
+    > span {
+      display: grid;
+      gap: 0.375rem;
+    }
+
+    .icon {
+      width: 1.375rem;
+      height: 1.375rem;
+    }
+
+    &:hover {
+      color: $mint;
+    }
+  }
+
+  &__country {
+    font-family: $display;
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+
+  &__summary {
+    color: rgba($white, 0.72);
+    font-family: $mono;
+    font-size: 0.8125rem;
+    line-height: 1.2;
+  }
+}
+
+.eyebrow--light {
+  color: $mint;
 }

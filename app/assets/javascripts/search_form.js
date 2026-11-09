@@ -1,7 +1,7 @@
-// The home page search bar, as booking sites lay it out: a searchable
-// destination list and one "Guests" field that opens the adult and child
-// counts. Progressive enhancement: without JavaScript the plain select and
-// fields stay, and both versions submit the same parameters.
+// The home page search card: a searchable destination list, and a check
+// that every child has an age before searching. Progressive enhancement:
+// without JavaScript the plain select and fields stay, and both versions
+// submit the same parameters.
 (function () {
   "use strict";
 
@@ -258,117 +258,39 @@
     this.clearButton.hidden = !this.input.value;
   };
 
-  // --- Guests --------------------------------------------------------------
+  // --- Child ages --------------------------------------------------------
 
-  function GuestPicker(form, labels) {
-    var self = this;
-    this.adults = form.querySelector('select[name="adults"]');
-    this.children = form.querySelector('select[name="children"]');
-    if (!this.adults || !this.children) return;
-    this.labels = labels;
-    this.ages = form.querySelector(".child-ages");
-    var adultsField = this.adults.closest(".field");
-    var childrenField = this.children.closest(".field");
+  // A missing child age would only fail on the server; ask for it here.
+  function requireChildAges(form, labels) {
+    var children = form.querySelector('select[name="children"]');
+    var ages = form.querySelector(".child-ages");
+    if (!children || !ages) return;
+    var note = el("p", "child-ages__note", labels.ages_needed);
+    // Last in the DOM so the CSS that shows one age field per child (by
+    // position) still counts right; .child-ages__note puts it first.
+    ages.appendChild(note);
 
-    this.field = el("div", "field field--wide field--guests field--enhanced");
-    var label = el("label", null, labels.guests);
-    label.htmlFor = "guests";
-    this.trigger = el("button", "guests-trigger");
-    this.trigger.type = "button";
-    this.trigger.id = "guests";
-    this.trigger.setAttribute("aria-haspopup", "dialog");
-    this.trigger.setAttribute("aria-expanded", "false");
-    this.trigger.setAttribute("aria-controls", "guests_panel");
-
-    this.panel = el("div", "guests-panel");
-    this.panel.id = "guests_panel";
-    this.panel.setAttribute("role", "dialog");
-    this.panel.setAttribute("aria-label", labels.guests);
-    // Taking focus itself, a tap on a label or blank space inside the panel
-    // does not count as leaving it.
-    this.panel.tabIndex = -1;
-    this.panel.hidden = true;
-
-    adultsField.parentNode.insertBefore(this.field, adultsField);
-    this.panel.appendChild(adultsField);
-    this.panel.appendChild(childrenField);
-    var hint = el("p", "guests-panel__hint", labels.children_hint);
-    childrenField.appendChild(hint);
-    if (this.ages) {
-      this.agesNote = el("p", "guests-panel__ages-note", labels.ages_needed);
-      // Last in the DOM so the CSS that shows one age field per child (by
-      // position) still counts right; .guests-panel__ages-note puts it first.
-      this.ages.appendChild(this.agesNote);
-      this.panel.appendChild(this.ages);
-    }
-    var done = el("button", "button button--primary guests-panel__done", labels.done);
-    done.type = "button";
-    this.panel.appendChild(done);
-
-    this.field.appendChild(label);
-    this.field.appendChild(this.trigger);
-    this.field.appendChild(this.panel);
-    form.classList.add("search-form--guests");
-
-    this.trigger.addEventListener("click", function () { self.panel.hidden ? self.open() : self.close(true); });
-    done.addEventListener("click", function () { self.close(true); });
-    form.addEventListener("change", function (event) {
-      if (event.target === self.adults || event.target === self.children) self.update();
-    });
-    // A missing child age would only fail on the server; ask for it here.
     form.addEventListener("submit", function (event) {
-      var missing = self.missingAge();
-      if (!missing) return;
-      event.preventDefault();
-      self.open();
-      self.agesNote.classList.add("is-error");
-      missing.focus();
+      var count = parseInt(children.value, 10) || 0;
+      var selects = ages.querySelectorAll("select");
+      for (var i = 0; i < count && i < selects.length; i++) {
+        if (!selects[i].value) {
+          event.preventDefault();
+          note.classList.add("is-error");
+          selects[i].focus();
+          return;
+        }
+      }
     });
-    dismissable(this.field, function (returnFocus) { self.close(returnFocus); });
-    this.update();
+    ages.addEventListener("change", function () { note.classList.remove("is-error"); });
   }
-
-  GuestPicker.prototype.missingAge = function () {
-    if (!this.ages) return null;
-    var count = parseInt(this.children.value, 10) || 0;
-    var selects = this.ages.querySelectorAll("select");
-    for (var i = 0; i < count && i < selects.length; i++) if (!selects[i].value) return selects[i];
-    return null;
-  };
-
-  GuestPicker.prototype.open = function () {
-    this.panel.hidden = false;
-    this.trigger.setAttribute("aria-expanded", "true");
-    this.field.classList.add("is-open");
-    var first = this.panel.querySelector(".stepper__button:not(:disabled), select");
-    if (first) first.focus();
-  };
-
-  GuestPicker.prototype.close = function (returnFocus) {
-    if (this.panel.hidden) return;
-    this.panel.hidden = true;
-    this.trigger.setAttribute("aria-expanded", "false");
-    this.field.classList.remove("is-open");
-    if (returnFocus) this.trigger.focus();
-  };
-
-  GuestPicker.prototype.update = function () {
-    var adults = parseInt(this.adults.value, 10) || 0;
-    var children = parseInt(this.children.value, 10) || 0;
-    var labels = this.labels;
-    var text = adults + " " + (adults === 1 ? labels.adult : labels.adults) + " · " +
-      children + " " + (children === 1 ? labels.child : labels.children);
-    this.trigger.textContent = "";
-    this.trigger.appendChild(el("span", "guests-trigger__value", text));
-    if (this.agesNote) this.agesNote.classList.remove("is-error");
-  };
 
   document.addEventListener("DOMContentLoaded", function () {
     Array.prototype.forEach.call(document.querySelectorAll("form[data-search-form]"), function (form) {
       var labels = JSON.parse(form.getAttribute("data-search-form"));
       var select = form.querySelector('select[name="destination"]');
       if (select) new DestinationPicker(form, select, labels);
-      new GuestPicker(form, labels);
+      requireChildAges(form, labels);
     });
   });
 })();

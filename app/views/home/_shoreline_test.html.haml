@@ -1,0 +1,37 @@
+-# locals: (config:)
+-# The three listed categories on one scale: an illustration of the method,
+-# with the thresholds from config/waterfront.yml.
+.shoreline-test{ "aria-labelledby": "shoreline_title" }
+  .shoreline-test__head
+    %h2.shoreline-test__title#shoreline_title The shoreline test
+    = link_to how_we_verify_path, class: "shoreline-test__link" do
+      How we verify
+      = render "shared/icon", name: "arrow"
+  .shoreline-test__scale{ "aria-hidden": "true" }
+    %span.shoreline-test__pin.shoreline-test__pin--direct
+      %span.shoreline-test__flag
+        = render "shared/icon", name: "check"
+        18 m
+    %span.shoreline-test__pin.shoreline-test__pin--near
+      %span.shoreline-test__flag
+        = render "shared/icon", name: "road"
+        64 m · road
+    .shoreline-test__bar
+      %span.shoreline-test__segment.shoreline-test__segment--direct
+      %span.shoreline-test__segment.shoreline-test__segment--near
+      %span.shoreline-test__segment.shoreline-test__segment--walkable
+    .shoreline-test__ticks
+      %span Shoreline
+      %span= "#{config.fetch(:direct_max_m)} m"
+      %span= "#{config.fetch(:near_max_m)} m"
+      %span= "#{config.fetch(:walkable_max_m)} m"
+  %dl.shoreline-test__legend
+    %div
+      %dt.shoreline-test__key.shoreline-test__key--direct= t("waterfront.categories.direct")
+      %dd= "Up to #{config.fetch(:direct_max_m)} m, no road or railway in between"
+    %div
+      %dt.shoreline-test__key.shoreline-test__key--near= t("waterfront.categories.near")
+      %dd= "Up to #{config.fetch(:near_max_m)} m, or a road in between"
+    %div
+      %dt.shoreline-test__key.shoreline-test__key--walkable= t("waterfront.categories.walkable")
+      %dd= "Up to #{config.fetch(:walkable_max_m)} m. Anything further isn’t listed."

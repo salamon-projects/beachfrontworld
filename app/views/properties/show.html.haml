@@ -9,19 +9,21 @@
   = json_ld(lodging_ld(@property))
 = render "layouts/map_assets"
 
-%section.page-header
-  .container
+- content_for :masthead do
+  .container.masthead__body
     %nav.breadcrumbs{ "aria-label": "Breadcrumb" }
       = link_to "Destinations", root_path(anchor: "destinations")
       %span{ "aria-hidden": "true" } ›
       = link_to destination.country_name, country_path(Country.new(destination.country_code))
       %span{ "aria-hidden": "true" } ›
       = link_to destination.name, destination_path(destination, stay_params)
-    %h1.page-header__title= @property.name
-    %p.page-header__lead
-      = property_kind(@property)
+    %h1.masthead__title= @property.name
+    .masthead__meta
+      %span.chip
+        %span.chip__dot
+        = property_kind(@property)
       - if @property.address.present?
-        = "· #{@property.address}"
+        %span.chip= @property.address
 
 .container.property-layout
   .property-layout__summary

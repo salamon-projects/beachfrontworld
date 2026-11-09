@@ -9,7 +9,7 @@
       %meta{ name: "robots", content: "noindex" }
     - else
       %link{ rel: "canonical", href: canonical_url }
-    %meta{ name: "theme-color", content: "#0369a1" }
+    %meta{ name: "theme-color", content: "#0a3550" }
     %meta{ property: "og:site_name", content: t("site_name") }
     %meta{ property: "og:type", content: "website" }
     %meta{ property: "og:title", content: content_for(:title).presence || t("site_name") }
@@ -29,10 +29,16 @@
     = yield :head
   %body{ class: content_for(:body_class) }
     %a.skip-link{ href: "#main" }= t("skip_to_content")
-    = render "layouts/header"
-    - flash.each do |type, message|
-      .flash{ class: "flash--#{type}", role: "status" }
-        .container= message
-    %main#main{ tabindex: "-1" }= yield
+    .frame
+      -# Every page opens on the dark sea panel: the menu, then the page's
+      -# title (content_for :masthead).
+      %header.masthead{ class: content_for(:masthead_class) }
+        = render "layouts/contours"
+        = render "layouts/header"
+        = yield :masthead
+      - flash.each do |type, message|
+        .flash{ class: "flash--#{type}", role: "status" }
+          .container= message
+      %main#main{ tabindex: "-1" }= yield
     = render "layouts/footer"
     = yield :scripts

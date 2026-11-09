@@ -1,8 +1,7 @@
-%header.site-header
-  .container.site-header__inner
-    = link_to root_path, class: "brand" do
-      = render "layouts/brand_mark"
-      %span.brand__name= t("site_name")
-    %nav.site-nav{ "aria-label": "Main" }
-      = link_to "Destinations", root_path(anchor: "destinations")
-      = link_to "How we verify", how_we_verify_path
+.container.site-header
+  = link_to root_path, class: "brand" do
+    = render "layouts/brand_mark"
+    %span.brand__name= t("site_name")
+  %nav.site-nav{ "aria-label": "Main" }
+    = link_to "Destinations", root_path(anchor: "destinations")
+    = link_to "How we verify", how_we_verify_path

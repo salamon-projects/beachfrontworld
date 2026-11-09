@@ -1,0 +1,41 @@
+-# The three checks, each with a small line drawing: building, measured line,
+-# sea.
+- building = capture do
+  %rect.method-art__ink{ x: "18", y: "30", width: "44", height: "46", rx: "4" }
+  %path.method-art__ink{ d: "M29 43h8M43 43h8M29 55h8M43 55h8M36 76v-9h8v9" }
+- sea = capture do
+  %path.method-art__sea{ d: "M236 40c5-4 9-4 13 0s8 4 13 0 9-4 13 0 8 4 12 0M236 54c5-4 9-4 13 0s8 4 13 0 9-4 13 0 8 4 12 0M236 68c5-4 9-4 13 0s8 4 13 0 9-4 13 0 8 4 12 0" }
+%ol.method-steps
+  %li.method-step
+    .method-step__art
+      %svg.method-art{ "aria-hidden": "true", viewBox: "0 0 300 96" }
+        = building
+        %path.method-art__ink.method-art__dash{ d: "M72 53H226" }
+        %path.method-art__ink{ d: "M72 45v16M226 45v16" }
+        %text.method-art__label{ x: "149", y: "38", "text-anchor": "middle" } 18 m
+        = sea
+    %span.method-step__number 01
+    %h3.method-step__title Measure
+    %p We take the building outline and measure the shortest line to the shoreline. The booking site’s “beachfront” label doesn’t count.
+  %li.method-step
+    .method-step__art
+      %svg.method-art{ "aria-hidden": "true", viewBox: "0 0 300 96" }
+        = building
+        %path.method-art__ink{ d: "M128 8v80M170 8v80M149 10v10M149 30v10M149 66v10" }
+        %path.method-art__ink.method-art__dash{ d: "M72 53H226" }
+        %circle.method-art__stop{ cx: "149", cy: "53", r: "13" }
+        %path.method-art__ink.method-art__cross{ d: "M144 48l10 10M154 48l-10 10" }
+        = sea
+    %span.method-step__number 02
+    %h3.method-step__title Check what’s in between
+    %p If a road or railway crosses that line, it isn’t beachfront, however close it is. Promenades, footpaths and sand are shown for information.
+  %li.method-step
+    .method-step__art
+      %svg.method-art{ "aria-hidden": "true", viewBox: "0 0 300 96" }
+        = building
+        %path.method-art__ink.method-art__dash{ d: "M72 53H124M174 53H226" }
+        %path.method-art__sea.method-art__bold{ d: "M134 44a17 17 0 0 1 29-3M164 62a17 17 0 0 1-29 3M164 33v8h-8M134 73v-8h8" }
+        = sea
+    %span.method-step__number 03
+    %h3.method-step__title Re-measure
+    %p Whenever the map data is refreshed, every stay is measured again, so a new road shows up here too.

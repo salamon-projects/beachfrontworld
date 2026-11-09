@@ -1,69 +1,120 @@
+- countries = @destinations.group_by(&:country_code).map { |code, destinations| [ Country.new(code), destinations ] }.sort_by { |country, _| country.name }
+- total = @listed_counts.values.sum
+- config = Waterfront.config
 - content_for :title, "Verified beachfront hotels and apartments"
-- content_for :description, "Beachfront hotels and apartments in #{@destinations.map(&:country_name).uniq.to_sentence}, each measured against map data so you know exactly how far the water is. Compare booking sites in one place."
+- content_for :description, "Beachfront hotels and apartments in #{countries.map { |country, _| country.name }.to_sentence}, each measured against map data so you know exactly how far the water is. Compare booking sites in one place."
 - content_for :head, json_ld(website_ld)
+- content_for :masthead_class, "masthead--hero"
+- content_for :scripts do
+  = javascript_include_tag "search_form", defer: true
+  = javascript_include_tag "country_tabs", defer: true
 
-%section.hero
-  .container.hero__inner
-    .hero__text
-      %span.eyebrow Measured, not marketed
+- content_for :masthead do
+  .container.hero
+    .hero__copy
+      - if total.positive?
+        %span.chip
+          %span.chip__dot
+          = "#{number_with_delimiter(total)} stays measured to the shoreline"
       %h1.hero__title
-        Only stays that are
-        %em really
-        on the water.
+        Beachfront,
+        %br
+        %em measured.
       %p.hero__lead
-        Booking sites call almost anything “beachfront”. We measure every property’s distance to the water from
-        map data, check for roads in between, and only list the ones that pass.
-    .hero__figure
-      = render "home/hero_plan"
-    .hero__search
+        Booking sites call almost anything “beachfront”. We measure each stay’s distance to the shoreline from map
+        data and check for roads in between, so you know exactly how many steps it is to the sea.
+
+    .hero__search#search
       - if @destinations.empty?
         %p.hero__notice We are still measuring our first coastline. Check back soon.
       - else
-        -# search_form.js turns the destination select into a searchable list
-        -# and the guest counts into one "2 adults · 0 children" field.
-        = form_with url: search_path, method: :get, class: "search-form",
+        -# search_form.js turns the destination select into a searchable list.
+        = form_with url: search_path, method: :get, class: "search-card", "aria-labelledby": "search_title",
           data: { search_form: t("search.picker").merge(stays: t("search.picker_stays")).to_json } do
-          .field.field--wide.field--destination
+          .search-card__head
+            %h2.search-card__title#search_title Where do you want to wake up?
+            %p.search-card__intro Search only stays we’ve measured.
+          .field.field--destination
             = label_tag :destination, t("search.destination")
             = select_tag :destination,
               grouped_options_for_select(destination_options(@destinations, @listed_counts)),
               prompt: t("search.picker.where_to"), required: true
           = render "shared/stay_fields", stay: nil
           .field.field--submit
-            = submit_tag t("search.submit"), name: nil, class: "button button--primary"
-- content_for :scripts do
-  = javascript_include_tag "search_form", defer: true
+            = button_tag type: "submit", name: nil, class: "button button--primary button--large" do
+              = t("search.submit")
+              = render "shared/icon", name: "arrow"
+          %p.search-card__note
+            = render "shared/icon", name: "sort"
+            No dates yet? We sort by distance to the water. Add dates to sort by price.
+
+    = render "home/shoreline_test", config:
 
 %section.section#destinations
   .container
-    %span.eyebrow Destinations
-    %h2.section__title Coastlines we have measured
+    .section__head
+      %div
+        %span.eyebrow Destinations
+        %h2.section__title Choose your coast.
+        %p.section__intro
+          = "#{pluralize(@destinations.size, 'coastline')} across #{countries.map { |country, _| country.name }.to_sentence}."
+          Every number below is a stay we’ve measured, not one a booking site labelled.
+      -# country_tabs.js shows these and one country at a time; without it
+      -# every country is listed below its own heading.
+      - if countries.size > 1
+        .country-tabs{ role: "group", "aria-label": "Country", hidden: true }
+          - countries.each_with_index do |(country, destinations), index|
+            %button.country-tab{ type: "button", "aria-pressed": index.zero?.to_s, data: { country: country.code } }
+              = country.name
+              %span.country-tab__count= "#{number_with_delimiter(destinations.sum { |d| @listed_counts.fetch(d.id, 0) })} stays"
     - if @destinations.empty?
       %p.empty-state We are still measuring our first coastline. Check back soon.
-    - @destinations.group_by(&:country_name).each do |country, destinations|
-      %h3.country-title
-        = link_to country, country_path(Country.new(destinations.first.country_code))
-      %ul.destination-grid
-        - destinations.each do |destination|
-          = render "destinations/tile", destination:, listed: @listed_counts.fetch(destination.id, 0),
-            direct: @direct_counts.fetch(destination.id, 0)
+    - countries.each do |country, destinations|
+      .coast-group{ data: { country: country.code } }
+        %h3.country-title= link_to country.name, country_path(country)
+        %ul.coast-grid
+          - destinations.each_with_index do |destination, index|
+            = render "destinations/tile", destination:, index:, listed: @listed_counts.fetch(destination.id, 0),
+              direct: @direct_counts.fetch(destination.id, 0)
+        %p.coast-group__more
+          = link_to "All beachfront stays in #{country.name}", country_path(country), class: "text-link"
 
-%section.section.section--sand
-  .container
-    .method
-      .method__intro
-        %span.eyebrow Method
-        %h2.section__title How we verify
+.section.section--sand
+  .container.method
+    .section__head
+      %div
+        %span.eyebrow How we verify
+        %h2.section__title Three checks before a stay makes the list.
         %p.section__intro
-          Every listing starts as a measurement. A booking site’s “beachfront” label is only ever a hint.
-        %p= link_to "Read the full method", how_we_verify_path, class: "text-link"
-      %ol.steps
-        %li.step
-          %h3.step__title Measure
-          %p We measure the distance from the building to the shoreline using OpenStreetMap data — not the booking site’s label.
-        %li.step
-          %h3.step__title Check what’s in between
-          %p A road or railway between the property and the water rules out “beachfront”. Promenades and beach surfaces are noted too.
-        %li.step
-          %h3.step__title Re-measure
-          %p Every property is measured again whenever the map changes, so the result stays current.
+          Nothing is copied from booking sites. Every distance comes from OpenStreetMap: buildings, coastline,
+          beaches and roads.
+      = link_to "Read the full method", how_we_verify_path, class: "text-link"
+    = render "home/method_steps"
+    .trust-note
+      = render "shared/icon", name: "shield"
+      %p
+        %strong Nobody can pay for a better rank.
+        We may earn a commission when you book through our links. It never changes measurements, badges or the
+        order of results.
+      = link_to "Affiliate disclosure", affiliate_disclosure_path
+
+- if countries.any?
+  %section.closing{ "aria-labelledby": "closing_title" }
+    = render "layouts/contours"
+    .closing__inner
+      .closing__copy
+        %span.eyebrow.eyebrow--light Beachfront guides
+        %h2.closing__title#closing_title Pick a coast. We’ve already measured the walk.
+        = link_to "#search", class: "button button--primary button--large" do
+          Start your search
+          = render "shared/icon", name: "arrow-up"
+      %ul.closing__list
+        - countries.each do |country, destinations|
+          - stays = destinations.sum { |d| @listed_counts.fetch(d.id, 0) }
+          - beach = destinations.sum { |d| @direct_counts.fetch(d.id, 0) }
+          %li
+            = link_to country_path(country), class: "closing__link" do
+              %span
+                %span.closing__country= "Beachfront #{country.name}"
+                %span.closing__summary= "#{number_with_delimiter(stays)} stays · #{number_with_delimiter(beach)} right on the beach"
+              = render "shared/icon", name: "arrow"

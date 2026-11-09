@@ -10,19 +10,21 @@
 - content_for :scripts do
   = javascript_include_tag "filters", defer: true
 
-%section.page-header
-  .container
+- content_for :masthead do
+  .container.masthead__body
     %nav.breadcrumbs{ "aria-label": "Breadcrumb" }
       = link_to "Destinations", root_path(anchor: "destinations")
       %span{ "aria-hidden": "true" } ›
       = link_to @destination.country_name, country_path(Country.new(@destination.country_code))
-    %h1.page-header__title= @destination.name
-    %p.page-header__lead
-      = pluralize(@pagy.count, "verified waterfront stay")
-      - if @destination.sea_name.present?
-        = "on the #{@destination.sea_name}"
+    %h1.masthead__title= @destination.name
     - if @destination.summary.present?
-      %p.page-header__summary= @destination.summary
+      %p.masthead__lead= @destination.summary
+    .masthead__meta
+      %span.chip
+        %span.chip__dot
+        = pluralize(@pagy.count, "verified waterfront stay")
+      - if @destination.sea_name.present?
+        %span.chip= @destination.sea_name
 
 .container.listing-layout
   %aside.listing-layout__filters

@@ -3,7 +3,7 @@
 (function () {
   "use strict";
 
-  var COLOURS = { direct: "#0d9488", near: "#2563eb", walkable: "#b7791f" };
+  var COLOURS = { direct: "#12a594", near: "#e0a030", walkable: "#5f707a" };
   var ATTRIBUTION = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
 
   function popupFor(point) {
@@ -23,24 +23,24 @@
     L.tileLayer(data.tiles, { maxZoom: 19, attribution: ATTRIBUTION }).addTo(map);
 
     if (data.footprint) {
-      var outline = L.polygon(data.footprint, { color: "#0369a1", weight: 2, fillOpacity: 0.25 }).addTo(map);
+      var outline = L.polygon(data.footprint, { color: "#0a3550", weight: 2, fillOpacity: 0.25 }).addTo(map);
       bounds.push(outline.getBounds().getNorthEast(), outline.getBounds().getSouthWest());
     }
 
     (data.properties || []).forEach(function (point) {
       L.circleMarker([point.lat, point.lon], {
         radius: 8, color: "#ffffff", weight: 2, fillOpacity: 1,
-        fillColor: COLOURS[point.category] || "#0369a1"
+        fillColor: COLOURS[point.category] || "#0a3550"
       }).bindPopup(popupFor(point)).addTo(map);
       bounds.push([point.lat, point.lon]);
     });
 
     if (data.measurement) {
       var line = L.polyline([data.measurement.from, data.measurement.to], {
-        color: "#ef5a3c", weight: 3, dashArray: "6 6"
+        color: "#ff6a3d", weight: 3, dashArray: "6 6"
       }).addTo(map);
       line.bindTooltip(data.measurement.label, { permanent: true, direction: "center", className: "map-label" });
-      L.circleMarker(data.measurement.to, { radius: 5, color: "#ef5a3c", fillOpacity: 1 }).addTo(map);
+      L.circleMarker(data.measurement.to, { radius: 5, color: "#ff6a3d", fillOpacity: 1 }).addTo(map);
       bounds.push(data.measurement.from, data.measurement.to);
     }
 

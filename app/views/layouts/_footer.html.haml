@@ -1,19 +1,25 @@
 %footer.site-footer
   .container
     .site-footer__top
-      %p.site-footer__brand
-        Beachfront,
-        %em measured.
-      %nav.site-footer__links.site-footer__countries{ "aria-label": "Countries" }
-        - published_countries.each do |country|
-          = link_to "Beachfront #{country.name}", country_path(country)
-      %nav.site-footer__links{ "aria-label": "Footer" }
-        = link_to "How we verify & rank", how_we_verify_path
-        = link_to "Affiliate disclosure", affiliate_disclosure_path
-        = link_to "Privacy", privacy_path
-    %p.site-footer__disclosure= t("offers.disclosure")
-    %p.site-footer__attribution
-      Map data and waterfront measurements based on
-      = succeed "," do
-        = link_to "© OpenStreetMap contributors", "https://www.openstreetmap.org/copyright", rel: "noopener"
-      available under the Open Database License.
+      .site-footer__about
+        = link_to root_path, class: "brand brand--ink" do
+          = render "layouts/brand_mark"
+          %span.brand__name= t("site_name")
+        %p Measured, not marketed. Beachfront stays checked against the map, not the listing.
+      .site-footer__columns
+        %nav.site-footer__nav{ "aria-label": "Beachfront guides" }
+          %span.site-footer__heading Beachfront
+          - published_countries.each do |country|
+            = link_to country.name, country_path(country)
+        %nav.site-footer__nav{ "aria-label": "About" }
+          %span.site-footer__heading About
+          = link_to "How we verify & rank", how_we_verify_path
+          = link_to "Affiliate disclosure", affiliate_disclosure_path
+          = link_to "Privacy", privacy_path
+    .site-footer__bottom
+      %p.site-footer__disclosure= t("offers.disclosure")
+      %p.site-footer__attribution
+        Map data ©
+        = succeed "," do
+          = link_to "OpenStreetMap contributors", "https://www.openstreetmap.org/copyright", rel: "noopener"
+        ODbL

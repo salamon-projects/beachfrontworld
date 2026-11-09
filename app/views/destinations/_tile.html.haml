@@ -1,11 +1,27 @@
--# locals: (destination:, listed:, direct:)
-%li.destination-tile
-  = link_to destination_path(destination), class: "destination-tile__link" do
-    - if destination.sea_name.present?
-      %span.destination-tile__sea= destination.sea_name
-    %span.destination-tile__name= destination.name
-    %span.destination-tile__counts
-      %span.destination-tile__count= pluralize(listed, "verified stay")
+-# locals: (destination:, listed:, direct:, index: 0)
+-# A coast card: the sea's colour with depth contours, then what we measured.
+- share = listed.positive? ? (direct * 100.0 / listed).round : 0
+%li.coast-card{ class: [ "coast-card--#{sea_key(destination)}", "coast-card--turn-#{index % 6}" ] }
+  = link_to destination_path(destination), class: "coast-card__link" do
+    .coast-card__top
+      = render "destinations/card_contours"
+      - if destination.sea_name.present?
+        %span.coast-card__sea= destination.sea_name
+      .coast-card__title
+        %span.coast-card__name= destination.name
+        %span.coast-card__arrow= render "shared/icon", name: "arrow-out"
+    .coast-card__body
+      .coast-card__stats
+        %span.coast-card__stat
+          %strong= number_with_delimiter(listed)
+          = listed == 1 ? "stay measured" : "stays measured"
+        - if direct.positive?
+          %span.coast-card__stat.coast-card__stat--beach
+            %strong= number_with_delimiter(direct)
+            right on the beach
       - if direct.positive?
-        %span.destination-tile__direct= "· #{direct} right on the beach"
-    %span.destination-tile__arrow{ "aria-hidden": "true" } →
+        .coast-card__share
+          %svg.coast-card__bar{ "aria-hidden": "true", viewBox: "0 0 100 6", preserveAspectRatio: "none" }
+            %rect.coast-card__track{ width: "100", height: "6", rx: "3" }
+            %rect.coast-card__fill{ width: [ share, 3 ].max, height: "6", rx: "3" }
+          %span.coast-card__percent= "#{share}% on the beach"

@@ -16,7 +16,6 @@ body {
   color: $ink;
   font-family: $font;
   font-size: 1rem;
-  font-feature-settings: "ss01";
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -27,8 +26,9 @@ h1, h2, h3 {
   color: $ink;
   font-family: $display;
   font-weight: 700;
-  letter-spacing: -0.025em;
-  line-height: 1.12;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  text-wrap: balance;
 }
 
 p {
@@ -41,17 +41,17 @@ a {
   text-underline-offset: 0.18em;
 
   &:hover {
-    color: $sea-bright;
+    color: $sea-hover;
   }
 }
 
 :focus-visible {
-  outline: 2px solid $sea-bright;
-  outline-offset: 2px;
+  outline: 3px solid $accent;
+  outline-offset: 3px;
 }
 
 ::selection {
-  background: rgba($sea-bright, 0.25);
+  background: rgba($mint, 0.5);
 }
 
 img {
@@ -62,50 +62,68 @@ img {
   width: 100%;
   max-width: $container;
   margin: 0 auto;
-  padding: 0 1rem;
+  padding: 0 1.25rem;
 
   @media (min-width: $bp-md) {
-    padding: 0 2rem;
+    padding: 0 2.5rem;
   }
 }
 
 .section {
-  padding: 3.5rem 0;
+  padding: 4rem 0;
 
   @media (min-width: $bp-md) {
-    padding: 5rem 0;
+    padding: 6.5rem 0;
   }
 
+  // A rounded band inside the page frame (the method section).
   &--sand {
-    background: linear-gradient(180deg, $paper 0%, $paper-deep 100%);
+    border-radius: $radius-xl;
+    background: $sand;
+  }
+
+  &__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1.5rem 2rem;
+    margin-bottom: 2.5rem;
+
+    > div {
+      display: grid;
+      gap: 0.9rem;
+      max-width: 40rem;
+    }
   }
 
   &__title {
-    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    margin: 0;
+    font-size: clamp(2.25rem, 4.4vw, 3.75rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1;
   }
 
   &__intro {
-    max-width: 34rem;
+    max-width: 38rem;
+    margin: 0;
     color: $muted;
-    font-size: 1.05rem;
+    font-size: 1.125rem;
+    line-height: 1.6;
+    text-wrap: pretty;
   }
 }
 
-// Small label above a title, e.g. "Destinations" or "Method".
+// Small mono label above a title, e.g. "Destinations" or "How we verify".
 .eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  margin-bottom: 1rem;
-  padding: 0.35rem 0.85rem;
-  border: 1px solid rgba($sea, 0.15);
-  border-radius: $radius-pill;
-  background: $sea-light;
+  display: block;
   color: $sea;
-  font-family: $font;
+  font-family: $mono;
   font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  line-height: 1;
   text-transform: uppercase;
 }
 
@@ -116,8 +134,8 @@ img {
   z-index: 1000;
   padding: 0.75rem 1rem;
   border-radius: $radius;
-  background: $sea;
-  color: $white;
+  background: $accent;
+  color: $ink;
   font-weight: 700;
   transform: translateY(-200%);
 
@@ -142,11 +160,13 @@ main:focus {
 .text-link {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  color: $sea;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  color: $ink;
   font-weight: 600;
-  text-decoration: none;
-  border-bottom: 2px solid rgba($sea-bright, 0.35);
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 0.25em;
 
   &::after {
     content: "→";
@@ -154,7 +174,6 @@ main:focus {
   }
 
   &:hover {
-    border-color: $sea-bright;
     color: $sea;
 
     &::after {
@@ -165,37 +184,62 @@ main:focus {
 
 .empty-state {
   padding: 2.5rem 2rem;
-  border: 1px dashed $border-strong;
+  border: 1.5px dashed $border-strong;
   border-radius: $radius-lg;
-  background: rgba($white, 0.6);
+  background: $white;
   color: $muted;
-  font-family: $display;
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   font-weight: 500;
   text-align: center;
 }
 
 .flash {
-  padding: 0.75rem 0;
-  border-bottom: 1px solid $border;
+  margin-top: 1rem;
+  padding: 0.85rem 0;
+  border-radius: $radius;
   background: $sea-light;
+  font-weight: 500;
 
   &--alert {
-    background: $measure-light;
+    background: #ffe4da;
     color: $warn;
   }
 }
 
 .prose {
-  max-width: 42rem;
+  max-width: 46rem;
+  padding-top: 3.5rem;
   padding-bottom: 4rem;
-  font-size: 1.05rem;
+  color: $body;
+  font-size: 1.0625rem;
+  line-height: 1.7;
+
+  @media (min-width: $bp-md) {
+    padding-top: 5rem;
+  }
 
   h2 {
-    margin-top: 2.75rem;
-    padding-top: 1.25rem;
+    margin-top: 3rem;
+    padding-top: 1.5rem;
     border-top: 1px solid $border;
-    font-size: 1.6rem;
+    font-size: clamp(1.6rem, 3vw, 2.1rem);
+    font-weight: 800;
+    letter-spacing: -0.025em;
+
+    &:first-child {
+      margin-top: 0;
+      padding-top: 0;
+      border-top: 0;
+    }
+  }
+
+  h3 {
+    margin-top: 1.75rem;
+    font-size: 1.3rem;
+  }
+
+  strong {
+    color: $ink;
   }
 
   li {

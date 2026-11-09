@@ -7,34 +7,44 @@
   = json_ld(breadcrumb_ld([ [ "Destinations", root_url ], [ @country.name, country_url(@country) ] ]))
   = json_ld(country_ld(@country, @destinations))
 
-%section.page-header
-  .container
+- content_for :masthead do
+  .container.masthead__body
     %nav.breadcrumbs{ "aria-label": "Breadcrumb" }
       = link_to "Destinations", root_path(anchor: "destinations")
       %span{ "aria-hidden": "true" } ›
       %span= @country.name
-    %h1.page-header__title= "Beachfront stays in #{@country.name}"
-    %p.page-header__lead
-      = "#{pluralize(total, 'verified waterfront stay')} on #{pluralize(@destinations.size, 'coastline')}"
-      - if direct.positive?
-        = "· #{direct} right on the beach"
-    %p.page-header__summary
+    %h1.masthead__title
+      Beachfront stays in
+      %em= @country.name
+    %p.masthead__lead
       Every hotel and apartment here was measured against OpenStreetMap: its distance to the water and whether a
       road runs in between. Pick a coastline to compare booking sites for your dates.
+    .masthead__meta
+      %span.chip
+        %span.chip__dot
+        = "#{pluralize(number_with_delimiter(total), 'verified waterfront stay')} on #{pluralize(@destinations.size, 'coastline')}"
+      - if direct.positive?
+        %span.chip= "#{number_with_delimiter(direct)} right on the beach"
 
 %section.section
   .container
-    %h2.section__title= "Coastlines in #{@country.name}"
-    %ul.destination-grid
-      - @destinations.each do |destination|
-        = render "destinations/tile", destination:, listed: @listed_counts.fetch(destination.id, 0),
+    .section__head
+      %div
+        %span.eyebrow Coastlines
+        %h2.section__title= "Choose your coast in #{@country.name}."
+    %ul.coast-grid
+      - @destinations.each_with_index do |destination, index|
+        = render "destinations/tile", destination:, index:, listed: @listed_counts.fetch(destination.id, 0),
           direct: @direct_counts.fetch(destination.id, 0)
 
 - if @highlights.any?
-  %section.section.section--sand
+  .section.section--sand
     .container
-      %h2.section__title= "Closest to the water in #{@country.name}"
-      %p.section__intro Measured right on the beach, nearest first.
+      .section__head
+        %div
+          %span.eyebrow Right on the beach
+          %h2.section__title= "Closest to the water in #{@country.name}"
+          %p.section__intro Measured right on the beach, nearest first.
       %ol.property-list.property-list--grid
         - @highlights.each do |property|
           %li= render "destinations/property_card", property:, offers: [], place: property.destination.name, heading: :h3

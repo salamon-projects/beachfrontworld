@@ -25,7 +25,7 @@
   }
 
   .leaflet-control-zoom a {
-    color: $sea;
+    color: $ink;
   }
 
   .leaflet-control-attribution {
@@ -38,9 +38,9 @@
   padding: 0.2rem 0.5rem;
   border: 0;
   border-radius: $radius;
-  background: $measure;
-  color: $white;
-  font-family: $font;
+  background: $accent;
+  color: $ink;
+  font-family: $mono;
   font-weight: 700;
   box-shadow: none;
 

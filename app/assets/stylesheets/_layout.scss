@@ -1,26 +1,132 @@
 @use "variables" as *;
 
-// Stays at the top on wide screens; on phones it wraps to two rows, so it
-// scrolls away.
-// z-index above Leaflet's controls (1000).
-.site-header {
-  z-index: 1100;
-  border-bottom: 1px solid rgba($border, 0.8);
-  background: rgba($white, 0.82);
-  backdrop-filter: saturate(1.6) blur(14px);
+// The page sits in a frame with a small gutter, so the dark masthead and the
+// sand band read as rounded panels.
+.frame {
+  padding: 0.625rem 0.625rem 0;
 
   @media (min-width: $bp-md) {
-    position: sticky;
-    top: 0;
+    padding: 1rem 1rem 0;
+  }
+}
+
+// The dark sea panel at the top of every page: menu, then the page title.
+.masthead {
+  position: relative;
+  overflow: hidden;
+  border-radius: 24px;
+  background: $sea-night;
+  color: $white;
+
+  @media (min-width: $bp-md) {
+    border-radius: $radius-xl;
   }
 
-  &__inner {
+  > :not(.contours) {
+    position: relative;
+  }
+
+  a:not(.button) {
+    color: $white;
+  }
+
+  &__body {
+    display: grid;
+    gap: 1rem;
+    padding-top: 1.5rem;
+    padding-bottom: 3rem;
+
+    @media (min-width: $bp-md) {
+      padding-top: 2.5rem;
+      padding-bottom: 4.5rem;
+    }
+  }
+
+  &__title {
+    max-width: 52rem;
+    margin: 0;
+    color: $white;
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    font-weight: 800;
+    letter-spacing: -0.035em;
+    line-height: 0.98;
+
+    em {
+      color: $mint;
+      font-style: normal;
+    }
+  }
+
+  &__lead {
+    max-width: 40rem;
+    margin: 0;
+    color: rgba($white, 0.8);
+    font-size: 1.125rem;
+    line-height: 1.6;
+    text-wrap: pretty;
+  }
+
+  &__meta {
     display: flex;
     flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0 1.5rem;
-    min-height: 4.25rem;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+}
+
+// A light pill on the dark panel: counts, the property kind, the sea.
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.85rem 0.5rem 0.75rem;
+  border: 1px solid rgba($white, 0.18);
+  border-radius: $radius-pill;
+  background: rgba($white, 0.1);
+  color: $white;
+  font-family: $mono;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1;
+
+  &__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: $accent;
+  }
+}
+
+.contours {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  fill: none;
+  pointer-events: none;
+  stroke: rgba($white, 0.08);
+  stroke-width: 1.2;
+
+  text {
+    fill: rgba($white, 0.16);
+    stroke: none;
+    font-family: $mono;
+    font-size: 12px;
+  }
+}
+
+.site-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1.5rem;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+
+  @media (min-width: $bp-md) {
+    padding-top: 1.6rem;
+    padding-bottom: 1.6rem;
   }
 }
 
@@ -29,157 +135,141 @@
   align-items: center;
   gap: 0.6rem;
   min-height: 2.75rem;
-  color: $ink;
+  color: $white;
   font-family: $display;
-  font-size: 1.35rem;
+  font-size: 1.4rem;
   font-weight: 800;
-  letter-spacing: -0.035em;
+  letter-spacing: -0.02em;
+  line-height: 1;
   text-decoration: none;
 
   &:hover {
+    color: $white;
+  }
+
+  &--ink,
+  &--ink:hover {
     color: $ink;
   }
 
   &__mark {
-    display: inline-grid;
-    place-items: center;
-    width: 2.1rem;
-    height: 2.1rem;
-    padding: 0.35rem;
-    border-radius: 10px;
-    background: $ocean-gradient;
-    box-shadow: 0 6px 14px -6px rgba($sea, 0.6);
-    color: $white;
+    flex: none;
+    width: 2.125rem;
+    height: 2.125rem;
+  }
 
-    svg {
-      width: 100%;
-      height: 100%;
-    }
+  &__tile {
+    fill: $accent;
+  }
+
+  &__glyph {
+    fill: none;
+    stroke: $ink;
+    stroke-linecap: round;
+    stroke-width: 2.2;
   }
 }
 
 .site-nav {
   display: flex;
-  gap: 0.25rem;
+  gap: 0.25rem 1.5rem;
 
-  a {
+  .masthead & a {
     display: inline-flex;
     align-items: center;
     min-height: 2.75rem;
-    padding: 0 0.9rem;
-    border-radius: $radius-pill;
-    color: $muted;
-    font-size: 0.95rem;
+    color: rgba($white, 0.86);
+    font-size: 0.9375rem;
     font-weight: 600;
     text-decoration: none;
-    transition: background-color 0.15s, color 0.15s;
 
     &:hover {
-      background: $sea-light;
-      color: $sea;
+      color: $white;
     }
   }
 }
 
 .site-footer {
-  margin-top: 5rem;
-  padding: 3.5rem 0 2.5rem;
-  background:
-    radial-gradient(60rem 20rem at 85% 0%, rgba($sea-bright, 0.22), transparent 70%),
-    linear-gradient(180deg, $sea-deep 0%, #05223a 100%);
-  color: rgba($white, 0.72);
-  font-size: 0.9rem;
-
-  // A page that ends on a coloured band meets the footer without a gap.
-  main:has(> .section--sand:last-child) + & {
-    margin-top: 0;
-  }
+  padding: 3.5rem 0 4rem;
+  color: $muted;
+  font-size: 0.9375rem;
 
   a {
-    color: $white;
+    color: $muted;
+    text-decoration: none;
 
     &:hover {
-      color: $sea-bright;
+      color: $ink;
     }
   }
 
   &__top {
-    display: grid;
-    gap: 1.5rem;
-    margin-bottom: 2.5rem;
-    padding-bottom: 2rem;
-    border-bottom: 1px solid rgba($white, 0.12);
-
-    @media (min-width: $bp-md) {
-      grid-template-columns: 1fr auto auto;
-      align-items: end;
-      column-gap: 2.5rem;
-    }
-  }
-
-  &__brand {
-    margin: 0;
-    color: $white;
-    font-family: $display;
-    font-size: clamp(1.6rem, 3.5vw, 2.2rem);
-    font-weight: 800;
-    letter-spacing: -0.03em;
-    line-height: 1.15;
-
-    em {
-      background: linear-gradient(120deg, #7dd3fc, $sea-bright);
-      background-clip: text;
-      color: transparent;
-      font-style: normal;
-    }
-  }
-
-  &__links {
     display: flex;
     flex-wrap: wrap;
-    gap: 0 1.75rem;
+    justify-content: space-between;
+    gap: 2.5rem;
+    margin-bottom: 2.5rem;
+  }
+
+  &__about {
+    display: grid;
+    gap: 0.75rem;
+    max-width: 22.5rem;
+
+    p {
+      margin: 0;
+      line-height: 1.55;
+    }
+  }
+
+  &__columns {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem 4rem;
+  }
+
+  &__nav {
+    display: grid;
+    align-content: start;
 
     a {
       display: inline-flex;
       align-items: center;
-      min-height: 2.75rem;
-      text-decoration: none;
+      min-height: 2.25rem;
     }
   }
 
-  &__disclosure,
-  &__attribution {
-    max-width: 44rem;
-  }
-}
-
-.page-header {
-  padding: 2.5rem 0 2rem;
-  border-bottom: 1px solid $border;
-  background:
-    radial-gradient(40rem 16rem at 90% -10%, rgba($sea-bright, 0.16), transparent 70%),
-    linear-gradient(180deg, $white 0%, $paper 100%);
-
-  @media (min-width: $bp-md) {
-    padding: 3.5rem 0 2.5rem;
+  &__heading {
+    margin-bottom: 0.5rem;
+    color: $ink;
+    font-family: $mono;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
   }
 
-  &__title {
-    max-width: 48rem;
-    font-size: clamp(2.2rem, 5.5vw, 3.4rem);
-    font-weight: 800;
-    letter-spacing: -0.035em;
+  &__bottom {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 1rem 2.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid $border;
+    font-size: 0.8125rem;
+    line-height: 1.55;
+
+    p {
+      margin: 0;
+    }
+
+    a {
+      text-decoration: underline;
+    }
   }
 
-  &__lead {
-    margin: 0;
-    color: $muted;
-    font-size: 1.1rem;
-  }
-
-  &__summary {
-    max-width: 42rem;
-    margin-top: 1rem;
+  &__disclosure {
+    max-width: 40rem;
   }
 }
 
@@ -188,19 +278,20 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 0 0.5rem;
-  margin-bottom: 0.5rem;
-  color: $faint;
-  font-size: 0.85rem;
+  color: rgba($white, 0.6);
+  font-family: $mono;
+  font-size: 0.8125rem;
 
   a {
     display: inline-flex;
     align-items: center;
-    min-height: 2.75rem;
-    color: $muted;
+    min-height: 2.25rem;
+    color: rgba($white, 0.8);
     text-decoration: none;
 
     &:hover {
-      color: $sea;
+      color: $white;
+      text-decoration: underline;
     }
   }
 }
@@ -210,19 +301,23 @@
   display: grid;
   gap: 2rem;
   padding-top: 2rem;
+
+  @media (min-width: $bp-md) {
+    padding-top: 3rem;
+  }
 }
 
 // Phones get summary, booking panel, then map and checks; wide screens keep
 // the booking panel in a sticky right-hand column.
 @media (min-width: $bp-lg) {
   .listing-layout {
-    grid-template-columns: 17.5rem 1fr;
+    grid-template-columns: 18.5rem 1fr;
     align-items: start;
     gap: 2.5rem;
   }
 
   .property-layout {
-    grid-template-columns: 1fr 23rem;
+    grid-template-columns: 1fr 24rem;
     grid-template-rows: auto 1fr;
     grid-template-areas:
       "summary booking"
@@ -243,10 +338,9 @@
     align-self: start;
   }
 
-  // Below the sticky site header.
   .listing-layout__filters,
   .property-layout__booking {
     position: sticky;
-    top: 5.75rem;
+    top: 1.5rem;
   }
 }
