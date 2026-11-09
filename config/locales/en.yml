@@ -93,8 +93,8 @@ en:
     check_out: Check-out
     adults: Adults
     children: Children
-    child_age: Age of child %{number}
-    choose_age: Age
+    child_age: Child %{number}
+    choose_age: Select age
     fewer: "Fewer %{what}"
     more: "More %{what}"
     calendar:
