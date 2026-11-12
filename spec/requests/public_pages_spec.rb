@@ -32,6 +32,19 @@ RSpec.describe "Public pages" do
       expect(labels).to include("where_to" => "Where are you going?", "stays" => hash_including("one" => "1 verified stay"))
     end
 
+    it "lists Greece first, then the other countries alphabetically" do
+      %w[IT GR ES].each { |code| create(:property, :direct, destination: create(:destination, country_code: code)) }
+
+      get root_path
+
+      document = Nokogiri::HTML(response.body)
+      expect(document.css("select#destination optgroup").map { |group| group["label"] })
+        .to eq(%w[Greece Croatia Italy Spain])
+      expect(document.css(".country-tab").map { |tab| tab.text.strip[/\A\D+?(?=\s*\d)/] })
+        .to eq(%w[Greece Croatia Italy Spain])
+      expect(document.css(".site-footer__nav").first.css("a").map(&:text)).to eq(%w[Greece Croatia Italy Spain])
+    end
+
     it "sends the search form to the destination with the stay" do
       get search_path(destination: destination.slug, **stay_params)
 

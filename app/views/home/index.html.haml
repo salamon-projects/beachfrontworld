@@ -1,4 +1,4 @@
-- countries = @destinations.group_by(&:country_code).map { |code, destinations| [ Country.new(code), destinations ] }.sort_by { |country, _| country.name }
+- countries = @destinations.group_by(&:country_code).map { |code, destinations| [ Country.new(code), destinations ] }.sort_by { |country, _| country.sort_key }
 - total = @listed_counts.values.sum
 - config = Waterfront.config
 - content_for :title, "Verified beachfront hotels and apartments"
